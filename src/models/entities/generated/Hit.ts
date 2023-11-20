@@ -1,0 +1,73 @@
+import { Agent } from './Agent';
+import { Assemblyline } from './Assemblyline';
+import { Aws } from './Aws';
+import { Azure } from './Azure';
+import { Cbs } from './Cbs';
+import { Cloud } from './Cloud';
+import { Container } from './Container';
+import { Destination } from './Destination';
+import { Dns } from './Dns';
+import { Ecs } from './Ecs';
+import { Email } from './Email';
+import { Error } from './Error';
+import { Event } from './Event';
+import { Faas } from './Faas';
+import { Gcp } from './Gcp';
+import { Group } from './Group';
+import { HitFile } from './HitFile';
+import { HitOrganization } from './HitOrganization';
+import { HitUser } from './HitUser';
+import { Host } from './Host';
+import { Howler } from './Howler';
+import { Http } from './Http';
+import { Process } from './Process';
+import { Registry } from './Registry';
+import { Related } from './Related';
+import { Server } from './Server';
+import { Source } from './Source';
+import { Threat } from './Threat';
+import { Tls } from './Tls';
+import { Url } from './Url';
+import { UserAgent } from './UserAgent';
+import { Vulnerability } from './Vulnerability';
+
+/**
+ * NOTE: This is an auto-generated file. Don't edit this manually.
+ */
+export interface Hit {
+  agent?: Agent;
+  assemblyline?: Assemblyline;
+  aws?: Aws;
+  azure?: Azure;
+  cbs?: Cbs;
+  cloud?: Cloud;
+  container?: Container;
+  destination?: Destination;
+  dns?: Dns;
+  ecs?: Ecs;
+  email?: Email;
+  error?: Error;
+  event?: Event;
+  faas?: Faas;
+  file?: HitFile;
+  gcp?: Gcp;
+  group?: Group;
+  host?: Host;
+  howler: Howler;
+  http?: Http;
+  labels?: { [index: string]: string };
+  organization?: HitOrganization;
+  process?: Process;
+  registry?: Registry;
+  related?: Related;
+  server?: Server;
+  source?: Source;
+  tags?: string[];
+  threat?: Threat;
+  timestamp: string;
+  tls?: Tls;
+  url?: Url;
+  user?: HitUser;
+  user_agent?: UserAgent;
+  vulnerability?: Vulnerability;
+}
