@@ -26,9 +26,9 @@ Vous pouvez lister le client howler comme une dépendance dans votre pom.xml:
 
 ```xml
 <dependency>
-  <groupId>cccs.hogwarts.howler</groupId>
-  <artifactId>hogwarts-howler</artifactId>
-  <version>1.0.0</version>
+  <groupId>io.github.cybercentrecanada</groupId>
+  <artifactId>howler-client</artifactId>
+  <version>1.6.0-SNAPSHOT</version>
 </dependency>
 ```
 
