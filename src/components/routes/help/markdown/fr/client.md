@@ -18,8 +18,6 @@ pip install howler_client
 
 Vous pouvez également l'ajouter à votre requirements.txt, ou à tout autre système de gestion des dépendances que vous utilisez.
 
-Notez que le client python howler est déjà installé dans JupyterHub et Airflow, il n'est donc pas nécessaire de l'installer manuellement.
-
 #### **Java**
 
 Vous pouvez lister le client howler comme une dépendance dans votre pom.xml:
