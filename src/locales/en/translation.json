@@ -34,11 +34,13 @@
   "app.drawer.view.personal": "Personal",
   "app.drawer.view.query": "View Query",
   "app.drawer.view.title": "View Name",
-  "app.drawer.user.apikey.description": "Randomly generated password used in scripts to gain limited data access for any combination of reading, writing, and making changes to your user account (extended keys).<br>Can also be used by others to impersonate your account when only permitting read/write permissions.",
+  "app.drawer.user.apikey.description": "Randomly generated password used in scripts to gain limited data access for any combination of reading, writing, and making changes to your user account (extended keys).<br><br>Can also be used by others to impersonate your account when only permitting read/write permissions.",
   "app.drawer.user.apikey.field.name": "Key Name",
   "app.drawer.user.apikey.permissions": "Key Permissions",
-  "app.drawer.user.apikey.expiry.date": "Add Expiry Date (Optional)",
+  "app.drawer.user.apikey.expiry.date": "Add Expiry Date",
   "app.drawer.user.apikey.title": "Add API Key",
+  "app.drawer.user.apikey.limit.title": "Warning: Short Expiry Duration",
+  "app.drawer.user.apikey.limit.description": "Due to the configuration of this Howler deployment, the permitted expiry date for API keys created now is very soon.",
   "app.drawer.user.roles.title": "Add Role",
   "app.drawer.user.groups.title": "Your Groups",
 
@@ -94,6 +96,8 @@
 
   "drawer.apikey.copied": "New key copied to clipboard!",
 
+  "edit": "Edit",
+
   "hit.actions.conflict.assess": "Someone else has already assessed this hit.",
   "hit.actions.conflict.manage": "Someone else has already interacted with this hit. Please try again.",
 
@@ -109,7 +113,7 @@
   "hit.label.edit": "Manage labels",
   "hit.label.edit.add.error.empty": "Can't add an empty label",
   "hit.label.edit.add.error.duplicate": "Duplicated label not allowed",
-  "hit.label.edit.add.category": "New label category",
+  "hit.label.edit.add.category": "New Label Category",
   "hit.label.edit.add.label": "New label value",
 
   "hit.details.actions.assess": "Assess",
@@ -199,7 +203,7 @@
   "hit.search.settings": "Settings",
   "hit.search.button": "Perform search",
   "hit.search.aggregate.button": "Create Summary",
-  "hit.search.action.button": "Execute Action",
+  "hit.search.action.button": "Run Action",
   "hit.search.filter.fields": "Fields",
   "hit.search.filter.values": "Values",
   "hit.search.filter.button": "Use lookup filters with predefined values",
@@ -224,6 +228,9 @@
   "hit.worklog.new": "New Updates",
 
   "home.title": "My Assigned Hits",
+
+  "json.viewer.search.label": "Search JSON Data",
+  "json.viewer.search.prompt": "Query must be a valid regex.",
 
   "link.open": "Open Link",
 
@@ -286,8 +293,6 @@
 
   "page.help": "Help",
 
-  "page.hits.view.layout": "Change Layout",
-
   "page.login.button": "Sign in",
   "page.login.error": "Just type anything in both username and password fields...",
   "page.login.password": "Password",
@@ -298,15 +303,27 @@
   "page.settings": "Your account settings",
   "page.settings.profile.table.email": "Email",
   "page.settings.profile.table.groups": "Groups",
+  "page.settings.profile.table.groups.description": "This drawer will show you any groups howler sees you as a part of. This can be useful for verifying you have the permissions and roles you expect given your authentication method.",
   "page.settings.profile.table.name": "Name",
   "page.settings.profile.table.roles": "Roles",
   "page.settings.profile.table.username": "Username",
   "page.settings.profile.title": "Profile",
   "page.settings.security.table.apikeys": "API Keys",
   "page.settings.security.table.apiquota": "API Quota",
+  "page.settings.security.table.apiquota.description": "This API quota manages the number of concurrent requests a user can make to howler. For high volume users, this may rate limit them and an administrator will need to change it to a higher number.",
   "page.settings.security.table.password": "Password",
   "page.settings.security.title": "User Security",
   "page.settings.sitemap": "Settings",
+  "page.settings.local.title": "UI Preferences",
+  "page.settings.local.compact.json": "Show Compact JSON View",
+  "page.settings.local.compact.json.description": "Enable or disable a more compact JSON view, better suited to viewing lots of data at once.",
+  "page.settings.local.flatten.json": "Flatten JSON in JSON View",
+  "page.settings.local.flatten.json.description": "Instead of showing the object structure of the JSON, show it as flattened keys.",
+  "page.settings.local.hits.layout": "Change Layout",
+  "page.settings.local.hits.layout.description": "This setting allows you to decide how much padding and spacing, as well as font size and element size, we use when rendering the UI. The denser the UI, the more data can be viewed.",
+  "page.settings.local.hits.layout.dense": "Dense",
+  "page.settings.local.hits.layout.normal": "Normal",
+  "page.settings.local.hits.layout.comfy": "Comfy",
 
   "page.user.search": "Search Users",
   "page.user.search.column.username": "Username",
@@ -341,6 +358,11 @@
 
   "route.admin.user.details": "User Details",
   "route.admin.user.search": "User Search",
+
+  "route.advanced": "Advanced Search",
+  "route.advanced.fields": "Hit Fields to Show",
+  "route.advanced.rows": "Rows",
+  "route.advanced.create.correlation": "Create Correlation",
 
   "route.analytics": "Analytics",
   "route.analytics.search.prompt": "Search by name or detections.",
@@ -378,6 +400,7 @@
   "route.actions.search.open": "Open List",
   "route.actions.search.total": "There are a total of {{count}} hits matching this query.",
   "route.actions.trigger.description": "This action has been automated. It will run automatically when the trigger(s) <bold>{{triggers}}</bold> are met.",
+  "route.actions.query.empty": "Query cannot be empty.",
 
   "route.actions.trigger.create": "Run on Create",
   "route.actions.trigger.promote": "Run on Promotion",
@@ -404,19 +427,47 @@
   "route.actions.integrations.spellbook.suggestion": "To fix this, add this to the action query: <code>{{query}}</code>",
 
   "route.help": "Help",
-  "route.home": "User Dashboard",
-  "route.hits": "Alerts",
+  "route.help.actions": "Action Documentation",
+  "route.help.api": "API Documentation",
+  "route.help.auth": "Authentication",
+  "route.help.client": "Howler Client",
+  "route.help.hit": "Hit Documentation",
+  "route.help.search": "Search Documentation",
+  "route.help.templates": "Templates",
+  "route.help.notebook": "Notebook Documentation",
+  "route.help.views": "Views",
+
   "route.hits.bundle": "View Bundle",
   "route.hits.search": "Search",
   "route.hits.view": "View Hit",
   "route.hits.views": "Saved Views",
-  "route.help.api": "API Documentation",
-  "route.help.auth": "Authenticating with Howler",
-  "route.help.actions": "Action Documentation",
-  "route.help.client": "Using the Howler Client",
-  "route.help.hit": "Hit Documentation",
-  "route.help.search": "Search Documentation",
-  "route.help.templates": "Using Templates",
+  "route.hits": "Alerts",
+
+  "route.home.add.analytic.description": "Select the analytic for which data should be shown, and the visualization to present.",
+  "route.home.add.analytic.title": "Add analytic statistics",
+  "route.home.add.analytic": "Analytic",
+  "route.home.add.description": "Add an additional panel to your dashboard by selecting the type you wish to add, and completing the configuration",
+  "route.home.add.limit.description": "Maximum number of hits to render",
+  "route.home.add.limit": "Result limit",
+  "route.home.add.type.analytic.description": "Present statistics on a given analytic = the resulting assessments, number of hits created, or escalation of created hits",
+  "route.home.add.type.analytic": "Analytic Panel",
+  "route.home.add.type.view.description": "Present a saved view, limited to a certain number of hits.",
+  "route.home.add.type.view": "View Panel",
+  "route.home.add.type": "Panel Type",
+  "route.home.add.view": "View to present",
+  "route.home.add.visualization.assessment.description": "For hits that have been triaged, what was the resulting assessment?",
+  "route.home.add.visualization.assessment": "Assessment Result of Created Hits",
+  "route.home.add.visualization.created.description": "Time series of the number of hits created by the analytic over the last 90 days.",
+  "route.home.add.visualization.created": "Number of Created Hits",
+  "route.home.add.visualization.escalation.description": "For hits that have been triaged, what was the resulting escalation?",
+  "route.home.add.visualization.escalation": "Escalation of Created Hits",
+  "route.home.add.visualization": "Visualization",
+  "route.home.add": "Add New Panel",
+  "route.home.alert.updated.description": "There have been updates to alerts you are involved in. Since you last viewed, {{count}} alert(s) have updates.",
+  "route.home.alert.updated.title": "Alert Updates",
+  "route.home.description": "Welcome to Howler. You can add items to your dashboard using the buttons above.",
+  "route.home.title": "Howler",
+  "route.home": "User Dashboard",
 
   "route.login.button.oauth": "Sign in with",
 
@@ -463,6 +514,8 @@
   "tooltip.breadcrumbs.min": "Collapse Breadcrumbs",
 
   "app.list.empty": "No Results",
+
+  "save": "Save",
 
   "unknown": "Unknown",
   "using": "using",

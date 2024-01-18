@@ -1,7 +1,8 @@
 import { uri as parentUri } from 'api/search';
 import * as hit from 'api/search/fields/hit';
 import * as user from 'api/search/fields/user';
-import urlJoin from 'url-join';
+// import urlJoin from 'url-join';
+import { joinUri } from 'api';
 
 export type SearchField = {
   key?: string;
@@ -10,10 +11,11 @@ export type SearchField = {
   list: boolean;
   stored: boolean;
   type: string;
+  description?: string;
 };
 
 export function uri() {
-  return urlJoin(parentUri(), 'fields');
+  return joinUri(parentUri(), 'fields');
 }
 
 export function map(fields: { [key: string]: SearchField }): SearchField[] {

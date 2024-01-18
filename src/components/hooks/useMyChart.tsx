@@ -1,6 +1,38 @@
 import { useTheme } from '@mui/material';
+import {
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  SubTitle,
+  TimeScale,
+  Title,
+  Tooltip
+} from 'chart.js';
+import 'chartjs-adapter-moment';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+
+ChartJS.defaults.font.family = `'Roboto', 'Helvetica', 'Arial', sans-serif`;
+
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  TimeScale,
+  PointElement,
+  LineElement,
+  Title,
+  SubTitle,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  BarElement
+);
 
 export default function useMyChart() {
   const { t } = useTranslation();

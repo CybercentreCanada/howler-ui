@@ -1,15 +1,20 @@
 import {
   Article,
+  Code,
   Dashboard,
   Description,
   Edit,
   EditNote,
   Info,
+  Key,
   ManageSearch,
   PersonSearch,
   QueryStats,
   SavedSearch,
   Search,
+  SettingsSuggest,
+  Shield,
+  Storage,
   Terminal,
   Work
 } from '@mui/icons-material';
@@ -50,13 +55,15 @@ export default function useMySitemap(): AppSiteMapConfigs {
           breadcrumbs: ['/admin/users'],
           icon: <PersonIcon />
         },
-        { path: '/help/api', title: t('route.help.api'), isRoot: true },
-        { path: '/help/search', title: t('route.help.search'), isRoot: true },
-        { path: '/help/client', title: t('route.help.client'), isRoot: true },
-        { path: '/help/auth', title: t('route.help.auth'), isRoot: true },
-        { path: '/help/actions', title: t('route.help.actions'), isRoot: true },
-        { path: '/help/hit', title: t('route.help.hit'), isRoot: true },
-        { path: '/help/templates', title: t('route.help.templates'), isRoot: true },
+        { path: '/help/api', title: t('route.help.api'), isRoot: true, icon: <Storage /> },
+        { path: '/help/search', title: t('route.help.search'), isRoot: true, icon: <Search /> },
+        { path: '/help/client', title: t('route.help.client'), isRoot: true, icon: <Terminal /> },
+        { path: '/help/auth', title: t('route.help.auth'), isRoot: true, icon: <Key /> },
+        { path: '/help/actions', title: t('route.help.actions'), isRoot: true, icon: <SettingsSuggest /> },
+        { path: '/help/hit', title: t('route.help.hit'), isRoot: true, icon: <Shield /> },
+        { path: '/help/templates', title: t('route.help.templates'), isRoot: true, icon: <Article /> },
+        { path: '/help/views', title: t('route.help.views'), isRoot: true, icon: <SavedSearch /> },
+        { path: '/help/notebook', title: t('route.help.notebook'), isRoot: true, icon: <Description /> },
         { path: '/hits', title: t('route.hits'), isRoot: true, icon: <Search /> },
         { path: '/views', title: t('route.hits.views'), isRoot: true, icon: <SavedSearch /> },
         {
@@ -138,7 +145,8 @@ export default function useMySitemap(): AppSiteMapConfigs {
           icon: <Info />
         },
         { path: '/home', title: t('route.home'), isRoot: true, icon: <Dashboard /> },
-        { path: '/settings', title: t('page.settings.sitemap'), isRoot: true, icon: <SettingsIcon /> }
+        { path: '/settings', title: t('page.settings.sitemap'), isRoot: true, icon: <SettingsIcon /> },
+        { path: '/advanced', title: t('route.advanced'), isRoot: true, icon: <Code /> }
       ]
     }),
     [t]

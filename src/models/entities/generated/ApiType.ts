@@ -54,6 +54,8 @@ export interface APIConfiguration {
   auth: {
     allow_apikeys: boolean;
     allow_extended_apikeys: boolean;
+    max_apikey_duration_amount?: number;
+    max_apikey_duration_unit?: 'seconds' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
     oauth_providers: string[];
     internal: {
       enabled: boolean;

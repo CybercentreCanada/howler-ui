@@ -34,11 +34,13 @@
   "app.drawer.view.personal": "Personnelle",
   "app.drawer.view.query": "Requête de vue",
   "app.drawer.view.title": "Nom de la vue",
-  "app.drawer.user.apikey.description": "Mot de passe généré aléatoirement et utilisé dans des scripts pour obtenir un accès limité aux données pour toute combinaison de lecture, d'écriture et de modification de votre compte utilisateur (clés étendues).<br>Peut également être utilisé par d'autres personnes pour se faire passer pour votre compte lorsqu'elles n'ont que des droits de lecture/écriture.",
+  "app.drawer.user.apikey.description": "Mot de passe généré aléatoirement et utilisé dans des scripts pour obtenir un accès limité aux données pour toute combinaison de lecture, d'écriture et de modification de votre compte utilisateur (clés étendues).<br><br>Peut également être utilisé par d'autres personnes pour se faire passer pour votre compte lorsqu'elles n'ont que des droits de lecture/écriture.",
   "app.drawer.user.apikey.field.name": "Nom de la clé",
   "app.drawer.user.apikey.permissions": "Permissions de la clé",
-  "app.drawer.user.apikey.expiry.date": "Ajouter une date d'expiration (facultatif)",
+  "app.drawer.user.apikey.expiry.date": "Ajouter une date d'expiration",
   "app.drawer.user.apikey.title": "Ajouter une clé API",
+  "app.drawer.user.apikey.limit.title": "Avertissement : Durée d'expiration courte",
+  "app.drawer.user.apikey.limit.description": "En raison de la configuration de ce déploiement Howler, la date d'expiration autorisée pour les clés API créées maintenant est très proche.",
   "app.drawer.user.roles.title": "Ajouter un rôle",
   "app.drawer.user.groups.title": "Vos groupes",
 
@@ -93,6 +95,8 @@
   "drawer.expand": "Ouvrir le Menu",
 
   "drawer.apikey.copied": "Nouvelle clé API copiée dans le presse-papiers!",
+
+  "edit": "Modifier",
 
   "hit.actions.conflict.assess": "Quelqu'un d'autre a déjà évalué ce hit.",
   "hit.actions.conflict.manage": "Quelqu'un d'autre a déjà interagi avec ce hit. Veuillez réessayer.",
@@ -226,6 +230,9 @@
 
   "home.title": "Mes Hits Assignés",
 
+  "json.viewer.search.label": "Recherche de valeurs JSON",
+  "json.viewer.search.prompt": "La requête doit être une expression rationnelle valide.",
+
   "link.open": "Ouvrir le lien",
 
   "list": "liste",
@@ -288,8 +295,6 @@
   "page.help": "Aide",
   "page.help.search": "Aide a la Recherche",
 
-  "page.hits.view.layout": "Modifier la présentation",
-
   "page.login.button": "Se connecter",
   "page.login.error": "Tapez simplement n'importe quoi dans les champs du nom d'utilisateur et du mot de passe ...",
   "page.login.password": "Mot de passe",
@@ -300,15 +305,27 @@
   "page.settings": "Paramètres de votre compte",
   "page.settings.profile.table.email": "Courriel",
   "page.settings.profile.table.groups": "Groupes",
+  "page.settings.profile.table.groups.description": "Ce tiroir vous montrera tous les groupes dont howler vous considère comme faisant partie. Cela peut être utile pour vérifier que vous avez les permissions et les rôles que vous attendez en fonction de votre méthode d'authentification.",
   "page.settings.profile.table.name": "Nom",
   "page.settings.profile.table.roles": "Rôles",
   "page.settings.profile.table.username": "Nom d'utilisateur",
   "page.settings.profile.title": "Profile",
   "page.settings.security.table.apikeys": "Clés API",
   "page.settings.security.table.apiquota": "Quota API",
+  "page.settings.security.table.apiquota.description": "Ce quota API gère le nombre de requêtes simultanées qu'un utilisateur peut faire à howler. Pour les utilisateurs à fort volume, ce quota peut les limiter et un administrateur devra le changer pour un nombre plus élevé.",
   "page.settings.security.table.password": "Mot de passe",
   "page.settings.security.title": "Sécurité de l'utilisateur",
   "page.settings.sitemap": "Paramètres",
+  "page.settings.local.title": "Préférences de l'interface utilisateur",
+  "page.settings.local.compact.json": "Afficher la vue JSON compacte",
+  "page.settings.local.compact.json.description": "Activer ou désactiver une vue JSON plus compacte, mieux adaptée à la visualisation d'un grand nombre de données en une seule fois",
+  "page.settings.local.flatten.json": "Aplatir le JSON dans la vue JSON",
+  "page.settings.local.flatten.json.description": "Au lieu d'afficher la structure d'objet du JSON, affichez-la sous forme de clés aplaties",
+  "page.settings.local.hits.layout": "Change Layout",
+  "page.settings.local.hits.layout.description": "Ce paramètre vous permet de décider de la quantité de rembourrage et d'espacement, ainsi que de la taille de la police et de la taille de l'élément, que nous utilisons lors du rendu de l'interface utilisateur. Plus l'interface est dense, plus il est possible d'afficher de données.",
+  "page.settings.local.hits.layout.dense": "Dense",
+  "page.settings.local.hits.layout.normal": "Normal",
+  "page.settings.local.hits.layout.comfy": "Confortable",
 
   "page.user.search": "Chercher des utilisateurs",
   "page.user.search.column.username": "Nom d'utilisateur",
@@ -343,6 +360,10 @@
 
   "route.admin.user.details": "Détails d'utilisateur",
   "route.admin.user.search": "Recherche utilisateurs",
+
+  "route.advanced": "Recherche avancée",
+  "route.advanced.fields": "Champs à montrer",
+  "route.advanced.rows": "Éléments",
 
   "route.analytics": "Analyses",
   "route.analytics.search.prompt": "Recherche par nom ou par détection.",
@@ -380,6 +401,7 @@
   "route.actions.search.prompt": "Recherche par nom ou par requête.",
   "route.actions.search.total": "Il y a un total de {{count}} résultats correspondant à cette requête.",
   "route.actions.trigger.description": "Cette action a été automatisée. Elle s'exécutera automatiquement lorsque le(s) déclencheur(s) <bold>{{triggers}}</bold> sera (seront) atteint(s).",
+  "route.actions.query.empty": "La requête ne peut pas être vide.",
 
   "route.actions.trigger.create": "Exécution lors du création",
   "route.actions.trigger.promote": "Exécution lors du promotion",
@@ -406,18 +428,46 @@
   "route.actions.integrations.spellbook.suggestion": "Pour remédier à ce problème, ajoutez ceci à la requête d'action: <code>{{query}}</code>",
 
   "route.help": "Aide",
-  "route.home": "Tableau de bord utilisateur",
+  "route.help.api": "Documentation de l'API",
+  "route.help.auth": "Authentification",
+  "route.help.bundles": "Groupes des hits",
+  "route.help.client": "Client Howler",
+  "route.help.search": "Recherche",
+  "route.help.templates": "Modèles",
+  "route.help.notebook": "Documentation des carnets",
+  "route.help.views": "Vues",
+
   "route.hits": "Alertes",
   "route.hits.bundle": "Voir groupe",
   "route.hits.search": "Recherche",
-  "route.hits.views": "Vues sauvegardées",
   "route.hits.view": "Afficher hit",
-  "route.help.api": "Documentation de l'API",
-  "route.help.search": "Documentation de la recherche",
-  "route.help.client": "Documentation du client Howler",
-  "route.help.auth": "Documentation sur l'authentification",
-  "route.help.bundles": "Documentation sur les groupes des hits",
-  "route.help.templates": "Utilization des modèles",
+  "route.hits.views": "Vues sauvegardées",
+
+  "route.home.add.analytic.description": "Sélectionnez l'analyse pour laquelle les données doivent être affichées, et la visualisation à présenter",
+  "route.home.add.analytic.title": "Ajouter des statistiques analytiques",
+  "route.home.add.analytic": "Analytique",
+  "route.home.add.description": "Ajoutez un panneau supplémentaire à votre tableau de bord en sélectionnant le type que vous souhaitez ajouter et en complétant la configuration",
+  "route.home.add.limit.description": "Nombre maximal d'occurrences à afficher",
+  "route.home.add.limit": "Limite du résultat",
+  "route.home.add.type.analytic.description": "Présenter les statistiques d'une analyse donnée = les évaluations résultantes, le nombre de résultats créés ou l'escalade des résultats créés",
+  "route.home.add.type.analytic": "Panneau analytique",
+  "route.home.add.type.view.description": "Présenter une vue sauvegardée, limitée à un certain nombre de résultats",
+  "route.home.add.type.view": "Panneau d'affichage",
+  "route.home.add.type": "Type de panneau",
+  "route.home.add.view": "Vue à présenter",
+  "route.home.add.visualization.assessment.description": "Pour les hits qui ont été triés, quelle a été l'évaluation qui en a résulté ?",
+  "route.home.add.visualization.assessment": "Résultat de l'évaluation des résultats créés",
+  "route.home.add.visualization.created.description": "Série temporelle du nombre de hits créés par l'analytique au cours des 90 derniers jours",
+  "route.home.add.visualization.created": "Nombre de hits créés",
+  "route.home.add.visualization.escalation.description": "Pour les hits qui ont été triés, quelle a été l'escalade qui en a résulté ?",
+  "route.home.add.visualization.escalation": "Escalade des hits créés",
+  "route.home.add.visualization": "Visualisation",
+  "route.home.add": "Ajouter un nouveau panneau",
+  "route.home.alert.updated.description": "Des mises à jour ont été apportées aux alertes auxquelles vous participez. Depuis votre dernière consultation, {{count}} alertes ont été mises à jour",
+  "route.home.alert.updated.title": "Alert Updates",
+  "route.home.description": "Bienvenue sur Howler. Vous pouvez ajouter des éléments à votre tableau de bord en utilisant les boutons ci-dessus.",
+  "route.home.title": "Howler",
+  "route.home": "Tableau de bord utilisateur",
 
   "route.help.hit.header": "Documentation sur en-tête de hit",
 
@@ -463,6 +513,8 @@
   "tooltip.breadcrumbs.min": "Minimiser fils d'ariane",
 
   "app.list.empty": "Aucun résultat",
+
+  "save": "Sauvegarder",
 
   "unknown": "Inconnu",
   "using": "utilisant",

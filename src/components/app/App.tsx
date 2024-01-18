@@ -23,6 +23,7 @@ import ActionDetails from 'components/routes/action/view/ActionDetails';
 import ActionSearchProvider from 'components/routes/action/view/ActionSearch';
 import UserEditor from 'components/routes/admin/users/UserEditor';
 import UserSearchProvider from 'components/routes/admin/users/UserSearch';
+import QueryBuilder from 'components/routes/advanced/QueryBuilder';
 import AnalyticDetails from 'components/routes/analytics/AnalyticDetails';
 import AnalyticSearch from 'components/routes/analytics/AnalyticSearch';
 import ActionDocumentation from 'components/routes/help/ActionDocumentation';
@@ -30,11 +31,13 @@ import ApiDocumentation from 'components/routes/help/ApiDocumentation';
 import AuthDocumentation from 'components/routes/help/AuthDocumentation';
 import ClientDocumentation from 'components/routes/help/ClientDocumentation';
 import HitDocumentation from 'components/routes/help/HitDocumentation';
+import NotebookDocumentation from 'components/routes/help/NotebookDocumentation';
 import SearchDocumentation from 'components/routes/help/SearchDocumentation';
 import TemplateDocumentation from 'components/routes/help/TemplateDocumentation';
+import ViewDocumentation from 'components/routes/help/ViewDocumentation';
 import HitBrowser from 'components/routes/hits/search/HitBrowser';
 import HitViewer from 'components/routes/hits/view/HitViewer';
-import Home from 'components/routes/Home';
+import Home from 'components/routes/home';
 import Logout from 'components/routes/Logout';
 import Settings from 'components/routes/settings/Settings';
 import Templates from 'components/routes/templates/Templates';
@@ -135,7 +138,10 @@ const MyApp: FC = () => {
         <Route path="help/hit" element={<HitDocumentation />} />
         <Route path="help/templates" element={<TemplateDocumentation />} />
         <Route path="help/actions" element={<ActionDocumentation />} />
+        <Route path="help/notebook" element={<NotebookDocumentation />} />
+        <Route path="help/views" element={<ViewDocumentation />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="advanced" element={<QueryBuilder />} />
         {appUser.user?.roles?.includes('automation_basic') && (
           <Route path="action">
             <Route index element={<ActionSearchProvider />} />

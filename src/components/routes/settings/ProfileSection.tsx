@@ -1,5 +1,5 @@
 import { Add, Check, ChevronRight, Clear } from '@mui/icons-material';
-import { Chip, CircularProgress, Grid, TableCell, TableRow } from '@mui/material';
+import { Chip, CircularProgress, Grid, TableCell, TableRow, Typography } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import { HowlerUser } from 'models/entities/HowlerUser';
 import { FC, useCallback, useState } from 'react';
@@ -70,20 +70,31 @@ const ProfileSection: FC<{
         </TableCell>
       </TableRow>
       {viewGroups && (
-        <TableRow
-          onClick={onViewGroups}
-          sx={theme => ({
-            cursor: 'pointer',
-            transitionProperty: 'background-color',
-            transitionDuration: theme.transitions.duration.shortest + 'ms',
-            '&:hover': { backgroundColor: 'rgba(128, 128, 128, 0.25)' }
-          })}
-        >
-          <TableCell style={{ whiteSpace: 'nowrap' }}>{t('page.settings.profile.table.groups')}</TableCell>
-          <TableCell align="right" width="100%" colSpan={2}>
-            {loadingGroups ? <CircularProgress size={20} /> : <ChevronRight fontSize="small" />}
-          </TableCell>
-        </TableRow>
+        <>
+          <TableRow
+            onClick={onViewGroups}
+            sx={theme => ({
+              cursor: 'pointer',
+              transitionProperty: 'background-color',
+              transitionDuration: theme.transitions.duration.shortest + 'ms',
+              '&:hover': { backgroundColor: 'rgba(128, 128, 128, 0.25)' }
+            })}
+          >
+            <TableCell sx={{ borderBottom: 0 }} style={{ whiteSpace: 'nowrap' }}>
+              {t('page.settings.profile.table.groups')}
+            </TableCell>
+            <TableCell sx={{ borderBottom: 0 }} align="right" width="100%" colSpan={2}>
+              {loadingGroups ? <CircularProgress size={20} /> : <ChevronRight fontSize="small" />}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell colSpan={3} sx={{ paddingTop: '0 !important' }}>
+              <Typography variant="caption" color="text.secondary">
+                {t('page.settings.profile.table.groups.description')}
+              </Typography>
+            </TableCell>
+          </TableRow>
+        </>
       )}
       <TableRow>
         <TableCell style={{ whiteSpace: 'nowrap' }}>{t('page.settings.profile.table.roles')}</TableCell>

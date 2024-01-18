@@ -6,6 +6,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppLeftNavGroup } from '../app/AppConfigs';
 import useAppLeftNav from '../app/hooks/useAppLeftNav';
+import useAppUser from '../app/hooks/useAppUser';
 
 interface LeftNavGroupProps {
   group: AppLeftNavGroup;
@@ -13,6 +14,7 @@ interface LeftNavGroupProps {
 }
 
 const LeftNavGroup = ({ group, onItemClick }: LeftNavGroupProps) => {
+  const user = useAppUser();
   const leftnav = useAppLeftNav();
   const [popoverTarget, setPopoverTarget] = useState<(EventTarget & Element) | undefined>();
   const [collapseOpen, setCollapseOpen] = useState(false);
@@ -36,12 +38,12 @@ const LeftNavGroup = ({ group, onItemClick }: LeftNavGroupProps) => {
     }
   }, [leftnav.open, collapseOpen]);
 
-  return (
+  return user.validateProps(group.userPropValidators) ? (
     <div>
       <GroupListItem group={group} leftNavOpen={leftnav.open} collapsed={collapseOpen} onClick={handleClick} />
       <Collapse in={collapseOpen} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {group.items?.map(i => (
+          {group.items.map(i => (
             <LeftNavItem key={i.id} item={i} onClick={onItemClick} />
           ))}
         </List>
@@ -61,13 +63,13 @@ const LeftNavGroup = ({ group, onItemClick }: LeftNavGroupProps) => {
         }}
       >
         <List disablePadding>
-          {group.items?.map(i => (
+          {group.items.map(i => (
             <LeftNavItem key={i.id} item={i} onClick={onItemClick} />
           ))}
         </List>
       </Popover>
     </div>
-  );
+  ) : null;
 };
 
 const GroupListItem = memo(

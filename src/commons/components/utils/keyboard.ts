@@ -47,7 +47,6 @@ export function isSpace(key: string) {
 
 export function parseEvent(event: KeyboardEvent<HTMLElement>) {
   return {
-    event,
     key: event.key,
     isCtrl: event.ctrlKey,
     isEnter: isEnter(event.key),
@@ -60,5 +59,3 @@ export function parseEvent(event: KeyboardEvent<HTMLElement>) {
     isArrowDown: isArrowDown(event.key)
   };
 }
-
-export type TuiKeyboardParsedEvent = ReturnType<typeof parseEvent>;

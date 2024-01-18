@@ -1,6 +1,7 @@
 import * as colors from '@mui/material/colors';
-import { isNil, isPlainObject } from 'lodash';
-import moment from 'moment-twitter';
+import { flatten, unflatten } from 'flat';
+import { isArray, isEmpty, isNil, isPlainObject } from 'lodash';
+import moment from 'moment';
 
 export function bytesToSize(bytes: number | null) {
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -17,8 +18,11 @@ export function humanReadableNumber(num: number | null) {
 }
 
 export function getProvider() {
-  if (window.location.pathname.indexOf(`${process.env.PUBLIC_URL}/oauth/`) !== -1) {
-    return window.location.pathname.split(`${process.env.PUBLIC_URL}/oauth/`).pop().slice(0, -1);
+  if (window.location.pathname.indexOf(`${import.meta.env.PUBLIC_URL}/oauth/`) !== -1) {
+    return window.location.pathname
+      .split(`${import.meta.env.PUBLIC_URL}/oauth/`)
+      .pop()
+      .slice(0, -1);
   }
   const params = new URLSearchParams(window.location.search);
   return params.get('provider');
@@ -34,8 +38,6 @@ export function searchResultsDisplay(count: number, max: number = 10000) {
 
   return `${count}`;
 }
-
-
 
 const DATE_FORMAT = 'YYYY/MM/DD HH:mm:ss';
 export function formatDate(date: number | string | Date): string {
@@ -55,14 +57,7 @@ export function twitterShort(date: string | Date | number): string {
     return '?';
   }
 
-  return moment(date)
-    .twitterShort()
-    .replace(
-      // Look for twitter dates in the format m/d/y (i.e. 4/12/21) and converts it to YYYY-MM-DD (i.e. 2021-04-12)
-      /^(\d{1,2})\/(\d{1,2})\/(\d{1,2})/,
-      // Revisit in 2100
-      (_, p1: string, p2: string, p3: string) => `2${p3.padStart(3, '0')}-${p1.padStart(2, '0')}-${p2.padStart(2, '0')}`
-    );
+  return moment(date).fromNow();
 }
 
 const hashCode = (s: string): number => s.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
@@ -78,8 +73,6 @@ export function stringToColor(string: string) {
 
   return color[shade];
 }
-
-
 
 // Adapted from here: https://stackoverflow.com/a/48429492
 export function delay(ms: number, rejectOnCancel = false) {
@@ -116,12 +109,31 @@ export const getTimeRange = (arr: string[]): [string, string] => {
   return [sorted[0], sorted[sorted.length - 1]];
 };
 
-export const removeEmpty = (obj: any) => {
+export const removeEmpty = (obj: any, aggressive = false) => {
+  if (aggressive && isEmpty(obj)) {
+    return null;
+  } else if (isArray(obj)) {
+    return obj;
+  }
+
   return Object.fromEntries(
     Object.entries(obj)
-      .filter(([_, v]) => !isNil(v))
-      .map(([k, v]) => [k, isPlainObject(v) ? removeEmpty(v) : v])
+      .filter(([__, v]) => !isNil(v))
+      .map(([k, v]) => [k, isPlainObject(v) || isArray(v) ? removeEmpty(v, aggressive) : v])
+      .filter(([k, v]) => !!v)
   );
+};
+
+export const searchObject = (o: any, query: string) => {
+  try {
+    const regex = new RegExp(query, 'i');
+
+    return unflatten(
+      Object.fromEntries(Object.entries(flatten(o)).filter(([k, v]) => regex.test(k) || regex.test(v))) ?? {}
+    );
+  } catch (e) {
+    return o;
+  }
 };
 
 const DATE_TO_LUCENE_MAP = {

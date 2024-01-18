@@ -18,10 +18,12 @@ import {
 import Throttler from 'commons/addons/utils/Throttler';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import raw from 'raw.macro';
 import { ChangeEventHandler, FC, memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+
+import SCHEMA_EN from './markdown/en/schema.md';
+import SCHEMA_FR from './markdown/fr/schema.md';
 
 const THROTTLER = new Throttler(300);
 
@@ -76,7 +78,7 @@ const HitSchemaDocumentation: FC = () => {
   const [phrase, setPhrase] = useState(searchParams.get('phrase') || '');
 
   const md = useMemo(() => {
-    return i18n.language === 'en' ? raw(`./markdown/en/schema.md`) : raw(`./markdown/fr/schema.md`);
+    return i18n.language === 'en' ? SCHEMA_EN : SCHEMA_FR;
   }, [i18n.language]);
 
   const onSearchChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback(

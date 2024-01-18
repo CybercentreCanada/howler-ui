@@ -1,6 +1,7 @@
 import { PaletteMode } from '@mui/material';
-import { Dispatch, SetStateAction } from 'react';
+import { ReactElement } from 'react';
 import { AppConfigs, AppLayoutMode, AppLeftNavElement, AppSwitcherItem } from './AppConfigs';
+import { ItemComponentProps } from './AppNotificationService';
 import { AppSearchItem, AppSearchMode, AppSearchService } from './AppSearchService';
 import { BreadcrumbItem } from './hooks/useAppSitemap';
 
@@ -30,6 +31,12 @@ export type AppSearchServiceContextType<T = any> = {
   state: AppSearchServiceState<T>; // the state of the search service.
 };
 
+export type AppNotificationServiceContextType = {
+  provided: boolean; // has a search service been provided? - if false, then it means the default service is being used.
+  service: AppNotificationService; // the search service implementation to use.
+  state: AppNotificationServiceState; // the state of the search service.
+};
+
 export type AppLeftNavContextType = {
   open: boolean; // left nav is open/expanded?
   elements: AppLeftNavElement[]; // the elements to render in the left nav.
@@ -57,17 +64,26 @@ export type AppBarContextType = {
 export type AppBreadcrumbsContextType = {
   show: boolean; // are the breadcrumbs shown?
   items: BreadcrumbItem[]; // the items to render in the breadcrumbs.
-  setItems: Dispatch<SetStateAction<BreadcrumbItem[]>>; // set the items to render in the breadcrumbs.
   toggle: () => void; // show/hide the breadcrumbs.
   last: () => BreadcrumbItem; // the first item in the breacrumbs.
   first: () => BreadcrumbItem; // the last item in the breadcrumbs.
 };
 
-export type AppSearchServiceState<T = any, R = any> = {
+export type AppSearchServiceState<T = any> = {
   searching: boolean; // indicates if the app search should show the progress indicator.
   menu: boolean; // is the app search result menu opened?
   mode: AppSearchMode; // inline vs fullscreen.
   items: AppSearchItem<T>[]; // the app search result items to render.
-  result?: R; // any object, metadata related to the search result.
   set: (state: AppSearchServiceState<T>) => void; // update app search state.
+};
+
+//NotificationState is only used if feedUrls is empty
+export type AppNotificationServiceState = {
+  urls: string[]; // The feed urls
+  set: (state: AppNotificationServiceState) => void; // Update the feed urls from the state
+};
+
+export type AppNotificationService = {
+  feedUrls?: string[]; // Static urls can be provided at initialization or see state object (AppNotificationServiceState)
+  notificationRenderer?: (item: ItemComponentProps) => ReactElement; // Cusotm component for notification rendering
 };

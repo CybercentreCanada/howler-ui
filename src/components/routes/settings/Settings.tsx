@@ -5,6 +5,7 @@ import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
 import { HowlerUser } from 'models/entities/HowlerUser';
 import { FC, useCallback, useMemo } from 'react';
 import { StorageKey } from 'utils/constants';
+import LocalSection from './LocalSection';
 import ProfileSection from './ProfileSection';
 import SecuritySection from './SecuritySection';
 
@@ -40,6 +41,7 @@ const Settings: FC = () => {
         removeApiKey={currentUserWrapper(removeApiKey)}
         editQuota={currentUser.is_admin && currentUserWrapper(editQuota)}
       />
+      <LocalSection />
     </UserPageWrapper>
   );
 };
