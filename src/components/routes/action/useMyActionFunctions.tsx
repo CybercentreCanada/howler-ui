@@ -4,14 +4,18 @@ import { RecievedDataType, SocketContext } from 'components/app/providers/Socket
 import CreateActionModal from 'components/elements/display/modals/CreateActionModal';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyModal from 'components/hooks/useMyModal';
+import useMySnackbar from 'components/hooks/useMySnackbar';
 import { ActionReport } from 'models/ActionTypes';
 import { Hit } from 'models/entities/generated/Hit';
 import { Operation } from 'models/entities/generated/Operation';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { v4 as uuid } from 'uuid';
 
 const useMyActionFunctions = () => {
+  const { t } = useTranslation();
+  const { showErrorMessage } = useMySnackbar();
   const { dispatchApi } = useMyApi();
   const { showModal } = useMyModal();
   const navigate = useNavigate();
@@ -69,6 +73,11 @@ const useMyActionFunctions = () => {
     saveAction: useCallback(
       async (name: string, query: string, operations: Operation[]) => {
         try {
+          if (!query) {
+            showErrorMessage(t('route.actions.query.empty'));
+            return;
+          }
+
           if (params.id) {
             setLoading(true);
             const result = await dispatchApi(
@@ -84,7 +93,7 @@ const useMyActionFunctions = () => {
               navigate(`/action/${params.id}`);
             }
           } else {
-            const _name = await new Promise<string>((res, rej) => {
+            const _name = await new Promise<string>(res => {
               showModal(
                 <CreateActionModal
                   onSubmit={_rationale => {
@@ -112,10 +121,15 @@ const useMyActionFunctions = () => {
           setLoading(false);
         }
       },
-      [dispatchApi, navigate, params.id, showModal]
+      [dispatchApi, navigate, params.id, showErrorMessage, showModal, t]
     ),
     submitAction: useCallback(
       async (query: string, operations: Operation[]): Promise<void> => {
+        if (!query) {
+          showErrorMessage(t('route.actions.query.empty'));
+          return;
+        }
+
         setLoading(true);
         const reqId = uuid();
         setRequestId(reqId);
@@ -139,7 +153,7 @@ const useMyActionFunctions = () => {
           onSearch(query);
         }
       },
-      [dispatchApi, onSearch]
+      [dispatchApi, onSearch, showErrorMessage, t]
     ),
     executeAction: useCallback(
       async (actionId: string) => {

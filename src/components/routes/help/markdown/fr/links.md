@@ -1,3 +1,5 @@
+<!-- docs/ingestion/links.fr.md -->
+
 # Liens du hit
 
 Afin de faciliter l'ajout d'outils supplémentaires que l'on peut utiliser pour suivre un hit, Howler permet aux utilisateurs de spécifier un ensemble de liens, ainsi qu'un titre et une icône à afficher. Cette documentation vous expliquera comment utiliser ces liens.

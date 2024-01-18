@@ -1,3 +1,5 @@
+<!-- docs/ingestion/authentication.md -->
+
 # Howler Authentication
 
 Howler's API supports a number of authentication approaches when accessing the API. This document will outline the

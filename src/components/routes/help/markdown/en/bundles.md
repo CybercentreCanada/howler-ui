@@ -1,3 +1,5 @@
+<!-- docs/ingestion/bundles.md -->
+
 # Howler Hit Bundles
 
 Hit bundles can be used to easily package together a large number of similar alerts, allowing analysts to easily triage them as a single incident. For example, consider a single computer that repeatedly makes a network call to `baddomain.ru` - while an alert may be generated for every instance of this computer hitting that domain, it makes sense for analysts to treat all these alerts as a single case.

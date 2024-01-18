@@ -149,6 +149,16 @@ export default function useMyUserFunctions() {
         titleKey: 'app.drawer.user.groups.title',
         children: <ViewGroupsDrawer groups={groups} />
       });
-    }, [dispatchApi, drawer])
+    }, [dispatchApi, drawer]),
+
+    setDashboard: useCallback(
+      async (dashboard: HowlerUser['dashboard']) => {
+        await dispatchApi(api.user.put(currentUser.username, { dashboard }), {
+          throwError: true,
+          showError: true
+        });
+      },
+      [currentUser.username, dispatchApi]
+    )
   };
 }

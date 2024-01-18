@@ -1,12 +1,17 @@
 import {
   Article,
+  Code,
   Dashboard,
+  Description,
   Help,
+  Key,
   ManageSearch,
   QueryStats,
   SavedSearch,
   Search,
   SettingsSuggest,
+  Shield,
+  Storage,
   SupervisorAccount,
   Terminal
 } from '@mui/icons-material';
@@ -128,6 +133,15 @@ export default function useMyPreferences(): AppPreferenceConfigs {
         }
       },
       {
+        type: 'item',
+        element: {
+          id: 'advanced',
+          i18nKey: 'route.advanced',
+          route: '/advanced',
+          icon: <Code />
+        }
+      },
+      {
         type: 'divider',
         element: null
       },
@@ -138,13 +152,45 @@ export default function useMyPreferences(): AppPreferenceConfigs {
           i18nKey: 'page.help',
           icon: <Help />,
           items: [
-            { id: 'help.client', i18nKey: 'route.help.client', route: '/help/client', nested: true },
-            { id: 'help.hit', i18nKey: 'route.help.hit', route: '/help/hit', nested: true },
-            { id: 'help.search', i18nKey: 'route.help.search', route: '/help/search', nested: true },
-            { id: 'help.templates', i18nKey: 'route.help.templates', route: '/help/templates', nested: true },
-            { id: 'help.auth', i18nKey: 'route.help.auth', route: '/help/auth', nested: true },
-            { id: 'help.actions', i18nKey: 'route.help.actions', route: '/help/actions', nested: true },
-            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true }
+            {
+              id: 'help.client',
+              i18nKey: 'route.help.client',
+              route: '/help/client',
+              nested: true,
+              icon: <Terminal />
+            },
+            { id: 'help.hit', i18nKey: 'route.help.hit', route: '/help/hit', nested: true, icon: <Shield /> },
+            { id: 'help.search', i18nKey: 'route.help.search', route: '/help/search', nested: true, icon: <Search /> },
+            {
+              id: 'help.views',
+              i18nKey: 'route.help.views',
+              route: '/help/views',
+              nested: true,
+              icon: <SavedSearch />
+            },
+            {
+              id: 'help.templates',
+              i18nKey: 'route.help.templates',
+              route: '/help/templates',
+              nested: true,
+              icon: <Article />
+            },
+            { id: 'help.auth', i18nKey: 'route.help.auth', route: '/help/auth', nested: true, icon: <Key /> },
+            {
+              id: 'help.actions',
+              i18nKey: 'route.help.actions',
+              route: '/help/actions',
+              nested: true,
+              icon: <SettingsSuggest />
+            },
+            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true, icon: <Storage /> },
+            {
+              id: 'help.notebook',
+              i18nKey: 'route.help.notebook',
+              route: '/help/notebook',
+              nested: true,
+              icon: <Description />
+            }
           ]
         }
       }

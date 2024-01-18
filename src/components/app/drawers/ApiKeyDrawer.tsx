@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertTitle,
   Button,
   Checkbox,
   Divider,
@@ -10,16 +12,16 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { LocalizationProvider, StaticDateTimePicker } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import api from 'api';
 import { Privileges } from 'api/auth/apikey';
 import useMyApi from 'components/hooks/useMyApi';
+import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { ChangeEvent, FC, useCallback, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from 'moment';
+import { ChangeEvent, FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 type ApiKeyDrawerProps = {
   onCreated: (newKeyName: string, privs: string[], expiryDate: string, newKey: string) => void;
@@ -29,11 +31,26 @@ const ApiKeyDrawer: FC<ApiKeyDrawerProps> = ({ onCreated }) => {
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
   const { showInfoMessage } = useMySnackbar();
+  const { config } = useMyApiConfig();
 
   const [keyName, setKeyName] = useState('');
   const [privs, setPrivs] = useState<Privileges[]>([]);
   const [createdKey, setCreatedKey] = useState('');
-  const [expiryDate, setExpiryDate] = useState(moment().add(6, 'months'));
+  const [expiryDate, setExpiryDate] = useState<moment.Moment>(null);
+
+  const [amount, unit] = useMemo(() => {
+    const { max_apikey_duration_amount: _amount, max_apikey_duration_unit: _unit } = config?.configuration.auth;
+
+    return [_amount, _unit];
+  }, [config?.configuration.auth]);
+
+  const maxDate = useMemo(() => {
+    if (!amount || !unit) {
+      return null;
+    }
+
+    return moment().add(amount, unit);
+  }, [amount, unit]);
 
   const updatePrivs = useCallback(
     (priv: Privileges) => (ev: ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +72,10 @@ const ApiKeyDrawer: FC<ApiKeyDrawerProps> = ({ onCreated }) => {
   }, []);
 
   const onSubmit = useCallback(async () => {
-    const result = await dispatchApi(api.auth.apikey.post(keyName, privs, expiryDate.toISOString()), { throwError: true, showError: true });
+    const result = await dispatchApi(api.auth.apikey.post(keyName, privs, expiryDate.toISOString()), {
+      throwError: true,
+      showError: true
+    });
 
     setCreatedKey(result.apikey);
     onCreated(result.apikey.split(':')[0], privs, expiryDate.toISOString(), result.apikey);
@@ -66,17 +86,31 @@ const ApiKeyDrawer: FC<ApiKeyDrawerProps> = ({ onCreated }) => {
     showInfoMessage(t('drawer.apikey.copied'));
   }, [createdKey, showInfoMessage, t]);
 
+  useEffect(() => {
+    setExpiryDate(maxDate);
+  }, [maxDate]);
+
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
         <Typography sx={{ maxWidth: '500px' }}>
           <Trans i18nKey="app.drawer.user.apikey.description" />
         </Typography>
-        <TextField label={t('app.drawer.user.apikey.field.name')} fullWidth value={keyName} onChange={onChange} />
-        <FormControl>
-          <FormLabel component="legend">
-            <Trans i18nKey="app.drawer.user.apikey.permissions" />
-          </FormLabel>
+        {amount && unit && moment.duration(amount, unit).asSeconds() < moment.duration(7, 'days').asSeconds() && (
+          <Alert severity="warning" variant="outlined" sx={{ maxWidth: '500px' }}>
+            <AlertTitle>{t('app.drawer.user.apikey.limit.title')}</AlertTitle>
+            {t('app.drawer.user.apikey.limit.description')} ({maxDate?.format('MMM D HH:mm:ss')})
+          </Alert>
+        )}
+        <TextField
+          label={t('app.drawer.user.apikey.field.name')}
+          required
+          fullWidth
+          value={keyName}
+          onChange={onChange}
+        />
+        <FormControl required>
+          <FormLabel component="legend">{t('app.drawer.user.apikey.permissions')}</FormLabel>
           <FormGroup sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
             <FormControlLabel control={<Checkbox onChange={updatePrivs('R')} />} label={t('apikey.read')} />
             <FormControlLabel control={<Checkbox onChange={updatePrivs('W')} />} label={t('apikey.write')} />
@@ -85,20 +119,31 @@ const ApiKeyDrawer: FC<ApiKeyDrawerProps> = ({ onCreated }) => {
               control={<Checkbox onChange={updatePrivs('I')} />}
               label={t('apikey.impersonate')}
             />
-            <FormControlLabel
-              disabled={privs.includes('I')}
-              control={<Checkbox onChange={updatePrivs('E')} />}
-              label={t('apikey.extended')}
-            />
+            {config.configuration.auth.allow_extended_apikeys && (
+              <FormControlLabel
+                disabled={privs.includes('I')}
+                control={<Checkbox onChange={updatePrivs('E')} />}
+                label={t('apikey.extended')}
+              />
+            )}
           </FormGroup>
         </FormControl>
-        <Typography sx={{ maxWidth: '500px' }}>
-            <Trans i18nKey="app.drawer.user.apikey.expiry.date" />
-            <DateCalendar value={expiryDate} onChange={newValue => setExpiryDate(newValue)} disablePast/>
-        </Typography>
+        <FormControl required={!!maxDate}>
+          <FormLabel>{t('app.drawer.user.apikey.expiry.date')}</FormLabel>
+          <StaticDateTimePicker
+            orientation="landscape"
+            ampm={false}
+            value={expiryDate}
+            onChange={newValue => setExpiryDate(newValue)}
+            disablePast
+            maxDate={maxDate}
+            maxTime={maxDate}
+            sx={{ backgroundColor: 'transparent', '& > div:first-of-type': { maxWidth: '300px' } }}
+          />
+        </FormControl>
         <Button
           onClick={onSubmit}
-          disabled={!keyName || (!privs.includes('R') && !privs.includes('W'))}
+          disabled={!keyName || (!privs.includes('R') && !privs.includes('W')) || (maxDate && !expiryDate)}
           variant="outlined"
         >
           <Trans i18nKey="button.create" />

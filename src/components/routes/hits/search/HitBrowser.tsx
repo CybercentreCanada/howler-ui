@@ -4,7 +4,7 @@ import { TuiListItemOnSelect, TuiListProvider } from 'commons/addons/lists';
 import useTuiListItems from 'commons/addons/lists/hooks/useTuiListItems';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { Hit } from 'models/entities/generated/Hit';
-import { FC, memo, ReactNode, useCallback, useEffect, useState } from 'react';
+import { FC, ReactNode, memo, useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import api from 'api';

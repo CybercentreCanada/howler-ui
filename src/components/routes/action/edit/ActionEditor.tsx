@@ -181,6 +181,7 @@ const ActionEditor: FC = () => {
           value={query}
           onChange={onValueChange}
           onKeyDown={onKeyDown}
+          onBlur={() => onSearch(query)}
           startAdornment={
             <IconButton onClick={() => onSearch(query)}>
               <Search />
@@ -201,6 +202,7 @@ const ActionEditor: FC = () => {
               size="small"
               startIcon={loading ? <CircularProgress size={16} /> : <PlayCircleOutline />}
               disabled={
+                !query ||
                 !response ||
                 loading ||
                 userOperations.length < 1 ||
@@ -262,7 +264,7 @@ const ActionEditor: FC = () => {
                 query={responseQuery}
                 operation={operation}
                 operations={[operation, ...availableOperations]}
-                values={a.data}
+                values={a.data_json ? JSON.parse(a.data_json) : a.data}
                 onChange={onActionChange(index)}
                 onDelete={onActionDelete(index)}
               />

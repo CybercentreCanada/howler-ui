@@ -1,6 +1,5 @@
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Box, Typography } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';

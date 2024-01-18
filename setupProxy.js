@@ -8,7 +8,7 @@ const lodash = require('lodash');
 
 /** @type {'MOCK' | 'REST'} */
 // @ts-ignore
-const API = process.env.REACT_APP_API;
+const API = import.meta.env.REACT_APP_API;
 
 /** @type {(store?: {[index: string]: {[method: string]: any}}, dir?: string, isDataDir?: boolean) => {[index: string]: {[method: string]: any}}} */
 const getResponseMap = (store = {}, dir = 'src/api', isDataDir = false) => {

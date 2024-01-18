@@ -3,7 +3,7 @@ import { ModalContext } from 'components/app/providers/ModalProvider';
 import { FC, useCallback, useContext } from 'react';
 
 const Modal: FC = () => {
-  const { content, setContent, options, close } = useContext(ModalContext);
+  const { content, setContent, options } = useContext(ModalContext);
 
   const onClose = useCallback(() => {
     if (options && !options.disableClose) {

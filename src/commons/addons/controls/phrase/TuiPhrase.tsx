@@ -10,7 +10,7 @@ import {
   TextField,
   TextFieldProps
 } from '@mui/material';
-import { parseEvent, TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
+import { parseEvent } from 'commons/components/utils/keyboard';
 import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useRef, useState } from 'react';
 import { TuiPhraseAnalysis, TuiPhraseSuggester } from '.';
 import TuiPhraseConsole from './TuiPhraseConsole';
@@ -28,7 +28,7 @@ export type TuiPhraseProps = Omit<TextFieldProps, 'onChange' | 'onKeyDown' | 'va
   startAdornment?: ReactElement | ReactElement[];
   endAdornment?: ReactElement | ReactElement[];
   onChange: (phrase: string) => void;
-  onKeyDown?: (parsedEvent: TuiKeyboardParsedEvent) => void;
+  onKeyDown?: (event: ReturnType<typeof parseEvent>) => void;
 };
 
 export default function TuiPhrase({

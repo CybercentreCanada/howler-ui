@@ -4,9 +4,11 @@ import Markdown from 'components/elements/display/Markdown';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import DefaultOutline from 'components/elements/hit/outlines/DefaultOutline';
 import moment from 'moment';
-import raw from 'raw.macro';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import TEMPLATES_EN from './markdown/en/templates.md';
+import TEMPLATES_FR from './markdown/fr/templates.md';
 
 const ALERTS = [
   {
@@ -33,7 +35,7 @@ const TemplateDocumentation: FC = () => {
   const { i18n } = useTranslation();
 
   const [md1, md2] = useMemo(() => {
-    let markdown = i18n.language === 'en' ? raw(`./markdown/en/templates.md`) : raw(`./markdown/fr/templates.md`);
+    let markdown = i18n.language === 'en' ? TEMPLATES_EN : TEMPLATES_FR;
 
     markdown = markdown.replace(/\$CURRENT_URL/g, window.location.origin);
 

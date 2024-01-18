@@ -1,8 +1,8 @@
 import { grey, indigo, pink, teal } from '@mui/material/colors';
 
-export const HOWLER_API = process.env.REACT_APP_API;
+export const HOWLER_API = import.meta.env.VITE_API;
 export const LOCAL = HOWLER_API === 'MOCK';
-export const VERSION = process.env.REACT_APP_VERSION;
+export const VERSION = import.meta.env.VITE_VERSION;
 
 // A constant that will be used as prefix of all local storage keys.
 export const MY_LOCAL_STORAGE_PREFIX = 'howler.ui';
@@ -50,7 +50,10 @@ export enum StorageKey {
   AXIOS_CACHE = 'axios.cache',
   LAST_SEEN = 'hit_last_seen',
   MOCK_SEARCH_QUERY_STORE = 'mock_search_query_store',
-  MOCK_FAVOURITES_STORE = 'mock_favourite_store'
+  MOCK_FAVOURITES_STORE = 'mock_favourite_store',
+  COMPACT_JSON = 'compact_json_view',
+  FLATTEN_JSON = 'flatten_json_view',
+  LAST_VIEW = 'last_view'
 }
 
 export const MOCK_SEARCH_QUERY_STORE = `${MY_LOCAL_STORAGE_PREFIX}.${StorageKey.MOCK_SEARCH_QUERY_STORE}`;

@@ -1,9 +1,8 @@
-import { hget } from 'api';
+import { hget, joinUri } from 'api';
 import { indexed, SearchField, uri as parentUri } from 'api/search/fields';
-import urlJoin from 'url-join';
 
 export function uri() {
-  return urlJoin(parentUri(), 'hit');
+  return joinUri(parentUri(), 'hit');
 }
 
 export async function get(): Promise<SearchField[]> {

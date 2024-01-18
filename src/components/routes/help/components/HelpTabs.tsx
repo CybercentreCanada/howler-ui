@@ -20,7 +20,7 @@ const HelpTabs: FC<PropsWithChildren<TabProps>> = ({ children, value }) => {
           position: 'sticky',
           top: theme.spacing(8),
           flexShrink: 0,
-          alignSelf: 'start',
+          alignSelf: 'stretch',
           backgroundColor: 'background.paper',
           zIndex: 100,
           '& a': { p: 1, minHeight: 'initial' }

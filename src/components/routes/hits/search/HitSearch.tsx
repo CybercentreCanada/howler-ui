@@ -1,19 +1,5 @@
-import { MoreHoriz, Star, StarOutline, ViewComfy, ViewCompact, ViewModule } from '@mui/icons-material';
-import {
-  Box,
-  Collapse,
-  emphasize,
-  FormControl,
-  FormLabel,
-  IconButton,
-  Menu,
-  Paper,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Star, StarOutline } from '@mui/icons-material';
+import { Box, Collapse, Paper, Stack, Typography, emphasize } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import api from 'api';
 import { HowlerSearchRequest, HowlerSearchResponse } from 'api/search';
@@ -27,7 +13,6 @@ import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
 import VSBox from 'commons/addons/vsbox/VSBox';
 import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
 import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
-import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import HitAggregate from 'components/elements/hit/HitAggregate';
@@ -38,7 +23,7 @@ import useMyApi from 'components/hooks/useMyApi';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
 import i18n from 'i18n';
 import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
@@ -82,14 +67,12 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
   const { load } = useTuiListMethods<Hit>();
   const { getHitFields } = useContext(FieldContext);
   const { refresh } = useContext(TemplateContext);
-  const { get, set } = useMyLocalStorage();
-  const [layout, setLayout] = useState(isMobile ? HitLayout.COMFY : get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL);
+  const { get } = useMyLocalStorage();
   const [searching, setSearching] = useState<boolean>(false);
   const [aggregating, setAggregating] = useState<boolean>(false);
   const [dropdownView, setDropdownView] = useState<'sort' | 'aggregate' | 'filter'>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasError, setHasError] = useState<boolean>(false);
-  const [openSetting, setOpenSetting] = useState<null | HTMLElement>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [response, setResponse] = useState<HowlerSearchResponse<Hit>>();
 
@@ -114,6 +97,11 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
     sort: 'event.created desc',
     track_total_hits: !!params.get('track_total_hits') && params.get('track_total_hits') !== 'false'
   });
+
+  const layout: HitLayout = useMemo(
+    () => (isMobile ? HitLayout.COMFY : get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL),
+    [get]
+  );
 
   // Load the index field for a hit in order to provide autocomplete suggestions.
   useEffect(() => {
@@ -191,22 +179,6 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
       setParams(params);
     },
     [params, setParams]
-  );
-
-  // Handler to open the settings menu.
-  const handleOpenSetting = (event: React.MouseEvent<HTMLElement>) => setOpenSetting(event.currentTarget);
-
-  // Handler to close the settings menu.
-  const handleCloseSetting = () => setOpenSetting(null);
-
-  // Handler for when to change the HitLayout.
-  const onLayoutChange = useCallback(
-    (e: React.MouseEvent<HTMLElement>, l: HitLayout) => {
-      e.preventDefault();
-      setLayout(l);
-      set(StorageKey.HIT_LAYOUT, l);
-    },
-    [set]
   );
 
   // Handler for when changes occur in the lookup component
@@ -320,7 +292,7 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
   return (
     store.ready && (
       <VSBox top={top}>
-        <VSBoxHeader mb={1} ml={-2} mr={-2}>
+        <VSBoxHeader mb={1} ml={-1} mr={-1}>
           <Box mb={2} mt={2}>
             <Typography
               sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic', mb: 0.5 })}
@@ -337,9 +309,6 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
               onChange={onQueryChange}
               PhraseProps={{
                 suggestions,
-                onKeyDown: ({ event, isEnter }: TuiKeyboardParsedEvent) => {
-                  event.stopPropagation();
-                },
                 endAdornment: (
                   <HitSearchMenu
                     hasError={hasError}
@@ -392,7 +361,7 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
 
             {response && (
               <>
-                <Stack direction="row" alignItems="center">
+                <Stack direction="row" alignItems="center" sx={{ pt: 0.5 }}>
                   <TuiSearchTotal
                     total={response.total}
                     pageLength={response.items.length}
@@ -406,59 +375,12 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
                     offset={response.offset}
                     onChange={onPageChange}
                   />
-                  {!isMobile && (
-                    <>
-                      <Tooltip title={t('page.hits.view.layout')}>
-                        <IconButton
-                          aria-controls={!!openSetting ? 'basic-menu' : undefined}
-                          aria-haspopup="true"
-                          aria-expanded={!!openSetting ? 'true' : undefined}
-                          onClick={handleOpenSetting}
-                          size="small"
-                          sx={{ minWidth: 'auto' }}
-                        >
-                          <MoreHoriz />
-                        </IconButton>
-                      </Tooltip>
-                      <Menu
-                        anchorEl={openSetting}
-                        open={!!openSetting}
-                        onClose={handleCloseSetting}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        PaperProps={{
-                          sx: {
-                            '& ul': {
-                              p: 2,
-                              display: 'flex',
-                              flexDirection: 'column'
-                            }
-                          }
-                        }}
-                      >
-                        <FormControl>
-                          <FormLabel sx={{ mb: 1 }}>{t('page.hits.view.layout')}</FormLabel>
-                          <ToggleButtonGroup value={layout} exclusive onChange={onLayoutChange}>
-                            <ToggleButton value={HitLayout.DENSE}>
-                              <ViewCompact />
-                            </ToggleButton>
-                            <ToggleButton value={HitLayout.NORMAL}>
-                              <ViewModule />
-                            </ToggleButton>
-                            <ToggleButton value={HitLayout.COMFY}>
-                              <ViewComfy />
-                            </ToggleButton>
-                          </ToggleButtonGroup>
-                        </FormControl>
-                      </Menu>
-                    </>
-                  )}
                 </Stack>
               </>
             )}
           </Box>
         </VSBoxHeader>
-        <VSBoxContent mr={-2} ml={-2}>
+        <VSBoxContent mr={-1} ml={-1}>
           <TuiList keyboard onSelection={onSelection}>
             {renderer}
           </TuiList>
