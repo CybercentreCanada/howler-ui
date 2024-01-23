@@ -24,6 +24,7 @@ export const PROVIDER_COLORS = {
   HBS: indigo[700],
   NBS: pink.A200,
   CBS: teal[700],
+  howler: '#1769bb',
   unknown: grey[700]
 };
 
@@ -53,7 +54,8 @@ export enum StorageKey {
   MOCK_FAVOURITES_STORE = 'mock_favourite_store',
   COMPACT_JSON = 'compact_json_view',
   FLATTEN_JSON = 'flatten_json_view',
-  LAST_VIEW = 'last_view'
+  LAST_VIEW = 'last_view',
+  ONLY_CORRELATIONS = 'only_correlations'
 }
 
 export const MOCK_SEARCH_QUERY_STORE = `${MY_LOCAL_STORAGE_PREFIX}.${StorageKey.MOCK_SEARCH_QUERY_STORE}`;

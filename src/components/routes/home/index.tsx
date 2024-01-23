@@ -126,7 +126,7 @@ const Home: FC = () => {
           <TuiButton
             variant="outlined"
             size="small"
-            disabled={((user.dashboard?.length ?? 0) < 2 && !isEditing) || isAdding}
+            disabled={((user.dashboard?.length ?? 0) < 1 && !isEditing) || isAdding}
             color={isEditing ? 'success' : 'primary'}
             startIcon={isEditing ? loading ? <CircularProgress size={20} /> : <Check /> : <Edit />}
             onClick={() => (!isEditing ? setIsEditing(true) : saveChanges())}

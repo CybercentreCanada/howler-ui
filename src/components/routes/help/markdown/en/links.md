@@ -1,5 +1,3 @@
-<!-- docs/ingestion/links.md -->
-
 # Hit Links
 
 In order to facilitate the addition of additional tools one can use to triage a hit, Howler allows users to specify a set of links, along with a title and icon to show. This documentation will walk you through how to use these links.

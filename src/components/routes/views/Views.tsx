@@ -272,7 +272,12 @@ const ViewsBase: FC = () => {
         </Stack>
       }
       renderer={({ item }: TuiListItemProps<View>, classRenderer) => (
-        <Card key={item.item.view_id} variant="outlined" sx={{ p: 1, mb: 1 }} className={classRenderer()}>
+        <Card
+          key={item.item.view_id}
+          variant="outlined"
+          sx={{ p: 1, mb: 1, transitionProperty: 'border-color', '&:hover': { borderColor: 'primary.main' } }}
+          className={classRenderer()}
+        >
           <Stack direction="row" alignItems="center" spacing={1}>
             <TuiIconButton route={`/hits?qid=${item.item.view_id}`} tooltip={t('route.views.manager.open')}>
               <Search />

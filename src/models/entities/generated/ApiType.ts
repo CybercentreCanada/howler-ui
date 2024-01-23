@@ -76,11 +76,8 @@ export interface APIConfiguration {
     apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string }[];
     banner?: unknown;
     banner_level: string;
-    notebook: boolean;
   };
   features: {
-    spellbook: boolean;
-    alfred: false;
   };
 }
 

@@ -1,5 +1,4 @@
 import { AnalyticComment } from './AnalyticComment';
-import { Notebook } from './Notebook';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.
@@ -7,8 +6,12 @@ import { Notebook } from './Notebook';
 export interface Analytic {
   analytic_id?: string;
   comment?: AnalyticComment[];
+  contributors?: string[];
+  correlation?: string;
+  correlation_type?: 'lucene' | 'eql' | 'sigma';
+  correlation_crontab?: string;
   description?: string;
   detections?: string[];
   name?: string;
-  notebooks?: Notebook[];
+  owner?: string;
 }

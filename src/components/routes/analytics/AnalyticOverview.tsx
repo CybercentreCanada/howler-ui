@@ -16,6 +16,7 @@ import api from 'api';
 import 'chartjs-adapter-moment';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApi from 'components/hooks/useMyApi';
+import useMySnackbar from 'components/hooks/useMySnackbar';
 import { Analytic } from 'models/entities/generated/Analytic';
 import { FC, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +32,7 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
   const theme = useTheme();
   const { dispatchApi } = useMyApi();
   const isMd = useMediaQuery(theme.breakpoints.down('md'));
+  const { showSuccessMessage } = useMySnackbar();
 
   const [markdownLoading, setMarkdownLoading] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -40,12 +42,14 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
     try {
       if (editing) {
         setMarkdownLoading(true);
-        const result = await dispatchApi(api.analytic.put(analytic.analytic_id, editValue), {
+        const result = await dispatchApi(api.analytic.put(analytic.analytic_id, { description: editValue }), {
           showError: true,
           throwError: true
         });
 
         setAnalytic(result);
+
+        showSuccessMessage(t('route.analytics.updated'));
       } else {
         setEditValue(analytic.description);
       }
@@ -53,7 +57,7 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
       setEditing(!editing);
       setMarkdownLoading(false);
     }
-  }, [analytic?.analytic_id, analytic?.description, dispatchApi, editValue, editing, setAnalytic]);
+  }, [analytic, dispatchApi, editValue, editing, setAnalytic, showSuccessMessage, t]);
 
   return (
     <>
@@ -91,7 +95,7 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
           )}
         </Box>
         <Stack direction="column" spacing={2}>
-          <Typography variant="h5" sx={{ mt: 2 }}>
+          <Typography variant="h5" sx={{ mt: `${theme.spacing(2)} !important` }}>
             {t('route.analytics.overview.statistics')}
           </Typography>
           <Card>

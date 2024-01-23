@@ -1,7 +1,9 @@
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import helpMainEN from 'locales/en/help/main.json';
 import helpSearchEN from 'locales/en/help/search.json';
 import translationEN from 'locales/en/translation.json';
+import helpMainFR from 'locales/fr/help/main.json';
 import helpSearchFR from 'locales/fr/help/search.json';
 import translationFR from 'locales/fr/translation.json';
 import { initReactI18next } from 'react-i18next';
@@ -9,11 +11,13 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: translationEN,
-    helpSearch: helpSearchEN
+    helpSearch: helpSearchEN,
+    helpMain: helpMainEN
   },
   fr: {
     translation: translationFR,
-    helpSearch: helpSearchFR
+    helpSearch: helpSearchFR,
+    helpMain: helpMainFR
   },
   woof: {
     translation: Object.keys(translationEN).reduce((acc, key) => {

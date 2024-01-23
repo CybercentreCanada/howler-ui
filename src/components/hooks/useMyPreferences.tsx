@@ -2,8 +2,8 @@ import {
   Article,
   Code,
   Dashboard,
-  Description,
   Help,
+  HelpCenter,
   Key,
   ManageSearch,
   QueryStats,
@@ -153,6 +153,13 @@ export default function useMyPreferences(): AppPreferenceConfigs {
           icon: <Help />,
           items: [
             {
+              id: 'help.main',
+              i18nKey: 'route.help.main',
+              route: '/help',
+              nested: true,
+              icon: <HelpCenter />
+            },
+            {
               id: 'help.client',
               i18nKey: 'route.help.client',
               route: '/help/client',
@@ -183,14 +190,7 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               nested: true,
               icon: <SettingsSuggest />
             },
-            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true, icon: <Storage /> },
-            {
-              id: 'help.notebook',
-              i18nKey: 'route.help.notebook',
-              route: '/help/notebook',
-              nested: true,
-              icon: <Description />
-            }
+            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true, icon: <Storage /> }
           ]
         }
       }

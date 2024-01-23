@@ -80,6 +80,14 @@
   "comments.analytic.show": "Show Analytic Comments",
   "comments.analytic.hide": "Hide Analytic Comments",
 
+  "correlation.interval": "Correlation Execution Interval",
+  "correlation.interval.five.minutes": "Every five minutes",
+  "correlation.interval.thirty.minutes": "Every thirty minutes",
+  "correlation.interval.one.hour": "Every one hour",
+  "correlation.interval.three.hours": "Every three hours",
+  "correlation.interval.six.hours": "Every six hours",
+  "correlation.interval.one.day": "Every one day",
+
   "date.range.1.day": "Within the last day",
   "date.range.3.day": "Within the last three days",
   "date.range.1.week": "Within the last week",
@@ -161,16 +169,7 @@
   "hit.panel.close": "Close",
   "hit.panel.hit.noselection": "No hit has been selected",
 
-  "hit.notebook.confirm.dialog": "A notebook with that name already exists in your environment, do you wish to overwrite it?",
-  "hit.notebook.confirm.title": "Overwrite existing notebook?",
-  "hit.notebook.select": "Please Select a notebook",
-  "hit.notebook.goTo": "Go to Jupyterhub",
-  "hit.notebook.tooltip": "Open in Jupyterhub",
-  "hit.notebook.error.failToPost": "Failed to send notebook to Jupyterhub, make sure your user environment is running.",
 
-  "analytic.notebook.link": "Link",
-  "analytic.notebook.name": "Name",
-  "analytic.notebook.dropdown.none": "No specific detection",
 
   "hit.fields": "Fields",
 
@@ -182,7 +181,6 @@
   "help.hit.schema.title": "Hit Schema",
 
   "help.actions.introduction": "Introduction to Actions",
-  "help.actions.spellbook": "Spellbook Integration",
 
   "help.hit.schema.description.missing": "No description provided.",
   "help.hit.schema.search.prompt": "Filter Fields",
@@ -251,6 +249,18 @@
   "modal.confirm.delete.title": "Confirm Deletion",
   "modal.confirm.delete.description": "Are you sure you want to delete this item?",
 
+  "modal.correlation.title": "Create a New Correlation",
+  "modal.correlation.description": "Create a new correlation by giving it a name, markdown description and submitting.",
+  "modal.correlation.name": "Correlation Name",
+  "modal.correlation.name.warn": "In general, analytic name should only contain letters and spaces, preferablly 'In Pascal Case'.",
+  "modal.correlation.description.title": "Correlation Description",
+  "modal.correlation.file.title": "Query",
+  "modal.correlation.markdown.title": "Markdown Preview",
+  "modal.correlation.markdown.placeholder": "Your *markdown* **description** will be ~~rendered~~ here.\n\n![](/images/doggie.png)",
+  "modal.correlation.disabled.analytic": "You must provide a correlation name.",
+  "modal.correlation.disabled.description": "You must provide a useful markdown description for your correlation.",
+  "modal.correlation.success": "Correlation Created!",
+
   "modal.rationale.title": "Add Rationale",
   "modal.rationale.description": "Provide a rationale that succinctly explains to other analysts why you are confident in this assessment.",
   "modal.rationale.label": "Rationale",
@@ -259,6 +269,10 @@
 
   "on": "on",
 
+  "open": "Open",
+
+  "owner": "Owner",
+
   "operations.add_label": "Add Label",
   "operations.add_to_bundle": "Add to Bundle",
   "operations.remove_label": "Remove Label",
@@ -266,7 +280,6 @@
   "operations.prioritization": "Change Prioritization",
   "operations.change_field": "Change Field",
   "operations.transition": "Execute Transition",
-  "operations.spellbook": "Trigger Spellbook Job",
 
   "outline.assemblyline.beacons": "Beacons",
   "outline.assemblyline.file_path": "File Path",
@@ -292,6 +305,10 @@
   "page.documentation.description.explanation": "The documentation outlining what this endpoint is used for and how you should interact with it.",
 
   "page.help": "Help",
+  "page.help.title": "Help Dashboard",
+  "page.help.support.title": "Still Need Help?",
+  "page.help.support.description": "Don't hesitate to reach out through the Analytical Platform Support Channel.",
+  "page.help.support.open": "Open Channel",
 
   "page.login.button": "Sign in",
   "page.login.error": "Just type anything in both username and password fields...",
@@ -360,16 +377,33 @@
   "route.admin.user.search": "User Search",
 
   "route.advanced": "Advanced Search",
+  "route.advanced.error": "Search Error",
   "route.advanced.fields": "Hit Fields to Show",
   "route.advanced.rows": "Rows",
   "route.advanced.create.correlation": "Create Correlation",
+  "route.advanced.create.correlation.disabled": "You must run your search to ensure it is valid first.",
+  "route.advanced.execute.query": "Execute Query",
+  "route.advanced.query.lucene": "Lucene Query",
+  "route.advanced.query.eql": "EQL Query",
+  "route.advanced.query.yaml": "Sigma Rule",
+  "route.advanced.result.title": "Howler Advanced Search",
+  "route.advanced.result.description": "Excecute a query to show results here.",
 
   "route.analytics": "Analytics",
+  "route.analytics.detections": "Detections:",
+  "route.analytics.tags": "Tags:",
+  "route.analytics.correlation": "Correlation",
+  "route.analytics.correlation.title": "Correlation Query",
+  "route.analytics.contributors": "Contributors",
+  "route.analytics.filter.correlation": "Filter on Correlations",
   "route.analytics.search.prompt": "Search by name or detections.",
+  "route.analytics.search.filter.correlations.show": "Showing Correlations Only",
+  "route.analytics.search.filter.correlations.hide": "Hiding Correlations Only",
+  "route.analytics.search.filter.correlations.toggle": "Toggle Filtering Correlations",
   "route.analytics.tab.overview": "Overview",
   "route.analytics.tab.comments": "Comments",
   "route.analytics.tab.hit_comments": "Hit Comments",
-  "route.analytics.tab.notebooks": "Notebooks",
+  "route.analytics.tab.correlation": "Correlation Query",
   "route.analytics.view": "View Analytic",
   "route.analytics.overview.description": "Description",
   "route.analytics.overview.statistics": "Statistics",
@@ -377,6 +411,7 @@
   "route.analytics.ingestion.title": "Number of Hits Created",
   "route.analytics.escalation.title": "Escalation of Created Hits",
   "route.analytics.assessment.title": "Assessment Result of Created Hits",
+  "route.analytics.updated": "Analytic Updated!",
 
   "route.actions": "Actions",
   "route.actions.operation.add": "Add New Operation",
@@ -409,24 +444,9 @@
   "route.actions.trigger.resolve": "Run on Resolve",
 
   "route.actions.integrations": "Integrations",
-  "route.actions.integrations.alfred": "Alfred",
-  "route.actions.integrations.spellbook": "Spellbook",
-  "route.actions.integrations.spellbook.title": "Spellbook Integration",
-  "route.actions.integrations.spellbook.description": "Howler is able to trigger spellbook jobs with a set of parameters derived from a given hit. Below is a list of jobs tagged as \"action\" in Spellbook. For more complete details on jobs you can trigger, check <a href=\"{{url}}\" target=\"_blank\">Spellbook</a>.",
-  "route.actions.integrations.spellbook.job.description": "Job Description",
-  "route.actions.integrations.spellbook.job.description.missing": "No description provided",
-  "route.actions.integrations.spellbook.job.params": "Job Parameters",
-  "route.actions.integrations.spellbook.job.params.none": "No Parameters Declared",
-  "route.actions.integrations.spellbook.job.schema": "Show JSON Schema",
-  "route.actions.integrations.spellbook.copy": "Copy DAG ID",
-  "route.actions.integrations.spellbook.label.user": "User Owned Job",
-  "route.actions.integrations.spellbook.label.group": "Group Owned Job",
-  "route.actions.integrations.spellbook.connected": "Successfully Connected to Spellbook",
-  "route.actions.integrations.spellbook.disconnected": "No Connection to Spellbook",
-  "route.actions.integrations.spellbook.empty": "You must select an index",
-  "route.actions.integrations.spellbook.suggestion": "To fix this, add this to the action query: <code>{{query}}</code>",
 
   "route.help": "Help",
+  "route.help.main": "Dashboard",
   "route.help.actions": "Action Documentation",
   "route.help.api": "API Documentation",
   "route.help.auth": "Authentication",
@@ -434,7 +454,6 @@
   "route.help.hit": "Hit Documentation",
   "route.help.search": "Search Documentation",
   "route.help.templates": "Templates",
-  "route.help.notebook": "Notebook Documentation",
   "route.help.views": "Views",
 
   "route.hits.bundle": "View Bundle",

@@ -80,6 +80,14 @@
   "comments.analytic.show": "Montrer les commentaires d'analyse",
   "comments.analytic.hide": "Cacher les commentaires d'analyse",
 
+  "correlation.interval": "Intervalle d'exécution de la corrélation",
+  "correlation.interval.five.minutes": "Toutes les cinq minutes",
+  "correlation.interval.thirty.minutes": "Toutes les trente minutes",
+  "correlation.interval.one.hour": "Toutes les heures",
+  "correlation.interval.three.hours": "Toutes les trois heures",
+  "correlation.interval.six.hours": "Toutes les six heures",
+  "correlation.interval.one.day": "Tous les jours",
+
   "date.range.1.day": "Au cours du dernier jour",
   "date.range.3.day": "Au cours des trois derniers jours",
   "date.range.1.week": "Au cours de la dernière semaine",
@@ -162,16 +170,7 @@
   "hit.panel.close": "Fermer",
   "hit.panel.hit.noselection": "Aucun résultat n'a été sélectionné",
 
-  "hit.notebook.confirm.dialog": "Un notebook portant ce nom existe déjà dans votre environnement, souhaitez-vous le remplacer ?",
-  "hit.notebook.confirm.title": "Remplacer le notebook existant ?",
-  "hit.notebook.select": "Veuillez sélectionner un notebook",
-  "hit.notebook.goTo": "Aller a Jupyterhub",
-  "hit.notebook.tooltip": "Ouvrir dans Jupyterhub",
-  "hit.notebook.error.failToPost": "Échec de l'envoi du bloc-notes à Jupyterhub, assurez-vous que votre environnement utilisateur est en cours d'exécution.",
 
-  "analytic.notebook.link": "Lien",
-  "analytic.notebook.name": "Nom",
-  "analytic.notebook.dropdown.none": "Aucune detection specifique",
 
   "hit.fields": "Champs",
 
@@ -183,7 +182,6 @@
   "help.hit.schema.title": "Schéma du hit",
 
   "help.actions.introduction": "Introduction aux actions",
-  "help.actions.spellbook": "Intégration de Spellbook",
 
   "help.hit.schema.description.missing": "Aucune description n'est fournie.",
   "help.hit.schema.search.prompt": "Filtrer les champs",
@@ -252,6 +250,18 @@
   "modal.confirm.delete.title": "Confirmer la suppression",
   "modal.confirm.delete.description": "Êtes-vous sûr de vouloir supprimer cet élément ?",
 
+  "modal.correlation.title": "Créer une nouvelle corrélation",
+  "modal.correlation.description": "Créer une nouvelle corrélation en lui donnant un nom, une description markdown et en la soumettant",
+  "modal.correlation.name": "Nom de la corrélation",
+  "modal.correlation.name.warn": "En général, le nom de l'analyse ne doit contenir que des lettres et des espaces, de préférence 'En Pascal Case'",
+  "modal.correlation.description.title": "Description de la corrélation",
+  "modal.correlation.file.title": "Requête",
+  "modal.correlation.markdown.title": "Aperçu Markdown",
+  "modal.correlation.markdown.placeholder": "Votre *markdown* **description** sera ~~rendered~~ ici.\n\n ![](/images/doggie.png)",
+  "modal.correlation.disabled.analytic": "Vous devez fournir un nom de corrélation",
+  "modal.correlation.disabled.description": "Vous devez fournir une description markdown utile pour votre corrélation.",
+  "modal.correlation.success": "Corrélation créée!",
+
   "modal.rationale.title": "Ajouter une justification",
   "modal.rationale.description": "Fournissez une justification qui explique succinctement aux autres analystes les raisons pour lesquelles vous êtes confiant dans cette évaluation.",
   "modal.rationale.label": "Justification",
@@ -260,13 +270,16 @@
 
   "on": "sur",
 
+  "open": "Ouvert",
+
+  "owner": "Propriétaire",
+
   "operations.add_label": "Ajouter un label",
   "operations.add_to_bundle": "Ajouter à une groupe des hits",
   "operations.remove_label": "Supprimer un label",
   "operations.remove_from_bundle": "Supprimer d'une groupe des hits",
   "operations.change_field": "Modifier un champs",
   "operations.prioritization": "Modifier l'ordre de priorité",
-  "operations.spellbook": "Déclencher une tâche spellbook",
   "operations.transition": "Exécuter la transition",
 
   "outline.assemblyline.beacons": "Balises",
@@ -293,7 +306,10 @@
   "page.documentation.description.explanation": "La documentation décrivant à quoi sert ce point de terminaison et comment vous devez interagir avec lui.",
 
   "page.help": "Aide",
-  "page.help.search": "Aide a la Recherche",
+  "page.help.title": "Tableau de bord de l'aide",
+  "page.help.support.title": "Vous avez encore besoin d'aide ?",
+  "page.help.support.description": "N'hésitez pas à utiliser le canal d'assistance de la plateforme analytique.",
+  "page.help.support.open": "Ouvrir le canal",
 
   "page.login.button": "Se connecter",
   "page.login.error": "Tapez simplement n'importe quoi dans les champs du nom d'utilisateur et du mot de passe ...",
@@ -362,15 +378,32 @@
   "route.admin.user.search": "Recherche utilisateurs",
 
   "route.advanced": "Recherche avancée",
+  "route.advanced.error": "Erreur de recherche",
   "route.advanced.fields": "Champs à montrer",
   "route.advanced.rows": "Éléments",
+  "route.advanced.create.correlation": "Créer une corrélation",
+  "route.advanced.create.correlation.disabled": "Vous devez d'abord lancer votre recherche pour vous assurer qu'elle est valide",
+  "route.advanced.query.lucene": "Requête Lucene",
+  "route.advanced.query.eql": "Requête EQL",
+  "route.advanced.query.yaml": "Règle Sigma",
+  "route.advanced.result.title": "Recherche avancée de howler",
+  "route.advanced.result.description": "Excecutez une requête pour afficher les résultats ici.",
 
   "route.analytics": "Analyses",
+  "route.analytics.detections": "Détections:",
+  "route.analytics.tags": "Tags:",
+  "route.analytics.correlation": "Corrélation",
+  "route.analytics.correlation.title": "Requête de corrélation",
+  "route.analytics.contributors": "Contributeurs",
+  "route.analytics.filter.correlation": "Filtre sur les corrélations",
   "route.analytics.search.prompt": "Recherche par nom ou par détection.",
+  "route.analytics.search.filter.correlations.show": "Afficher uniquement les corrélations",
+  "route.analytics.search.filter.correlations.hide": "Cacher les corrélations uniquement",
+  "route.analytics.search.filter.correlations.toggle": "Filtrer les corrélations",
   "route.analytics.tab.overview": "Vue d'ensemble",
   "route.analytics.tab.comments": "Commentaires",
   "route.analytics.tab.hit_comments": "Commentaires des hits",
-  "route.analytics.tab.notebooks": "Notebooks",
+  "route.analytics.tab.correlation": "Correlation Query",
   "route.analytics.view": "Voir l'analyse",
   "route.analytics.overview.description": "Description",
   "route.analytics.overview.statistics": "Statistiques",
@@ -378,6 +411,7 @@
   "route.analytics.ingestion.title": "Nombre de hits créés",
   "route.analytics.escalation.title": "Escalade des hits créés",
   "route.analytics.assessment.title": "Résultat de l'évaluation des hits créés",
+  "route.analytics.updated": "Analytic mis a jour!",
 
   "route.actions": "Actions",
   "route.actions.operation.add": "Ajouter une nouvelle opération",
@@ -410,31 +444,15 @@
   "route.actions.trigger.resolve": "Exécution lors de la résolution",
 
   "route.actions.integrations": "Intégrations",
-  "route.actions.integrations.alfred": "Alfred",
-  "route.actions.integrations.spellbook": "Spellbook",
-  "route.actions.integrations.spellbook.title": "Integration de spellbook",
-  "route.actions.integrations.spellbook.description": "Howler est capable de déclencher des tâches de spellbook avec un ensemble de paramètres dérivés d'un hit donné. Vous trouverez ci-dessous une liste de travaux étiquetés comme \"action\" dans spellbook. Pour plus de détails sur les tâches que vous pouvez déclencher, consultez <a href=\"{{url}}\" target=\"_blank\">spellbook</a>.",
-  "route.actions.integrations.spellbook.job.description": "Description",
-  "route.actions.integrations.spellbook.job.description.missing": "Aucune description n'est fournie",
-  "route.actions.integrations.spellbook.job.params": "Paramètres de la tâche",
-  "route.actions.integrations.spellbook.job.params.none": "Aucune paramètres n'est fournie",
-  "route.actions.integrations.spellbook.job.schema": "Montrer le schéma JSON",
-  "route.actions.integrations.spellbook.copy": "Copier identification du DAG",
-  "route.actions.integrations.spellbook.label.user": "Tâche appartenant à l'utilisateur",
-  "route.actions.integrations.spellbook.label.group": "Tâche appartenant à un groupe",
-  "route.actions.integrations.spellbook.connected": "Connexion réussie à spellbook",
-  "route.actions.integrations.spellbook.disconnected": "Aucun connexion à spellbook",
-  "route.actions.integrations.spellbook.empty": "Vous devez sélectionner un ",
-  "route.actions.integrations.spellbook.suggestion": "Pour remédier à ce problème, ajoutez ceci à la requête d'action: <code>{{query}}</code>",
 
   "route.help": "Aide",
+  "route.help.main": "Tableau de bord",
   "route.help.api": "Documentation de l'API",
   "route.help.auth": "Authentification",
   "route.help.bundles": "Groupes des hits",
   "route.help.client": "Client Howler",
   "route.help.search": "Recherche",
   "route.help.templates": "Modèles",
-  "route.help.notebook": "Documentation des carnets",
   "route.help.views": "Vues",
 
   "route.hits": "Alertes",

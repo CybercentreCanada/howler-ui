@@ -13,7 +13,7 @@ export const ViewTitle: FC<ViewTitleProps> = ({ title, type, query }) => {
   const { t } = useTranslation();
   return (
     <Stack>
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" alignItems="start" spacing={1}>
         <Tooltip title={t(`route.views.manager.${type}`)}>
           {
             {

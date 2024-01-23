@@ -122,7 +122,7 @@ const AddNewCard: FC = () => {
                     options.filter(
                       opt =>
                         opt.name.toLowerCase().includes(state.inputValue.toLowerCase()) ||
-                        opt.description.split('\n')[0]?.toLowerCase().includes(state.inputValue.toLowerCase())
+                        opt.description?.split('\n')[0]?.toLowerCase().includes(state.inputValue.toLowerCase())
                     )
                   }
                   renderOption={(props, option) => (
@@ -130,7 +130,7 @@ const AddNewCard: FC = () => {
                       <Stack>
                         <Typography variant="body1">{option.name}</Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {option.description.split('\n')[0]}
+                          {option.description?.split('\n')[0]}
                         </Typography>
                       </Stack>
                     </li>

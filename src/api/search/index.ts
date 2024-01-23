@@ -32,4 +32,28 @@ export type HowlerSearchResponse<T> = {
   total: number;
 };
 
-export { fields, hit, view, user, grouped, histogram, analytic, action, facet, template };
+export type HowlerEQLSearchResponse<T> = {
+  items: T[];
+  sequences: T[][];
+  offset: number;
+  rows: number;
+  total: number;
+};
+
+export type HowlerEQLSearchRequest = {
+  eql_query: string;
+  rows?: number;
+  fl?: string;
+  timeout?: number;
+  filters?: string[];
+};
+
+export type HowlerSigmaSearchRequest = {
+  sigma: string;
+  rows?: number;
+  fl?: string;
+  timeout?: number;
+  filters?: string[];
+};
+
+export { action, analytic, facet, fields, grouped, histogram, hit, template, user, view };

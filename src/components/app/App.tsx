@@ -15,9 +15,10 @@ import useMyPreferences from 'components/hooks/useMyPreferences';
 import useMySitemap from 'components/hooks/useMySitemap';
 import useMyTheme from 'components/hooks/useMyTheme';
 import useMyUser from 'components/hooks/useMyUser';
-import useLogin from 'components/logins/hooks/useLogin';
 import LoginScreen from 'components/logins/Login';
+import useLogin from 'components/logins/hooks/useLogin';
 import NotFoundPage from 'components/routes/404';
+import Logout from 'components/routes/Logout';
 import ActionEditor from 'components/routes/action/edit/ActionEditor';
 import ActionDetails from 'components/routes/action/view/ActionDetails';
 import ActionSearchProvider from 'components/routes/action/view/ActionSearch';
@@ -30,21 +31,20 @@ import ActionDocumentation from 'components/routes/help/ActionDocumentation';
 import ApiDocumentation from 'components/routes/help/ApiDocumentation';
 import AuthDocumentation from 'components/routes/help/AuthDocumentation';
 import ClientDocumentation from 'components/routes/help/ClientDocumentation';
+import HelpDashboard from 'components/routes/help/Help';
 import HitDocumentation from 'components/routes/help/HitDocumentation';
-import NotebookDocumentation from 'components/routes/help/NotebookDocumentation';
 import SearchDocumentation from 'components/routes/help/SearchDocumentation';
 import TemplateDocumentation from 'components/routes/help/TemplateDocumentation';
 import ViewDocumentation from 'components/routes/help/ViewDocumentation';
 import HitBrowser from 'components/routes/hits/search/HitBrowser';
 import HitViewer from 'components/routes/hits/view/HitViewer';
 import Home from 'components/routes/home';
-import Logout from 'components/routes/Logout';
 import Settings from 'components/routes/settings/Settings';
-import Templates from 'components/routes/templates/Templates';
 import TemplateViewer from 'components/routes/templates/TemplateViewer';
+import Templates from 'components/routes/templates/Templates';
 import Views from 'components/routes/views/Views';
-import { Hit } from 'models/entities/generated/Hit';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Hit } from 'models/entities/generated/Hit';
 import { FC, PropsWithChildren, useEffect } from 'react';
 import { Routes, useLocation, useNavigate } from 'react-router';
 import { BrowserRouter, Route } from 'react-router-dom';
@@ -131,6 +131,7 @@ const MyApp: FC = () => {
         <Route path="admin/users/:id" element={<UserEditor />} />
         <Route path="analytics" element={<AnalyticSearch />} />
         <Route path="analytics/:id" element={<AnalyticDetails />} />
+        <Route path="help" element={<HelpDashboard />} />
         <Route path="help/search" element={<SearchDocumentation />} />
         <Route path="help/api" element={<ApiDocumentation />} />
         <Route path="help/auth" element={<AuthDocumentation />} />
@@ -138,7 +139,6 @@ const MyApp: FC = () => {
         <Route path="help/hit" element={<HitDocumentation />} />
         <Route path="help/templates" element={<TemplateDocumentation />} />
         <Route path="help/actions" element={<ActionDocumentation />} />
-        <Route path="help/notebook" element={<NotebookDocumentation />} />
         <Route path="help/views" element={<ViewDocumentation />} />
         <Route path="settings" element={<Settings />} />
         <Route path="advanced" element={<QueryBuilder />} />

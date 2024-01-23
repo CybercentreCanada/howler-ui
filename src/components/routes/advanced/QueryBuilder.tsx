@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-escape */
-import { Editor, Monaco, useMonaco } from '@monaco-editor/react';
+import { useMonaco } from '@monaco-editor/react';
 import { PlayArrowOutlined, SsidChart } from '@mui/icons-material';
 import {
   Alert,
@@ -9,6 +9,8 @@ import {
   Card,
   Chip,
   CircularProgress,
+  MenuItem,
+  Select,
   Slider,
   Stack,
   TextField,
@@ -17,40 +19,82 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import { HowlerEQLSearchResponse, HowlerSearchResponse } from 'api/search';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import FlexOne from 'commons/addons/flexers/FlexOne';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { parseEvent } from 'commons/components/utils/keyboard';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import JSONViewer from 'components/elements/display/JSONViewer';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import Fuse from 'fuse.js';
+import useMyModal from 'components/hooks/useMyModal';
+import useMySnackbar from 'components/hooks/useMySnackbar';
 import { Hit } from 'models/entities/generated/Hit';
+import moment from 'moment';
 import { FC, KeyboardEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import TOKEN_PROVIDER from './luceneTokenProvider';
+import { v4 as uuid } from 'uuid';
+import CorrelationModal from './CorrelationModal';
+import QueryEditor from './QueryEditor';
+
+const QUERY_TYPES = ['eql', 'lucene', 'yaml'];
 
 const STEPS = [1, 5, 25, 50, 100, 250, 500, 1000, 2500, 10000];
 
-const DEFAULT_VALUE = `# Match any howler.id value
+const DEFAULT_VALUES = {
+  eql: `sequence with maxspan=30m
+  [ process where process.name == "regsvr32.exe" ]
+  [ file where length(process.command_line) > 400 ]
+`,
+  lucene: `# Match any howler.id value
 howler.id:*
 AND
 # Hits must be open
 howler.status:open
-`;
+`,
+  yaml: `title: Example Howler Sigma Rule
+id: ${uuid()}
+status: test
+description: A basic example of using sigma rule notation to query howler
+references:
+    - https://github.com/SigmaHQ/sigma
+author: You
+date: ${moment().format('YYYY/MM/DD')}
+modified: ${moment().format('YYYY/MM/DD')}
+tags:
+    - attack.command_and_control
+logsource:
+    category: nbs
+detection:
+    selection1:
+        howler.analytic|startswith:
+            - '6Tail'
+            - 'Assembly'
+    selection2:
+        howler.status:
+          - open
+          - in-progress
+    condition: 1 of selection*
+falsepositives:
+    - Unknown
+level: informational
+`
+};
+
+type SearchResponse<T> = HowlerSearchResponse<T> | HowlerEQLSearchResponse<T>;
 
 const QueryBuilder: FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const monaco = useMonaco();
   const { hitFields, getHitFields } = useContext(FieldContext);
-  const { config } = useMyApiConfig();
+  const { showModal } = useMyModal();
+  const { showWarningMessage } = useMySnackbar();
 
+  const [type, setType] = useState<'eql' | 'lucene' | 'yaml'>('lucene');
   const [loading, setLoading] = useState(false);
-  const [query, setQuery] = useState(DEFAULT_VALUE);
+  const [query, setQuery] = useState(DEFAULT_VALUES.lucene);
   const [fields, setFields] = useState<string[]>(['howler.id']);
-  const [response, setResponse] = useState<HowlerSearchResponse<Hit>>(null);
+  const [response, setResponse] = useState<SearchResponse<Hit>>(null);
   const [error, setError] = useState<string>(null);
   const [rows, setRows] = useState(1);
   const [x, setX] = useState(0);
@@ -58,17 +102,33 @@ const QueryBuilder: FC = () => {
   const wrapper = useRef<HTMLDivElement>();
 
   const fieldOptions = useMemo(() => hitFields.map(_field => _field.key), [hitFields]);
-  const fuse = useMemo(() => new Fuse(hitFields, { keys: ['key'], threshold: 0.4 }), [hitFields]);
 
   const execute = useCallback(async () => {
     setLoading(true);
 
     try {
-      const result = await api.search.hit.post({
-        query: query.replace(/#.+/g, '').replace(/\n{2,}/, '\n'),
+      const searchProperties = {
         fl: fields.join(','),
         rows: STEPS[rows]
-      });
+      };
+
+      let result: SearchResponse<Hit>;
+      if (type === 'lucene') {
+        result = await api.search.hit.post({
+          query: query.replace(/#.+/g, '').replace(/\n{2,}/, '\n'),
+          ...searchProperties
+        });
+      } else if (type === 'eql') {
+        result = await api.search.hit.eql.post({
+          eql_query: query.replace(/#.+/g, '').replace(/\n{2,}/, '\n'),
+          ...searchProperties
+        });
+      } else {
+        result = await api.search.hit.sigma.post({
+          sigma: query,
+          ...searchProperties
+        });
+      }
 
       setResponse(result);
       setError(null);
@@ -77,7 +137,7 @@ const QueryBuilder: FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [fields, query, rows]);
+  }, [fields, query, rows, type]);
 
   const onKeyDown: KeyboardEventHandler<HTMLDivElement> = useCallback(
     event => {
@@ -88,27 +148,6 @@ const QueryBuilder: FC = () => {
       }
     },
     [execute]
-  );
-
-  const beforeEditorMount = useCallback(
-    (_monaco: Monaco) => {
-      _monaco.editor.defineTheme('howler', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-          { token: 'operator', foreground: theme.palette.warning.light.toUpperCase().replaceAll('#', '') },
-          { token: 'string.invalid', foreground: theme.palette.error.main.toUpperCase().replaceAll('#', '') },
-          { token: 'invalid', foreground: theme.palette.error.main.toUpperCase().replaceAll('#', '') },
-          { token: 'boolean', foreground: theme.palette.success.main.toUpperCase().replaceAll('#', '') }
-        ],
-        colors: {
-          'editor.background': theme.palette.background.paper
-        }
-      });
-
-      _monaco.languages.register({ id: 'lucene' });
-    },
-    [theme]
   );
 
   const onMouseMove = useCallback((event: MouseEvent) => {
@@ -129,85 +168,19 @@ const QueryBuilder: FC = () => {
     window.addEventListener('mouseup', onMouseUp);
   }, [onMouseMove, onMouseUp]);
 
-  useEffect(() => {
-    if (!monaco) {
+  const onCreateCorrelation = useCallback(async () => {
+    if (!response) {
+      showWarningMessage(t('route.advanced.create.correlation.disabled'));
       return;
     }
 
-    monaco.editor.getModels().forEach(model => model.setEOL(monaco.editor.EndOfLineSequence.LF));
-
-    const monarchDisposable = monaco.languages.setMonarchTokensProvider('lucene', TOKEN_PROVIDER);
-
-    const completionDisposable = monaco.languages.registerCompletionItemProvider('lucene', {
-      provideCompletionItems: (model, position) => {
-        const line: string = model.getLineContent(position.lineNumber);
-
-        const context = line.slice(0, position.column - 1);
-
-        const before = context.replace(/^(.*?[^a-zA-Z._]?)[a-zA-Z._]+$/, '$1');
-        const portion = context.replace(/^.+?[^a-zA-Z._]([a-zA-Z._]+)$/, '$1');
-
-        if (before.trim().endsWith(':')) {
-          const key = before.trim().replace(/^.*?[^a-zA-Z._]?([a-zA-Z._]+):$/, '$1');
-
-          if (config.lookups[key]) {
-            const _position = model.getWordUntilPosition(position);
-
-            return {
-              suggestions: (config.lookups[key] as string[]).map(_value => ({
-                label: _value,
-                kind: monaco.languages.CompletionItemKind.Constant,
-                insertText: _value,
-                range: {
-                  startLineNumber: position.lineNumber,
-                  endLineNumber: position.lineNumber,
-                  startColumn: _position.startColumn,
-                  endColumn: _position.endColumn
-                }
-              }))
-            };
-          }
-        }
-
-        const range = {
-          startLineNumber: position.lineNumber,
-          endLineNumber: position.lineNumber,
-          startColumn: before.length + 1,
-          endColumn: before.length + portion.length
-        };
-
-        if (portion) {
-          const fuzzyMatches = fuse.search(portion);
-          return {
-            suggestions: fuzzyMatches.map(({ item }) => ({
-              label: item.key,
-              detail: item.type,
-              documentation: item.description,
-              kind: monaco.languages.CompletionItemKind.Property,
-              insertText: item.key,
-              range
-            }))
-          };
-        } else {
-          return {
-            suggestions: hitFields.map(_field => ({
-              label: _field.key,
-              detail: _field.type,
-              documentation: _field.description,
-              kind: monaco.languages.CompletionItemKind.Property,
-              insertText: _field.key,
-              range
-            }))
-          };
-        }
-      }
-    });
-
-    return () => {
-      completionDisposable?.dispose();
-      monarchDisposable?.dispose();
-    };
-  }, [config.lookups, fuse, hitFields, monaco]);
+    await new Promise<void>(res =>
+      showModal(<CorrelationModal onSubmit={res} fileData={query} type={type} />, {
+        maxWidth: '85vw',
+        maxHeight: '85vh'
+      })
+    );
+  }, [query, response, showModal, showWarningMessage, t, type]);
 
   useEffect(() => {
     if (!monaco) {
@@ -217,34 +190,40 @@ const QueryBuilder: FC = () => {
     monaco.editor.addEditorAction({
       id: 'execute-query',
       label: t('route.advanced.execute.query'),
+      contextMenuGroupId: 'howler',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run: execute
     });
-  }, [execute, monaco, t]);
+
+    monaco.editor.addEditorAction({
+      id: 'save-query',
+      label: t('route.advanced.create.correlation'),
+      contextMenuGroupId: 'howler',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      run: onCreateCorrelation
+    });
+  }, [execute, monaco, onCreateCorrelation, t]);
 
   useEffect(() => {
     getHitFields();
   }, [getHitFields]);
 
+  useEffect(() => {
+    setResponse(null);
+
+    if (!monaco) {
+      return;
+    }
+
+    monaco.editor.getModels().forEach(model => {
+      model.setValue(DEFAULT_VALUES[type]);
+    });
+  }, [type, monaco]);
+
   return (
     <PageCenter width="100%" maxWidth="100%" margin={0} textAlign="left">
       <Stack ref={wrapper}>
         <Stack direction="row" spacing={1} sx={{ px: 2, pb: 1, height: '48px' }}>
-          <TuiButton
-            size="small"
-            variant="outlined"
-            startIcon={
-              loading ? (
-                <CircularProgress size={18} color="success" />
-              ) : (
-                <PlayArrowOutlined color="success" sx={{ '& path': { stroke: 'currentcolor', strokeWidth: '1px' } }} />
-              )
-            }
-            color="success"
-            onClick={execute}
-          >
-            {t('execute')}
-          </TuiButton>
           <Autocomplete
             renderTags={values =>
               values.length <= 3 ? (
@@ -295,8 +274,37 @@ const QueryBuilder: FC = () => {
               />
             </Stack>
           </Card>
+          <Select value={type} onChange={event => setType(event.target.value as 'eql' | 'lucene')}>
+            {QUERY_TYPES.map(_type => (
+              <MenuItem key={_type} value={_type}>
+                {t(`route.advanced.query.${_type}`)}
+              </MenuItem>
+            ))}
+          </Select>
           <FlexOne />
-          <TuiButton variant="outlined" color="info" startIcon={<SsidChart />} disabled={!response}>
+          <TuiButton
+            size="small"
+            variant="outlined"
+            startIcon={
+              loading ? (
+                <CircularProgress size={18} color="success" />
+              ) : (
+                <PlayArrowOutlined color="success" sx={{ '& path': { stroke: 'currentcolor', strokeWidth: '1px' } }} />
+              )
+            }
+            color="success"
+            onClick={execute}
+          >
+            {t('execute')}
+          </TuiButton>
+          <TuiButton
+            variant="outlined"
+            color="info"
+            startIcon={<SsidChart />}
+            onClick={onCreateCorrelation}
+            disabled={!response}
+            tooltip={!response && t('route.advanced.create.correlation.disabled')}
+          >
             {t('route.advanced.create.correlation')}
           </TuiButton>
         </Stack>
@@ -306,23 +314,7 @@ const QueryBuilder: FC = () => {
           sx={{ position: 'relative', overflow: 'hidden', borderTop: `thin solid ${theme.palette.divider}` }}
         >
           <Box sx={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: `calc(50% + 7px - ${x}px)`, pt: 1 }}>
-            <Editor
-              height="100%"
-              width="100%"
-              theme="howler"
-              defaultLanguage="lucene"
-              language="lucene"
-              value={query}
-              onChange={value => setQuery(value)}
-              beforeMount={beforeEditorMount}
-              options={{
-                minimap: { enabled: false },
-                overviewRulerBorder: false,
-                renderLineHighlight: 'gutter',
-                fontSize: 16,
-                autoClosingBrackets: 'always'
-              }}
-            />
+            <QueryEditor query={query} setQuery={setQuery} language={type} />
           </Box>
           <Box
             sx={{
@@ -357,11 +349,22 @@ const QueryBuilder: FC = () => {
               }
             }}
           >
-            <JSONViewer data={response ?? {}} collapse={false} />
+            {response ? (
+              <JSONViewer data={response ?? {}} collapse={false} />
+            ) : (
+              <Stack alignItems="center" p={2}>
+                <Typography variant="h3" sx={{ mt: 4, color: 'text.secondary', opacity: 0.7 }}>
+                  {t('route.advanced.result.title')}
+                </Typography>
+                <Typography variant="h5" sx={{ mt: 2, color: 'text.secondary', opacity: 0.7 }}>
+                  {t('route.advanced.result.description')}
+                </Typography>
+              </Stack>
+            )}
           </Box>
           {error && (
             <Alert
-              sx={{ position: 'absolute', bottom: 0, left: 0, right: '50%', m: 1, mr: 13 }}
+              sx={{ position: 'absolute', bottom: 0, left: 0, right: '50%', m: 1, mr: 13, maxHeight: '40vh' }}
               variant="outlined"
               color="error"
             >
