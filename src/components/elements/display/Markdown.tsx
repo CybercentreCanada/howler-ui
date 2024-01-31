@@ -108,7 +108,7 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
         }
       }}
     >
-      {md.replace(/<!--.+?-->/g, '')}
+      {md?.replace(/<!--.+?-->/g, '')}
     </ReactMarkdown>
   );
 };
