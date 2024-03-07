@@ -22,7 +22,8 @@ variables:
   repoName: 'howler-ui'
   isPrBranch: $[eq(variables['Build.SourceBranchName'], 'merge')]
 
-pool: 'stratus-build-pool.u'
+pool:
+  vmImage: "ubuntu-latest"
 
 stages:
   - stage: Build
