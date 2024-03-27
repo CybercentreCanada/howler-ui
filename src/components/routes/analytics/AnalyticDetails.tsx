@@ -60,11 +60,6 @@ const AnalyticDetails = () => {
     [analytic?.contributors, analytic?.owner]
   );
 
-  const filteredContributors = useMemo(
-    () => (analytic?.contributors ?? []).filter(user => user !== analytic?.owner),
-    [analytic?.contributors, analytic?.owner]
-  );
-
   useEffect(() => {
     dispatchApi(api.analytic.get(params.id) as Promise<Analytic>).then(setAnalytic);
   }, [dispatchApi, params.id]);
