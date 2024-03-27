@@ -57,26 +57,6 @@
         ]
       }
     ],
-    "arrow-parens": [
-      "error",
-      "as-needed"
-    ],
-    "import/no-extraneous-dependencies": [
-      "warn",
-      {
-        "packageDir": "./"
-      }
-    ],
-    "arrow-parens": [
-      "error",
-      "as-needed"
-    ],
-    "import/no-extraneous-dependencies": [
-      "warn",
-      {
-        "packageDir": "./"
-      }
-    ],
     "import/imports-first": [
       "error",
       "absolute-first"
