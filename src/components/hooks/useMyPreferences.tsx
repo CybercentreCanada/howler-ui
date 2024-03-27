@@ -144,6 +144,15 @@ export default function useMyPreferences(): AppPreferenceConfigs {
         }
       },
       {
+        type: 'item',
+        element: {
+          id: 'advanced',
+          i18nKey: 'route.advanced',
+          route: '/advanced',
+          icon: <Code />
+        }
+      },
+      {
         type: 'divider',
         element: null
       },

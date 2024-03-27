@@ -13,7 +13,7 @@ import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import i18n from 'i18n';
 import { Hit } from 'models/entities/generated/Hit';
-import { FC, ReactNode, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, memo, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';

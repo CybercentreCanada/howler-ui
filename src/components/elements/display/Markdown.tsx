@@ -8,8 +8,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import DynamicTabs from './DynamicTabs';
-import { Notebook } from './Notebook';
 import { codeTabs } from './markdownPlugins/tabs';
+import { Notebook } from './Notebook';
 
 const customComponents = (type: string, children: any) => {
   const child = children instanceof Array ? children[0] : children;

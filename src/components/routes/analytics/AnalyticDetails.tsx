@@ -22,12 +22,12 @@ import api from 'api';
 import useAppUser from 'commons/components/app/hooks/useAppUser';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { UserListContext } from 'components/app/providers/UserListProvider';
-import UserList from 'components/elements/UserList';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
+import UserList from 'components/elements/UserList';
 import useMyApi from 'components/hooks/useMyApi';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { HowlerUser } from 'models/entities/HowlerUser';
 import { Analytic } from 'models/entities/generated/Analytic';
+import { HowlerUser } from 'models/entities/HowlerUser';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
@@ -57,6 +57,11 @@ const AnalyticDetails = () => {
 
   const filteredContributors = useMemo(
     () => (analytic?.contributors ?? []).filter(_user => _user !== analytic?.owner),
+    [analytic?.contributors, analytic?.owner]
+  );
+
+  const filteredContributors = useMemo(
+    () => (analytic?.contributors ?? []).filter(user => user !== analytic?.owner),
     [analytic?.contributors, analytic?.owner]
   );
 
