@@ -46,4 +46,4 @@ export function del(ids: string[]): Promise<{ success: boolean }> {
   return hdelete(uri(), ids);
 }
 
-export { comments, transition, assign, labels };
+export { assign, comments, labels, transition };

@@ -7,6 +7,30 @@ import { Link } from 'react-router-dom';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
+import DynamicTabs from './DynamicTabs';
+import { Notebook } from './Notebook';
+import { codeTabs } from './markdownPlugins/tabs';
+
+const customComponents = (type: string, children: any) => {
+  const child = children instanceof Array ? children[0] : children;
+  if (type === 'alert') {
+    return (
+      <Alert severity="info" variant="outlined" sx={{ '.MuiAlert-message': { whiteSpace: 'normal' } }}>
+        {child}
+      </Alert>
+    );
+  } else if (type === 'notebook') {
+    return <Notebook ipynb={child} />;
+  } else if (type === 'tabs') {
+    return (
+      <DynamicTabs
+        tabs={JSON.parse(child).map(t => ({ title: t.title, children: customComponents(t.lang, t.value) }))}
+      />
+    );
+  } else {
+    return <code>{child}</code>;
+  }
+};
 
 const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } }> = ({ md, components = {} }) => {
   const { isDark } = useAppTheme();
@@ -14,7 +38,7 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
 
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={[remarkGfm, codeTabs]}
       components={{
         code({ node, inline, className, children, ...props }) {
           if (node.children?.length === 1 && node.children[0].type === 'text') {
@@ -27,12 +51,8 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
 
           const match = /language-(\w+)/.exec(className || '');
 
-          if (match && match[1] === 'alert') {
-            return (
-              <Alert severity="info" variant="outlined" sx={{ '.MuiAlert-message': { whiteSpace: 'normal' } }}>
-                {children}
-              </Alert>
-            );
+          if (match && ['alert', 'notebook', 'tabs'].includes(match[1])) {
+            return customComponents(match[1], children);
           }
 
           return !inline && match ? (
@@ -88,7 +108,7 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
         }
       }}
     >
-      {md}
+      {md?.replace(/<!--.+?-->/g, '')}
     </ReactMarkdown>
   );
 };

@@ -33,7 +33,10 @@ export default function useLogin() {
 
       // If successful, continue
       if (user) {
-        setUser(user);
+        setUser({
+          ...user,
+          favourite_analytics: user.favourite_analytics ?? []
+        });
 
         // Either navigate to the original URL, or just the home page
         if (get(StorageKey.NEXT_LOCATION)) {

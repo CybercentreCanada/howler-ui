@@ -1,6 +1,7 @@
 import { joinUri, uri as parentUri } from 'api';
 import * as action from 'api/search/action';
 import * as analytic from 'api/search/analytic';
+import * as count from 'api/search/count';
 import * as facet from 'api/search/facet';
 import * as fields from 'api/search/fields';
 import * as grouped from 'api/search/grouped';
@@ -32,4 +33,28 @@ export type HowlerSearchResponse<T> = {
   total: number;
 };
 
-export { fields, hit, view, user, grouped, histogram, analytic, action, facet, template };
+export type HowlerEQLSearchResponse<T> = {
+  items: T[];
+  sequences: T[][];
+  offset: number;
+  rows: number;
+  total: number;
+};
+
+export type HowlerEQLSearchRequest = {
+  eql_query: string;
+  rows?: number;
+  fl?: string;
+  timeout?: number;
+  filters?: string[];
+};
+
+export type HowlerSigmaSearchRequest = {
+  sigma: string;
+  rows?: number;
+  fl?: string;
+  timeout?: number;
+  filters?: string[];
+};
+
+export { action, analytic, count, facet, fields, grouped, histogram, hit, template, user, view };

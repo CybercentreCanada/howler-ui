@@ -1,9 +1,10 @@
 import * as api from 'api';
 import { indexed, SearchField, uri as parentUri } from 'api/search/fields';
-import urlJoin from 'url-join';
+// import urlJoin from 'url-join';
+import { joinUri } from 'api';
 
 export function uri() {
-  return urlJoin(parentUri(), 'user');
+  return joinUri(parentUri(), 'user');
 }
 
 export async function get(): Promise<SearchField[]> {

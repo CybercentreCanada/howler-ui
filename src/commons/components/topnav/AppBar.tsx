@@ -1,5 +1,4 @@
-import { Box, Toolbar, useMediaQuery, useTheme } from '@mui/material';
-import MuiAppBar from '@mui/material/AppBar';
+import { Box, AppBar as MuiAppBar, Toolbar, useMediaQuery, useTheme } from '@mui/material';
 import { APPBAR_READY_EVENT } from 'commons/components/app/hooks/useAppBarHeight';
 import useAppBreadcrumbs from 'commons/components/app/hooks/useAppBreadcrumbs';
 import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
@@ -11,9 +10,9 @@ import ThemeSelectionIcon from 'commons/components/topnav/ThemeSelectionIcon';
 import UserProfile from 'commons/components/topnav/UserProfile';
 import { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 import useAppBar from '../app/hooks/useAppBar';
-import { Notification } from '../notification';
 import AppSearch from '../search/AppSearch';
 import AppName from './AppName';
+import { Notifications } from './Notifications';
 
 export const AppBarBase = ({ children }) => {
   const layout = useAppLayout();
@@ -123,9 +122,9 @@ const AppBar = () => {
         <div style={{ flex: 1 }} />
         {rightBeforeSearch}
         {quicksearch.show && <AppSearch />}
+        <Notifications />
         {right}
         {themeSelectionMode === 'icon' && <ThemeSelectionIcon />}
-        {configs.preferences.notificationURLs && <Notification urls={configs.preferences.notificationURLs} />}
         <AppSwitcher />
         {!configs.preferences.topnav.hideUserAvatar && <UserProfile />}
       </Toolbar>

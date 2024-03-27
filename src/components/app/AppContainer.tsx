@@ -1,9 +1,12 @@
 import FlexVertical from 'commons/addons/flexers/FlexVertical';
 import { FC } from 'react';
 import { Outlet } from 'react-router';
+import useTitle from './hooks/useTitle';
 import AppDrawerProvider from './providers/AppDrawerProvider';
 
 const AppContainer: FC = () => {
+  useTitle();
+
   return (
     <FlexVertical>
       <AppDrawerProvider>

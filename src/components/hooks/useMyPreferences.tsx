@@ -1,12 +1,18 @@
 import {
   Article,
+  Code,
   Dashboard,
+  Edit,
   Help,
+  HelpCenter,
+  Key,
   ManageSearch,
   QueryStats,
   SavedSearch,
   Search,
   SettingsSuggest,
+  Shield,
+  Storage,
   SupervisorAccount,
   Terminal
 } from '@mui/icons-material';
@@ -60,15 +66,6 @@ export default function useMyPreferences(): AppPreferenceConfigs {
         }
       },
       {
-        type: 'item',
-        element: {
-          id: 'search.hit',
-          i18nKey: 'route.hits',
-          route: '/hits',
-          icon: <Search />
-        }
-      },
-      {
         type: 'group',
         element: {
           id: 'views',
@@ -78,50 +75,69 @@ export default function useMyPreferences(): AppPreferenceConfigs {
         }
       },
       {
-        type: 'item',
-        element: {
-          id: 'views.manager',
-          i18nKey: 'route.views.manager',
-          route: '/views',
-          icon: <ManageSearch />
-        }
-      },
-      {
-        type: 'item',
-        element: {
-          id: 'templates',
-          i18nKey: 'route.templates',
-          route: '/templates',
-          icon: <Article />
-        }
-      },
-      {
-        type: 'item',
+        type: 'group',
         element: {
           id: 'analytics',
-          i18nKey: 'route.analytics',
-          route: '/analytics',
-          icon: <QueryStats />
+          i18nKey: 'route.analytics.pinned',
+          icon: <QueryStats />,
+          items: []
         }
+      },
+      {
+        type: 'item',
+        element: {
+          id: 'search.hit',
+          i18nKey: 'route.search',
+          route: '/search',
+          icon: <Search />
+        }
+      },
+      {
+        type: 'item',
+        element: {
+          id: 'advanced',
+          i18nKey: 'route.advanced',
+          route: '/advanced',
+          icon: <Code />
+        }
+      },
+      {
+        type: 'divider',
+        element: null
       },
       {
         type: 'group',
         element: {
-          id: 'action',
-          i18nKey: 'route.actions',
-          icon: <SettingsSuggest />,
-          userPropValidators: [{ prop: 'roles', value: ['automation_basic'] }],
+          id: 'manage',
+          i18nKey: 'manage',
+          icon: <Edit />,
           items: [
             {
-              id: 'action.change',
-              i18nKey: 'route.actions.change',
-              icon: <Terminal />,
-              route: '/action/execute'
+              id: 'manage.views',
+              i18nKey: 'route.views',
+              icon: <ManageSearch />,
+              nested: true,
+              route: '/views'
             },
             {
-              id: 'action.search',
-              i18nKey: 'route.actions.manager',
-              icon: <Search />,
+              id: 'manage.analytics',
+              i18nKey: 'route.analytics',
+              icon: <QueryStats />,
+              nested: true,
+              route: '/analytics'
+            },
+            {
+              id: 'manage.templates',
+              i18nKey: 'route.templates',
+              icon: <Article />,
+              nested: true,
+              route: '/templates'
+            },
+            {
+              id: 'manage.actions',
+              i18nKey: 'route.actions',
+              icon: <Terminal />,
+              nested: true,
               route: '/action'
             },
           ].filter(entry => !!entry)
@@ -138,13 +154,45 @@ export default function useMyPreferences(): AppPreferenceConfigs {
           i18nKey: 'page.help',
           icon: <Help />,
           items: [
-            { id: 'help.client', i18nKey: 'route.help.client', route: '/help/client', nested: true },
-            { id: 'help.hit', i18nKey: 'route.help.hit', route: '/help/hit', nested: true },
-            { id: 'help.search', i18nKey: 'route.help.search', route: '/help/search', nested: true },
-            { id: 'help.templates', i18nKey: 'route.help.templates', route: '/help/templates', nested: true },
-            { id: 'help.auth', i18nKey: 'route.help.auth', route: '/help/auth', nested: true },
-            { id: 'help.actions', i18nKey: 'route.help.actions', route: '/help/actions', nested: true },
-            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true }
+            {
+              id: 'help.main',
+              i18nKey: 'route.help.main',
+              route: '/help',
+              nested: true,
+              icon: <HelpCenter />
+            },
+            {
+              id: 'help.client',
+              i18nKey: 'route.help.client',
+              route: '/help/client',
+              nested: true,
+              icon: <Terminal />
+            },
+            { id: 'help.hit', i18nKey: 'route.help.hit', route: '/help/hit', nested: true, icon: <Shield /> },
+            { id: 'help.search', i18nKey: 'route.help.search', route: '/help/search', nested: true, icon: <Search /> },
+            {
+              id: 'help.views',
+              i18nKey: 'route.help.views',
+              route: '/help/views',
+              nested: true,
+              icon: <SavedSearch />
+            },
+            {
+              id: 'help.templates',
+              i18nKey: 'route.help.templates',
+              route: '/help/templates',
+              nested: true,
+              icon: <Article />
+            },
+            { id: 'help.auth', i18nKey: 'route.help.auth', route: '/help/auth', nested: true, icon: <Key /> },
+            {
+              id: 'help.actions',
+              i18nKey: 'route.help.actions',
+              route: '/help/actions',
+              nested: true,
+              icon: <SettingsSuggest />
+            },
+            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true, icon: <Storage /> }
           ]
         }
       }

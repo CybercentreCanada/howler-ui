@@ -1,10 +1,16 @@
 import api from 'api';
 import { HowlerSearchResponse } from 'api/search';
+import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { HowlerUser } from 'models/entities/HowlerUser';
 import { Analytic } from 'models/entities/generated/Analytic';
-import { createContext, FC, PropsWithChildren, useCallback, useState } from 'react';
+import { FC, PropsWithChildren, createContext, useCallback, useEffect, useState } from 'react';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 interface AnalyticContextType {
+  ready: boolean;
+  analytics: Analytic[];
+  addFavourite: (analytic: Analytic) => Promise<void>;
+  removeFavourite: (analytic: Analytic) => Promise<void>;
   getIdFromName: (name: string) => Promise<string>;
   getAnalyticFromName: (name: string) => Promise<Analytic>;
 }
@@ -18,7 +24,46 @@ export const AnalyticContext = createContext<AnalyticContextType>(null);
 const PROMISES: { [index: string]: Promise<HowlerSearchResponse<Analytic>> } = {};
 
 const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [analytics, setAnalytics] = useState<{ [name: string]: Analytic }>({});
+  const appUser = useAppUser<HowlerUser>();
+  const [analytics, setAnalytics] = useState<{ ready: boolean; analytics: Analytic[] }>({
+    ready: false,
+    analytics: []
+  });
+
+  const fetchAnalytics = useCallback(
+    async () => setAnalytics({ ready: true, analytics: (await api.analytic.get()) as Analytic[] }),
+    []
+  );
+
+  useEffect(() => {
+    if (!analytics.ready) {
+      fetchAnalytics();
+    }
+  }, [analytics.ready, fetchAnalytics]);
+
+  const addFavourite = useCallback(
+    async (analytic: Analytic) => {
+      await api.analytic.favourite.post(analytic.analytic_id);
+
+      appUser.setUser({
+        ...appUser.user,
+        favourite_analytics: [...appUser.user.favourite_analytics, analytic.analytic_id]
+      });
+    },
+    [appUser]
+  );
+
+  const removeFavourite = useCallback(
+    async (analytic: Analytic) => {
+      await api.analytic.favourite.del(analytic.analytic_id);
+
+      appUser.setUser({
+        ...appUser.user,
+        favourite_analytics: appUser.user.favourite_analytics.filter(v => v !== analytic.analytic_id)
+      });
+    },
+    [appUser]
+  );
 
   const getAnalyticFromName = useCallback(
     async (name: string) => {
@@ -33,16 +78,18 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
         });
       }
 
-      const result = await PROMISES[name];
+      try {
+        const result = await PROMISES[name];
 
-      const analytic = result.items?.[0];
+        const analytic = result.items?.[0];
 
-      if (analytic) {
-        setAnalytics({ ...analytics, [name]: analytic });
-        return analytic;
-      } else {
-        return null;
-      }
+        if (analytic) {
+          setAnalytics({ ...analytics, [name]: analytic });
+          return analytic;
+        }
+      } catch (e) {}
+
+      return null;
     },
     [analytics]
   );
@@ -54,7 +101,13 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
     [getAnalyticFromName]
   );
 
-  return <AnalyticContext.Provider value={{ getAnalyticFromName, getIdFromName }}>{children}</AnalyticContext.Provider>;
+  return (
+    <AnalyticContext.Provider
+      value={{ ...analytics, addFavourite, removeFavourite, getAnalyticFromName, getIdFromName }}
+    >
+      {children}
+    </AnalyticContext.Provider>
+  );
 };
 
 export default AnalyticProvider;

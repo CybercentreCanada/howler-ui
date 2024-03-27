@@ -5,7 +5,6 @@ import {
   Collapse,
   Divider,
   IconButton,
-  InputAdornment,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -25,9 +24,11 @@ import useAppUser from 'commons/components/app/hooks/useAppUser';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import ItemManager from 'components/elements/display/ItemManager';
 import useMyApi from 'components/hooks/useMyApi';
-import { Template } from 'models/entities/generated/Template';
+import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Template } from 'models/entities/generated/Template';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { StorageKey } from 'utils/constants';
 
 const TemplatesBase: FC = () => {
   const { t } = useTranslation();
@@ -37,12 +38,13 @@ const TemplatesBase: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { load } = useTuiListMethods();
   const { templates } = useContext(TemplateContext);
+  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
   const [phrase, setPhrase] = useState<string>('');
   const [offset, setOffset] = useState(parseInt(searchParams.get('offset')) || 0);
   const [showBuiltins, setShowBuiltins] = useState(true);
   const [response, setResponse] = useState<HowlerSearchResponse<Template>>(null);
-  const [type, setType] = useState<'all' | 'personal' | 'global'>('all');
+  const [types, setTypes] = useState<('personal' | 'global')[]>([]);
   const [hasError, setHasError] = useState(false);
   const [searching, setSearching] = useState(false);
 
@@ -61,13 +63,13 @@ const TemplatesBase: FC = () => {
       // Check for the actual search query
       const phraseQuery = phrase ? `*:*${phrase}*` : '*:*';
       // Ensure the template should be visible and/or matches the type we are filtering for
-      const typeQuery = `(type:global OR owner:(${user.username} OR none)) AND type:(${type === 'all' ? '*' : type})`;
+      const typeQuery = `(type:global OR owner:(${user.username} OR none)) AND type:(${types.join(' ') || '*'})`;
 
       setResponse(
         await dispatchApi(
           api.search.template.post({
             query: `${phraseQuery} AND ${typeQuery}`,
-            rows: 25,
+            rows: pageCount,
             offset
           })
         )
@@ -77,7 +79,7 @@ const TemplatesBase: FC = () => {
     } finally {
       setSearching(false);
     }
-  }, [dispatchApi, offset, phrase, searchParams, setSearchParams, type, user.username]);
+  }, [phrase, setSearchParams, searchParams, user.username, types, dispatchApi, pageCount, offset]);
 
   // Load the items into list when response changes.
   // This hook should only trigger when the 'response' changes.
@@ -114,7 +116,7 @@ const TemplatesBase: FC = () => {
       setSearchParams(searchParams, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatchApi, type]);
+  }, [dispatchApi, types]);
 
   useEffect(() => {
     if (response?.total <= offset) {
@@ -173,22 +175,18 @@ const TemplatesBase: FC = () => {
       setPhrase={setPhrase}
       hasError={hasError}
       searching={searching}
-      searchAdornment={
-        <InputAdornment position="end">
+      searchFilters={
+        <Stack direction="row" spacing={1} alignItems="center">
           <ToggleButtonGroup
-            sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}
+            sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignSelf: 'start' }}
             size="small"
-            exclusive
-            value={type}
-            onChange={(__, _type) => {
-              if (_type) {
-                setType(_type);
+            value={types}
+            onChange={(__, _types) => {
+              if (_types) {
+                setTypes(_types.length < 2 ? _types : []);
               }
             }}
           >
-            <ToggleButton value="all" aria-label="all">
-              {t('all')}
-            </ToggleButton>
             <ToggleButton value="personal" aria-label="personal">
               {t('route.templates.manager.personal')}
             </ToggleButton>
@@ -196,7 +194,7 @@ const TemplatesBase: FC = () => {
               {t('route.templates.manager.global')}
             </ToggleButton>
           </ToggleButtonGroup>
-        </InputAdornment>
+        </Stack>
       }
       aboveSearch={
         <Typography
@@ -212,7 +210,7 @@ const TemplatesBase: FC = () => {
         </Button>
       }
       belowSearch={
-        type === 'all' &&
+        types.length !== 1 &&
         offset < 1 &&
         builtInTemplates.length > 0 && (
           <Card sx={{ p: 1, mb: 1 }}>

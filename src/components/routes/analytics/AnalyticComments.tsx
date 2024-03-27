@@ -24,7 +24,7 @@ const AnalyticComments: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
   const { dispatchApi } = useMyApi();
   const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const users = useMyUserList(userIds);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const [length, setLength] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -75,7 +75,7 @@ const AnalyticComments: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
     [loading, onSubmit]
   );
 
-  const checkLength = useCallback(e => setLength(input.current?.value.length), []);
+  const checkLength = useCallback(() => setLength(input.current?.value.length), []);
 
   const handleDelete = useCallback(
     async (commentId: string) => {

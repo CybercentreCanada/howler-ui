@@ -28,8 +28,8 @@ const OperationStep: FC<{
   loading?: boolean;
   query: string;
   step: ActionOperationStep;
-  values: { [index: string]: string };
-  setValues?: (values: { [index: string]: string }) => void;
+  values: string;
+  setValues?: (values: string) => void;
 }> = ({ step, query, values, setValues, readonly, loading }) => {
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
@@ -52,6 +52,7 @@ const OperationStep: FC<{
   );
 
   const args = useMemo(() => getArgsByContext(step.args, values), [step.args, values]);
+  const parsedValues = useMemo(() => JSON.parse(values), [values]);
 
   /**
    * Substitute the current user values into a given validation query
@@ -134,7 +135,7 @@ const OperationStep: FC<{
               key={arg}
               options={opts}
               disabled={readonly || loading}
-              value={values?.[arg] || ''}
+              value={parsedValues?.[arg] || ''}
               renderInput={params => (
                 <TextField
                   {...params}
@@ -149,7 +150,7 @@ const OperationStep: FC<{
                   label={getLabel(arg)}
                 />
               )}
-              onChange={(_, value) => setValues({ ...values, [arg]: value })}
+              onChange={(_, value) => setValues(JSON.stringify({ ...parsedValues, [arg]: value }))}
             />
           );
         } else {
@@ -157,8 +158,8 @@ const OperationStep: FC<{
             <TextField
               key={arg}
               disabled={readonly}
-              value={values?.[arg] || ''}
-              onChange={e => setValues({ ...values, [arg]: e.target.value })}
+              value={parsedValues?.[arg] || ''}
+              onChange={e => setValues(JSON.stringify({ ...parsedValues, [arg]: e.target.value }))}
               label={getLabel(arg)}
             />
           );
@@ -173,7 +174,13 @@ const OperationStep: FC<{
               severity={validationStatus}
               sx={{
                 '& > code': { fontSize: '0.9em' },
-                '& :link': { color: 'inherit', '&:not(:hover)': { textDecoration: 'none' } }
+                '& a': {
+                  color: validationStatus,
+                  '&:visited': {
+                    color: validationStatus
+                  },
+                  '&:not(:hover)': { textDecoration: 'none' }
+                }
               }}
             >
               <AlertTitle>

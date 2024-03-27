@@ -21,7 +21,7 @@ import PageCenter from 'commons/components/pages/PageCenter';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApi from 'components/hooks/useMyApi';
 import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useEffect, useState } from 'react';
+import { FC, Fragment, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 const APIKEY_LABELS = {
@@ -58,7 +58,7 @@ const ApiDocumentation: FC = () => {
       <Stack spacing={2}>
         <Typography variant="h4">{t('page.documentation.categories')}</Typography>
         <TableContainer component={Paper}>
-          <Table sx={{ '&  td': { verticalAlign: 'top' }, '& tr:last-of-type > td': { border: 0 } }}>
+          <Table sx={{ '& td': { verticalAlign: 'top' }, '& tr:last-of-type > td': { border: 0 } }}>
             <TableHead>
               <TableRow>
                 <TableCell>{t('page.documentation.categories.category')}</TableCell>
@@ -136,22 +136,18 @@ const ApiDocumentation: FC = () => {
                       .replace(/(\S+)\s+=>\s+(.+)/g, '\n`$1`: $2\n')
                       .replace(
                         /(Data Block:\n)([\s\S]+)(Result Example:)/,
-                        (_, p1: string, p2: string, p3: string) => `${p1}\`\`\`\n${p2.trim()}\n\`\`\`\n${p3}`
+                        (__, p1: string, p2: string, p3: string) => `${p1}\`\`\`\n${p2.trim()}\n\`\`\`\n${p3}`
                       )
                       .replace(
                         /(Result Example:\n)([\s\S]+)$/,
-                        (_, p1: string, p2: string) => `${p1}\`\`\`\n${p2.trim()}\n\`\`\``
+                        (__, p1: string, p2: string) => `${p1}\`\`\`\n${p2.trim()}\n\`\`\``
                       )}
                   />
                 );
 
                 return (
-                  <>
-                    <TableRow
-                      key={endpoint.function}
-                      style={{ marginBottom: '1rem' }}
-                      sx={[isLg && { '& > td': { borderBottom: 0 } }]}
-                    >
+                  <Fragment key={endpoint.id}>
+                    <TableRow style={{ marginBottom: '1rem' }} sx={[isLg && { '& > td': { borderBottom: 0 } }]}>
                       <TableCell>
                         <Stack direction="column" spacing={1} alignItems="start">
                           <Typography>{endpoint.name}</Typography>
@@ -170,7 +166,7 @@ const ApiDocumentation: FC = () => {
                           </Stack>
                           <Stack spacing={1} direction="row">
                             {endpoint.methods.map(m => (
-                              <Chip size="small" key={m} label={m} />
+                              <Chip key={m} size="small" label={m} />
                             ))}
                           </Stack>
                           {endpoint.ui_only && <Chip size="small" label="UI Only" />}
@@ -204,7 +200,7 @@ const ApiDocumentation: FC = () => {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </TableBody>

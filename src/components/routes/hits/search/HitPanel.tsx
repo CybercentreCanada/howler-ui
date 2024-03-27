@@ -6,7 +6,6 @@ import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import FlexOne from 'commons/addons/flexers/FlexOne';
 import FlexPort from 'commons/addons/flexers/FlexPort';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
-import AppInfoPanel from 'commons/components/display/AppInfoPanel';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
 import BundleButton from 'components/elements/display/icons/BundleButton';
@@ -27,7 +26,6 @@ import { useMyLocalStorageProvider } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
 import { Analytic } from 'models/entities/generated/Analytic';
 import { Hit } from 'models/entities/generated/Hit';
-import { Howler } from 'models/entities/generated/Howler';
 import { HitUpdate } from 'models/socket/HitUpdate';
 import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +50,7 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
   const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const [analytic, setAnalytic] = useState<Analytic>();
   const [tab, setTab] = useState<string>('hit_comments');
-  const [hit, setHit] = useState<Hit>(null);
+  const [hit, _setHit] = useState<Hit>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const users = useMyUserList(userIds);
@@ -85,7 +83,7 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
 
       try {
         const _hit = await dispatchApi(api.hit.get(_hitId));
-        setHit(_hit);
+        _setHit(_hit);
         setUserIds(getUserList(_hit));
         setAnalytic(await getAnalyticFromName(_hit.howler.analytic));
 
@@ -102,9 +100,9 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
   const handler = useMemo(
     () => (data: RecievedDataType<HitUpdate>) => {
       if (!hitId) {
-        setHit(null);
+        _setHit(null);
       } else if (data.hit?.howler.id === hitId) {
-        setHit(data.hit);
+        _setHit(data.hit);
       }
     },
     [hitId]
@@ -157,10 +155,10 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
   }, [tab, fetchHit, isOpen]);
 
   // Memoized callback for HitAction to update 'hit.howler' schema.
-  const setHowler = useCallback(
-    (howler: Howler) => {
-      replaceById({ id: hitId, item: hit }, { id: hitId, item: { ...hit, howler: { ...howler, id: hitId } } });
-      setHit(_hit => ({ ..._hit, howler: howler }));
+  const setHit = useCallback(
+    (newHit: Hit) => {
+      replaceById({ id: hitId, item: hit }, { id: hitId, item: newHit });
+      _setHit(newHit);
     },
     [hit, hitId, replaceById]
   );
@@ -179,11 +177,6 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
     }
   }, [hit, loading]);
 
-  // Right panel placeholder when nothing is selected.
-  if (!loading && !hit) {
-    return <AppInfoPanel i18nKey="hit.panel.hit.noselection" sx={{ mt: 2, ml: 2, mr: 2 }} />;
-  }
-
   return (
     <Stack direction="column" flex={1} height="100%" position="relative" spacing={1} ml={2}>
       <Stack
@@ -192,11 +185,11 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
         spacing={0.5}
         flexShrink={0}
         pr={2}
-        sx={[hit?.howler?.is_bundle && { position: 'absolute', top: 1, right: 0 }]}
+        sx={[hit?.howler?.is_bundle && { position: 'absolute', top: 1, right: 0, zIndex: 10 }]}
       >
         <FlexOne />
         {onClose && (
-          <TuiIconButton size="small" onClick={onClose} tooltip="hit.panel.details.exit">
+          <TuiIconButton size="small" onClick={onClose} tooltip={t('hit.panel.details.exit')}>
             <Clear />
           </TuiIconButton>
         )}
@@ -245,9 +238,10 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
           )}
         </Collapse>
       )}
-      {(hit?.howler?.links?.length > 0) && (
+      {hit?.howler?.links?.length > 0 && (
         <Stack direction="row" spacing={1} pr={2}>
-          {hit?.howler?.links?.length > 0 && hit.howler.links.slice(0, 3).map(l => <RelatedLink compact {...l} />)}
+          {hit?.howler?.links?.length > 0 &&
+            hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href} compact {...l} />)}
         </Stack>
       )}
       <Stack direction="row" alignItems="center" pr={2}>
@@ -292,7 +286,7 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
       {!!hit && hit?.howler && (
         <Box pr={2}>
           <Divider orientation="horizontal" />
-          <HitActions howler={hit.howler} setHowler={setHowler} />
+          <HitActions hit={hit} setHit={setHit} />
         </Box>
       )}
     </Stack>

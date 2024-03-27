@@ -8,15 +8,12 @@ export function uri(id?: string) {
 
 export function post(data: ActionRequest): Promise<ActionReport> {
   if (data.action_id) {
-    return hpost(uri(data.action_id), { request_id: data.request_id });
+    return hpost(uri(data.action_id), { request_id: data.request_id, query: data.query });
   } else {
     return hpost(uri(), {
       request_id: data.request_id,
       query: data.query,
-      operations: data.operations.map(operation => ({
-        ...operation,
-        data_json: operation.data_json ? operation.data_json : JSON.stringify(operation.data)
-      }))
+      operations: data.operations
     });
   }
 }

@@ -146,11 +146,7 @@ const HitViewer: FC = () => {
           sx={{ gridColumn: '1 / span 2', '& [class*=MuiStack-root]': { padding: '0 !important' } }}
           in={orientation === 'horizontal'}
         >
-          <HitActions
-            howler={hit.howler}
-            setHowler={howler => setHit({ ...hit, howler: { ...hit.howler, ...howler } })}
-            orientation="horizontal"
-          />
+          <HitActions hit={hit} setHit={setHit} orientation="horizontal" />
         </Collapse>
         <Box
           sx={{
@@ -202,11 +198,7 @@ const HitViewer: FC = () => {
         </Box>
         <HowlerCard sx={[orientation === 'horizontal' && { height: '0px' }]}>
           <CardContent sx={{ padding: 1, position: 'relative' }}>
-            <HitActions
-              howler={hit.howler}
-              setHowler={howler => setHit({ ...hit, howler: { ...hit.howler, ...howler } })}
-              orientation="vertical"
-            />
+            <HitActions hit={hit} setHit={setHit} orientation="vertical" />
           </CardContent>
         </HowlerCard>
         <Box sx={{ gridColumn: '1 / span 2', mb: 1 }}>

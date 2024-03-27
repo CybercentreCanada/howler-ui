@@ -2,6 +2,8 @@ import { createContext, FC, PropsWithChildren, ReactNode, useCallback, useEffect
 
 export interface ModalOptions {
   disableClose?: boolean;
+  maxWidth?: string;
+  maxHeight?: string;
 }
 
 const defaultOptions: ModalOptions = {

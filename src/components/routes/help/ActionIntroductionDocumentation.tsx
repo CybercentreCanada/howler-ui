@@ -7,13 +7,16 @@ import Markdown from 'components/elements/display/Markdown';
 import { difference } from 'lodash';
 import { ActionOperation } from 'models/ActionTypes';
 import { HowlerUser } from 'models/entities/HowlerUser';
-import raw from 'raw.macro';
+
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VALID_ACTION_TRIGGERS } from 'utils/constants';
 import ActionReportDisplay from '../action/shared/ActionReportDisplay';
 import OperationStep from '../action/shared/OperationStep';
 import QueryResultText from '../action/shared/QueryResultText';
+
+import ACTION_INTRO_EN from './markdown/en/actionIntroduction.md';
+import ACTION_INTRO_FR from './markdown/fr/actionIntroduction.md';
 
 const OPERATION_VALUES = {
   category: 'generic',
@@ -34,11 +37,7 @@ const ActionIntroductionDocumentation: FC = () => {
       .catch(console.debug);
   }, [user.roles]);
 
-  const md = useMemo(
-    () =>
-      i18n.language === 'en' ? raw(`./markdown/en/actionIntroduction.md`) : raw(`./markdown/fr/actionIntroduction.md`),
-    [i18n.language]
-  );
+  const md = useMemo(() => (i18n.language === 'en' ? ACTION_INTRO_EN : ACTION_INTRO_FR), [i18n.language]);
 
   return (
     <Markdown
@@ -93,7 +92,7 @@ const ActionIntroductionDocumentation: FC = () => {
                   key={Object.keys(step.args).join('')}
                   step={step}
                   query="howler.id:*"
-                  values={OPERATION_VALUES}
+                  values={JSON.stringify(OPERATION_VALUES)}
                   setValues={() => {}}
                 />
               ))}

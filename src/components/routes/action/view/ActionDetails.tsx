@@ -18,8 +18,8 @@ import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import useMyApi from 'components/hooks/useMyApi';
 import OperationEntry from 'components/routes/action/shared/OperationEntry';
 import { ActionOperation } from 'models/ActionTypes';
-import { Action } from 'models/entities/generated/Action';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Action } from 'models/entities/generated/Action';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
@@ -171,7 +171,7 @@ const ActionDetails = () => {
         {report && <ActionReportDisplay report={report} operations={operations} />}
         {operations.length > 0 &&
           action &&
-          action.operations.map((a, index) => {
+          action.operations.map(a => {
 
             return (
               <OperationEntry
@@ -179,7 +179,7 @@ const ActionDetails = () => {
                 readonly
                 operations={operations}
                 query={action.query}
-                values={a.data}
+                values={a.data_json}
                 operation={operations.find(_operation => _operation.id === a.operation_id)}
               />
             );

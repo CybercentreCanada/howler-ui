@@ -1,3 +1,5 @@
+<!-- docs/ingestion/bundles.md -->
+
 # Howler Hit Bundles
 
 Hit bundles can be used to easily package together a large number of similar alerts, allowing analysts to easily triage them as a single incident. For example, consider a single computer that repeatedly makes a network call to `baddomain.ru` - while an alert may be generated for every instance of this computer hitting that domain, it makes sense for analysts to treat all these alerts as a single case.
@@ -59,7 +61,7 @@ howler.bundle.create_from_map("example-test", bundle_hit, map, [{"score": 0}])
 
 ## Viewing bundles on the Howler UI
 
-In order to view created bundles on the Howler UI, you can use the query `howler.is_bundle:true`. This will provide a list of created bundles you can look through. For an example of this, you can check the development instance of Howler ([link](https://howler.dev.analysis.cyber.gc.ca/hits?query=howler.is_bundle%3Atrue)).
+In order to view created bundles on the Howler UI, you can use the query `howler.is_bundle:true`. This will provide a list of created bundles you can look through.
 
 Clicking on a bundle will open up a slightly different search UI to normal. In this case, we automatically filter the search results to include only hits that are included in the bundle. To make this obvious, the header representing the bundle will appear above the search bar.
 

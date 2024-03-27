@@ -5,8 +5,9 @@ import i18n from 'i18n';
 import { createContext, ReactNode, useCallback, useMemo } from 'react';
 import useThemeBuilder from '../utils/hooks/useThemeBuilder';
 import { AppStorageKeys } from './AppConstants';
-import { AppContextType } from './AppContexts';
+import { AppContextType, AppNotificationService } from './AppContexts';
 import { AppDefaultsPreferencesConfigs } from './AppDefaults';
+
 import { AppSearchService } from './AppSearchService';
 import { AppUser, AppUserService } from './AppUserService';
 import AppBarProvider from './providers/AppBarProvider';
@@ -23,6 +24,7 @@ export type AppProviderProps<U extends AppUser> = {
   sitemap?: AppSiteMapConfigs;
   user?: AppUserService<U>;
   search?: AppSearchService;
+  notification?: AppNotificationService;
   children: ReactNode;
 };
 
@@ -33,6 +35,7 @@ export default function AppProvider<U extends AppUser>({
   user,
   search,
   sitemap,
+  notification,
   preferences,
   children
 }: AppProviderProps<U>) {
@@ -71,7 +74,7 @@ export default function AppProvider<U extends AppUser>({
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={_darkMode ? darkTheme : lightTheme}>
           <AppUserProvider service={user}>
-            <AppBarProvider search={search}>
+            <AppBarProvider search={search} notification={notification}>
               <AppLeftNavProvider>
                 <AppLayoutProvider>
                   <AppSnackbarProvider>{children}</AppSnackbarProvider>

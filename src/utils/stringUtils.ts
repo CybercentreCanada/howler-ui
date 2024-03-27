@@ -41,3 +41,7 @@ export function safeStringPropertyCompare(propertyPath: string) {
     return aVal && bVal ? aVal.localeCompare(bVal) : aVal ? 1 : 0;
   };
 }
+
+export function sanitizeMultilineLucene(query: string) {
+  return query.replace(/#.+/g, '').replace(/\n{2,}/, '\n');
+}

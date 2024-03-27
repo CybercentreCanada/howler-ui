@@ -18,10 +18,9 @@ import { uniqueId } from 'lodash';
 import { Hit } from 'models/entities/generated/Hit';
 import { HowlerUser } from 'models/entities/HowlerUser';
 import { HitUpdate } from 'models/socket/HitUpdate';
-import { FC, memo, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
-import { useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import { ESCALATION_COLORS, PROVIDER_COLORS } from 'utils/constants';
 import { stringToColor } from 'utils/utils';
@@ -53,7 +52,6 @@ const HitHeader: FC<HitHeaderProps> = ({
   const { config } = useContext(ApiConfigContext);
   const { addListener, removeListener } = useContext(SocketContext);
   const { getIdFromName } = useContext(AnalyticContext);
-  const location = useLocation();
 
   const [analyticId, setAnalyticId] = useState<string>();
 
@@ -64,15 +62,17 @@ const HitHeader: FC<HitHeaderProps> = ({
   useEffect(() => {
     setHit(hitData);
     getIdFromName(hitData.howler?.analytic).then(setAnalyticId);
-  }, [getIdFromName, hitData, hitData.howler.id, setHit]);
+  }, [getIdFromName, hitData]);
 
   const handler = useCallback(
     (data: RecievedDataType<HitUpdate>) => {
-      if (data.hit?.howler.id === hit.howler.id) {
+      // We compare against the ID we're getting from where this is rendered.
+      // This circumvents a bug where switching between bundles wouldn't actually change the hit header
+      if (data.hit?.howler.id === hitData?.howler.id) {
         setHit(data.hit);
       }
     },
-    [hit.howler.id]
+    [hitData?.howler.id]
   );
 
   useEffect(() => {
@@ -366,7 +366,7 @@ const HitHeader: FC<HitHeaderProps> = ({
               color="primary"
             />
           )}
-          {hit.howler.is_bundle && !location.pathname.includes('bundles') && (
+          {hit.howler.is_bundle && (
             <Chip
               size={layout !== HitLayout.COMFY ? 'small' : 'medium'}
               label={t('hit.header.bundlesize', { hits: hit.howler.hits.length })}
@@ -378,4 +378,4 @@ const HitHeader: FC<HitHeaderProps> = ({
   );
 };
 
-export default memo(HitHeader);
+export default HitHeader;

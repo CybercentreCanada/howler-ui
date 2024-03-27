@@ -1,155 +1,123 @@
-import { Add, ArrowUpward, Remove } from '@mui/icons-material';
-import { Chip, Grid, MenuItem, Select, Stack } from '@mui/material';
-import { TuiPhrase } from 'commons/addons/controls';
-import Throttler from 'commons/addons/utils/Throttler';
-import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
-import { isEqual } from 'lodash';
-import { FC, memo, useCallback, useState } from 'react';
+import { Autocomplete, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { FC, memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import CustomSort from './CustomSort';
 
-const THROTTLER = new Throttler(50);
+const CUSTOM = '__custom__';
 
-export interface SortData {
-  [key: string]: { direction: 'asc' | 'desc'; priority: number };
-}
+const ACCEPTED_SORTS = [
+  'event.created',
+  'howler.assessment',
+  'howler.escalation',
+  'howler.analytic',
+  'howler.detection',
+  'event.provider',
+  'organization.name',
+  CUSTOM
+];
 
-const HitSort: FC<{
-  sort: SortData;
-  onChange?: (data: SortData) => void;
-  suggestions: string[];
-}> = ({ sort, onChange, suggestions }) => {
+const HitSort: FC<{ onChange: (sort: string) => void; useDefault?: boolean }> = ({ onChange, useDefault = true }) => {
   const { t } = useTranslation();
+  const [params, setParams] = useSearchParams();
 
-  const [draggedKey, setDraggedKey] = useState<string>(null);
-  const [order, setOrder] = useState(Object.keys(sort).sort((keyA, keyB) => sort[keyA].priority - sort[keyB].priority));
-  const [adding, setAdding] = useState(false);
-  const [phrase, setPhrase] = useState('');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [field, setField] = useState(
+    params.get('sort')?.split(',')[0]?.split(' ')[0] || (useDefault ? ACCEPTED_SORTS[0] : '')
+  );
+  const [sort, setSort] = useState<'asc' | 'desc'>(
+    (params.get('sort')?.split(',')[0]?.split(' ')[1] as 'asc' | 'desc') || 'desc'
+  );
+  const [showCustomSort, setShowCustomSort] = useState(params.get('sort')?.includes(','));
+  const [customSort, setCustomSort] = useState<string | null>(
+    params.get('sort')?.includes(',') ? params.get('sort') : null
+  );
 
-  const handleKeyDown = useCallback(
-    ({ isEnter }: TuiKeyboardParsedEvent) => {
-      if (isEnter && suggestions.includes(phrase)) {
-        onChange({
-          ...sort,
-          [phrase]: {
-            direction: sortDirection,
-            priority: order.length
-          }
-        });
-        setOrder([...order, phrase]);
-        setAdding(false);
-        setPhrase('');
+  const handleChange = useCallback((value: string) => {
+    if (value === CUSTOM) {
+      setShowCustomSort(true);
+      setCustomSort('');
+    } else {
+      setField(value);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (customSort) {
+      onChange(customSort);
+
+      params.set('sort', customSort);
+
+      setParams(params, { replace: true });
+    } else if (field && sort) {
+      onChange(`${field} ${sort}`);
+
+      params.set('sort', `${field} ${sort}`);
+
+      setParams(params, { replace: true });
+    }
+  }, [customSort, field, onChange, params, setParams, sort]);
+
+  useEffect(() => {
+    const _params = new URLSearchParams(window.location.search);
+
+    if (_params.has('sort')) {
+      const rawSort = _params.get('sort');
+
+      if (!rawSort || !rawSort.includes(' ')) {
+        return;
       }
-    },
-    [onChange, order, phrase, sort, sortDirection, suggestions]
-  );
 
-  const onDragStart = useCallback(
-    key => e => {
-      setDraggedKey(key);
-    },
-    []
-  );
+      if (rawSort.includes(',')) {
+        setCustomSort(rawSort);
+        return;
+      }
 
-  const onDragEnd = useCallback(
-    e => {
-      setDraggedKey(null);
+      const [_field, _sort] = rawSort.split(' ');
 
-      const newSortData = Object.keys(sort).reduce((acc, key) => {
-        acc[key] = {
-          direction: sort[key].direction,
-          priority: order.findIndex(o => o === key)
-        };
+      if (!ACCEPTED_SORTS.includes(_field)) {
+        setCustomSort(rawSort);
+        return;
+      }
 
-        return acc;
-      }, {} as SortData);
+      if (_field && field !== _field) {
+        setField(_field);
+      }
 
-      onChange(newSortData);
-    },
-    [onChange, order, sort]
-  );
+      if (['asc', 'desc'].includes(_sort) && _sort !== sort) {
+        setSort(_sort as 'asc' | 'desc');
 
-  const onDragEnter = useCallback(
-    key => e => {
-      THROTTLER.throttle(() => {
-        const currentIndex = order.findIndex(o => o === draggedKey);
-        const newIndex = order.findIndex(o => o === key);
-
-        const newOrder = [...order];
-        newOrder.splice(currentIndex, 1, key);
-        newOrder.splice(newIndex, 1, draggedKey);
-
-        if (isEqual(order, newOrder)) {
-          return;
+        if (_field) {
+          onChange(`${_field} ${_sort}`);
         }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window.location.search]);
 
-        setOrder(newOrder);
-      });
-    },
-    [draggedKey, order]
-  );
-
-  return (
-    <Stack spacing={1}>
-      <Grid container spacing={1}>
-        {Object.keys(sort)
-          .sort((a, b) => order.findIndex(o => o === a) - order.findIndex(o => o === b))
-          .map(key => (
-            <Grid key={key} item xs="auto" onDragEnter={onDragEnter(key)}>
-              <Chip
-                draggable={order.length > 1}
-                sx={[key === draggedKey && { opacity: 0.5 }]}
-                onDragStart={onDragStart(key)}
-                onDragEnd={onDragEnd}
-                variant="outlined"
-                icon={
-                  <ArrowUpward
-                    sx={{ transition: 'rotate 250ms', rotate: sort[key].direction === 'desc' ? '180deg' : '0deg' }}
-                  />
-                }
-                label={key}
-                onClick={() =>
-                  onChange({
-                    ...sort,
-                    [key]: { ...sort[key], direction: sort[key].direction === 'asc' ? 'desc' : 'asc' }
-                  })
-                }
-                onDelete={() => {
-                  let newSort = { ...sort };
-                  delete newSort[key];
-                  onChange(newSort);
-                }}
-              />
-            </Grid>
-          ))}
-        <Grid item xs="auto">
-          <Chip
-            icon={adding ? <Remove /> : <Add />}
-            label={adding ? t('close') : t('add')}
-            onClick={() => setAdding(!adding)}
-          />
-        </Grid>
-      </Grid>
-      {adding && (
-        <Stack direction="row" spacing={1} alignSelf="stretch" sx={{ '& > :first-of-type': { flex: 1 } }}>
-          <TuiPhrase
-            sx={{ flex: 1 }}
-            suggestions={suggestions}
-            value={phrase}
-            onChange={newPhrase => setPhrase(newPhrase || '')}
-            onKeyDown={handleKeyDown}
-          />
-          <Select
-            sx={{ minWidth: '200px' }}
-            value={sortDirection}
-            onChange={e => setSortDirection(e.target.value as 'asc' | 'desc')}
-          >
-            <MenuItem value="asc">{t('asc')}</MenuItem>
-            <MenuItem value="desc">{t('desc')}</MenuItem>
-          </Select>
-        </Stack>
-      )}
+  return !showCustomSort ? (
+    <Stack direction="row" spacing={1}>
+      <Autocomplete
+        fullWidth
+        sx={{ minWidth: '175px' }}
+        size="small"
+        value={field}
+        options={ACCEPTED_SORTS}
+        getOptionLabel={option => (option === CUSTOM ? t('hit.search.custom') : option)}
+        renderInput={_params => <TextField {..._params} label={t('hit.search.sort.fields')} />}
+        onChange={(_, value) => handleChange(value)}
+      />
+      <Select
+        size="small"
+        sx={{ minWidth: '150px' }}
+        value={sort}
+        onChange={e => setSort(e.target.value as 'asc' | 'desc')}
+      >
+        <MenuItem value="asc">{t('asc')}</MenuItem>
+        <MenuItem value="desc">{t('desc')}</MenuItem>
+      </Select>
     </Stack>
+  ) : (
+    <CustomSort customSort={customSort} setCustomSort={setCustomSort} />
   );
 };
 

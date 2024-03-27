@@ -3,6 +3,7 @@ import {
   Box,
   Card,
   CardContent,
+  Chip,
   Divider,
   IconButton,
   ListItemText,
@@ -23,7 +24,7 @@ const OperationEntry: FC<{
   query: string;
   operation: ActionOperation;
   readonly?: boolean;
-  values?: { [index: string]: string };
+  values?: string;
   operations: ActionOperation[];
   onChange?: (operation: Operation) => void;
   onDelete?: () => void;
@@ -37,7 +38,7 @@ const OperationEntry: FC<{
       if (onChange) {
         onChange({
           operation_id: e.target.value,
-          data: {}
+          data_json: '{}'
         });
       }
     },
@@ -49,18 +50,28 @@ const OperationEntry: FC<{
       <CardContent>
         <Stack spacing={2}>
           <Stack direction="row" alignItems="start" spacing={1}>
-            <Select
-              value={operation.id}
-              size="small"
-              disabled={readonly || operations.length < 2}
-              onChange={handleChange}
-            >
-              {operations.map(_a => (
-                <MenuItem key={_a.id} value={_a.id}>
-                  <ListItemText primary={t(_a.i18nKey) ?? _a.title} secondary={_a.description?.short} />
-                </MenuItem>
+            <Stack spacing={1}>
+              <Select
+                value={operation.id}
+                size="small"
+                disabled={readonly || operations.length < 2}
+                onChange={handleChange}
+              >
+                {operations
+                  .sort((a, b) => (b.priority ?? -1) - (a.priority ?? -1))
+                  .map(_operation => (
+                    <MenuItem key={_operation.id} value={_operation.id}>
+                      <ListItemText
+                        primary={t(_operation.i18nKey) ?? _operation.title}
+                        secondary={_operation.description?.short}
+                      />
+                    </MenuItem>
+                  ))}
+              </Select>
+              {operation.triggers.map(_trigger => (
+                <Chip size="small" label={t(`route.actions.trigger.${_trigger}`)} sx={{ alignSelf: 'start' }} />
               ))}
-            </Select>
+            </Stack>
             <Divider flexItem orientation="vertical" />
             <Box flex={1} sx={{ '& pre': { whiteSpace: 'normal' } }}>
               <Markdown md={operation.description?.long} />
@@ -89,7 +100,7 @@ const OperationEntry: FC<{
                   setValues={_values =>
                     onChange({
                       operation_id: operation.id,
-                      data: _values
+                      data_json: _values
                     })
                   }
                 />

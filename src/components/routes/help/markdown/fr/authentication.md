@@ -1,3 +1,5 @@
+<!-- docs/ingestion/authentication.fr.md -->
+
 # Authentification de Howler
 
 L'API de Howler prend en charge un certain nombre d'approches d'authentification lors de l'accès à l'API. Ce document présente les

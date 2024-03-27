@@ -1,10 +1,9 @@
 import { Add, Delete } from '@mui/icons-material';
 import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { TuiPhrase } from 'commons/addons/controls';
-import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import lodash from 'lodash';
+import { default as _, default as lodash } from 'lodash';
 import { Hit } from 'models/entities/generated/Hit';
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +36,7 @@ const TemplateEditor = ({
   }, [fields, onAdd, phrase, suggestions]);
 
   const checkForActions = useCallback(
-    (e: TuiKeyboardParsedEvent) => {
+    (e: any) => {
       if (e.isEnter) {
         tryAddField();
       }
@@ -62,7 +61,7 @@ const TemplateEditor = ({
                 </Typography>
               </Tooltip>
               <Typography variant="body1" whiteSpace="normal" sx={{ width: '100%', wordBreak: 'break-all' }}>
-                {Array.isArray(data) ? data.join(', ') : data ?? 'N/A'}
+                {_.isObject(data) ? JSON.stringify(data) : data ?? 'N/A'}
               </Typography>
               <Tooltip title={t('button.delete')}>
                 <IconButton size="medium" onClick={e => onRemove(field)} sx={{ marginLeft: 'auto' }}>

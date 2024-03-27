@@ -15,33 +15,37 @@ import useMyPreferences from 'components/hooks/useMyPreferences';
 import useMySitemap from 'components/hooks/useMySitemap';
 import useMyTheme from 'components/hooks/useMyTheme';
 import useMyUser from 'components/hooks/useMyUser';
-import useLogin from 'components/logins/hooks/useLogin';
 import LoginScreen from 'components/logins/Login';
+import useLogin from 'components/logins/hooks/useLogin';
 import NotFoundPage from 'components/routes/404';
+import Logout from 'components/routes/Logout';
 import ActionEditor from 'components/routes/action/edit/ActionEditor';
 import ActionDetails from 'components/routes/action/view/ActionDetails';
 import ActionSearchProvider from 'components/routes/action/view/ActionSearch';
 import UserEditor from 'components/routes/admin/users/UserEditor';
 import UserSearchProvider from 'components/routes/admin/users/UserSearch';
+import QueryBuilder from 'components/routes/advanced/QueryBuilder';
 import AnalyticDetails from 'components/routes/analytics/AnalyticDetails';
 import AnalyticSearch from 'components/routes/analytics/AnalyticSearch';
 import ActionDocumentation from 'components/routes/help/ActionDocumentation';
 import ApiDocumentation from 'components/routes/help/ApiDocumentation';
 import AuthDocumentation from 'components/routes/help/AuthDocumentation';
 import ClientDocumentation from 'components/routes/help/ClientDocumentation';
+import HelpDashboard from 'components/routes/help/Help';
 import HitDocumentation from 'components/routes/help/HitDocumentation';
 import SearchDocumentation from 'components/routes/help/SearchDocumentation';
 import TemplateDocumentation from 'components/routes/help/TemplateDocumentation';
+import ViewDocumentation from 'components/routes/help/ViewDocumentation';
 import HitBrowser from 'components/routes/hits/search/HitBrowser';
 import HitViewer from 'components/routes/hits/view/HitViewer';
-import Home from 'components/routes/Home';
-import Logout from 'components/routes/Logout';
+import Home from 'components/routes/home';
 import Settings from 'components/routes/settings/Settings';
-import Templates from 'components/routes/templates/Templates';
 import TemplateViewer from 'components/routes/templates/TemplateViewer';
+import Templates from 'components/routes/templates/Templates';
+import ViewComposer from 'components/routes/views/ViewComposer';
 import Views from 'components/routes/views/Views';
-import { Hit } from 'models/entities/generated/Hit';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Hit } from 'models/entities/generated/Hit';
 import { FC, PropsWithChildren, useEffect } from 'react';
 import { Routes, useLocation, useNavigate } from 'react-router';
 import { BrowserRouter, Route } from 'react-router-dom';
@@ -51,6 +55,7 @@ import AppContainer from './AppContainer';
 import AnalyticProvider from './providers/AnalyticProvider';
 import ApiConfigProvider from './providers/ApiConfigProvider';
 import AvatarProvider from './providers/AvatarProvider';
+import FavouriteProvider from './providers/FavouritesProvider';
 import FieldProvider from './providers/FieldProvider';
 import LocalStorageProvider from './providers/LocalStorageProvider';
 import ModalProvider from './providers/ModalProvider';
@@ -119,15 +124,20 @@ const MyApp: FC = () => {
       >
         <Route index element={<Home />} />
         <Route path="hits" element={<HitBrowser />} />
+        <Route path="search" element={<HitBrowser />} />
         <Route path="hits/:id" element={<HitViewer />} />
         <Route path="bundles/:id" element={<HitBrowser />} />
         <Route path="templates" element={<Templates />} />
         <Route path="templates/view" element={<TemplateViewer />} />
         <Route path="views" element={<Views />} />
+        <Route path="views/create" element={<ViewComposer />} />
+        <Route path="views/:id" element={<HitBrowser />} />
+        <Route path="views/:id/edit" element={<ViewComposer />} />
         <Route path="admin/users" element={<UserSearchProvider />} />
         <Route path="admin/users/:id" element={<UserEditor />} />
         <Route path="analytics" element={<AnalyticSearch />} />
         <Route path="analytics/:id" element={<AnalyticDetails />} />
+        <Route path="help" element={<HelpDashboard />} />
         <Route path="help/search" element={<SearchDocumentation />} />
         <Route path="help/api" element={<ApiDocumentation />} />
         <Route path="help/auth" element={<AuthDocumentation />} />
@@ -135,16 +145,17 @@ const MyApp: FC = () => {
         <Route path="help/hit" element={<HitDocumentation />} />
         <Route path="help/templates" element={<TemplateDocumentation />} />
         <Route path="help/actions" element={<ActionDocumentation />} />
+        <Route path="help/views" element={<ViewDocumentation />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="advanced" element={<QueryBuilder />} />
         {appUser.user?.roles?.includes('automation_basic') && (
           <Route path="action">
             <Route index element={<ActionSearchProvider />} />
-            <Route path="create" element={<ActionEditor />} />
+            <Route path="execute" element={<ActionEditor />} />
             <Route path=":id">
               <Route index element={<ActionDetails />} />
               <Route path="edit" element={<ActionEditor />} />
             </Route>
-            <Route path="execute" element={<ActionEditor />} />
           </Route>
         )}
         <Route path="*" element={<NotFoundPage />} />
@@ -169,7 +180,9 @@ const MyAppProvider: FC<PropsWithChildren> = ({ children }) => {
                 <SocketProvider>
                   <TemplateProvider>
                     <AnalyticProvider>
-                      <UserListProvider>{children}</UserListProvider>
+                      <FavouriteProvider>
+                        <UserListProvider>{children}</UserListProvider>
+                      </FavouriteProvider>
                     </AnalyticProvider>
                   </TemplateProvider>
                 </SocketProvider>

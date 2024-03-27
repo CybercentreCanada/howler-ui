@@ -1,9 +1,9 @@
 import {
   Autocomplete,
+  Button,
   Card,
   Checkbox,
   IconButton,
-  InputAdornment,
   Skeleton,
   Stack,
   TextField,
@@ -12,43 +12,42 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Clear, Edit, Search, Star, StarBorder } from '@mui/icons-material';
+import { Clear, Edit, Star, StarBorder } from '@mui/icons-material';
 import api from 'api';
 import { HowlerSearchResponse } from 'api/search';
-import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import FlexOne from 'commons/addons/flexers/FlexOne';
 import { TuiListItemProps, TuiListProvider } from 'commons/addons/lists';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import useAppUser from 'commons/components/app/hooks/useAppUser';
-import SaveViewDrawer from 'components/app/drawers/SaveViewDrawer';
-import useAppDrawer from 'components/app/hooks/useAppDrawer';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import ItemManager from 'components/elements/display/ItemManager';
 import { ViewTitle } from 'components/elements/view/ViewTitle';
 import useMyApi from 'components/hooks/useMyApi';
-import { View } from 'models/entities/generated/View';
+import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import { HowlerUser } from 'models/entities/HowlerUser';
-import { useSearchParams } from 'react-router-dom';
+import { View } from 'models/entities/generated/View';
+import { Link, useSearchParams } from 'react-router-dom';
+import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 const ViewsBase: FC = () => {
   const { t } = useTranslation();
   const { user } = useAppUser<HowlerUser>();
   const { dispatchApi } = useMyApi();
-  const { favourites, addFavourite, fetchViews, removeFavourite, removeView, views, defaultView, setDefaultView } =
+  const { addFavourite, fetchViews, removeFavourite, removeView, views, defaultView, setDefaultView } =
     useContext(ViewContext);
-  const drawer = useAppDrawer();
   const [searchParams, setSearchParams] = useSearchParams();
   const { load } = useTuiListMethods();
+  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
   const [phrase, setPhrase] = useState<string>('');
   const [offset, setOffset] = useState(parseInt(searchParams.get('offset')) || 0);
   const [response, setResponse] = useState<HowlerSearchResponse<View>>(null);
-  const [type, setType] = useState<'all' | 'personal' | 'global'>('all');
+  const [types, setTypes] = useState<('personal' | 'global')[]>([]);
   const [hasError, setHasError] = useState(false);
   const [searching, setSearching] = useState(false);
   const [favouritesOnly, setFavouritesOnly] = useState(false);
@@ -68,15 +67,17 @@ const ViewsBase: FC = () => {
       fetchViews();
 
       const phraseQuery = phrase ? `*:*${sanitizeLuceneQuery(phrase)}*` : '*:*';
-      const typeQuery = `(type:global OR owner:(${user.username} OR none)) AND type:(${type === 'all' ? '*' : type})`;
+      const typeQuery = `(type:global OR owner:(${user.username} OR none)) AND type:(${types.join(' OR ') || '*'}${
+        types.includes('personal') ? ' OR readonly' : ''
+      })`;
       const favouritesQuery =
-        favouritesOnly && favourites.length > 0 ? ` AND view_id:(${favourites.join(' OR ')})` : '';
+        favouritesOnly && user.favourite_views.length > 0 ? ` AND view_id:(${user.favourite_views.join(' OR ')})` : '';
 
       setResponse(
         await dispatchApi(
           api.search.view.post({
             query: `${phraseQuery} AND ${typeQuery}${favouritesQuery}`,
-            rows: 25,
+            rows: pageCount,
             offset
           })
         )
@@ -87,16 +88,17 @@ const ViewsBase: FC = () => {
       setSearching(false);
     }
   }, [
-    dispatchApi,
-    favourites,
-    favouritesOnly,
-    fetchViews,
-    offset,
     phrase,
-    searchParams,
     setSearchParams,
-    type,
-    user.username
+    searchParams,
+    fetchViews,
+    user.username,
+    user.favourite_views,
+    types,
+    favouritesOnly,
+    dispatchApi,
+    pageCount,
+    offset
   ]);
 
   // Load the items into list when response changes.
@@ -136,27 +138,19 @@ const ViewsBase: FC = () => {
   );
 
   const onFavourite = useCallback(
-    async (id: string) => {
-      if (favourites.includes(id)) {
+    async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
+      event.preventDefault();
+
+      if (user.favourite_views?.includes(id)) {
         await dispatchApi(removeFavourite(id));
-        if (favourites?.length < 2) {
+        if (user.favourite_views?.length < 2) {
           setFavouritesOnly(false);
         }
       } else {
         await dispatchApi(addFavourite(id));
       }
     },
-    [addFavourite, dispatchApi, favourites, removeFavourite]
-  );
-
-  const onEdit = useCallback(
-    (view: View) =>
-      drawer.open({
-        titleKey: 'hit.search.save.view',
-        children: <SaveViewDrawer viewId={view.view_id} title={view.title} query={view.query} />,
-        onClosed: onSearch
-      }),
-    [drawer, onSearch]
+    [addFavourite, dispatchApi, removeFavourite, user.favourite_views]
   );
 
   useEffect(() => {
@@ -167,7 +161,7 @@ const ViewsBase: FC = () => {
       setSearchParams(searchParams, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatchApi, type]);
+  }, [dispatchApi, types]);
 
   useEffect(() => {
     if (response?.total <= offset) {
@@ -192,22 +186,18 @@ const ViewsBase: FC = () => {
       setPhrase={setPhrase}
       hasError={hasError}
       searching={searching}
-      searchAdornment={
-        <InputAdornment position="end">
+      searchFilters={
+        <Stack direction="row" spacing={1} alignItems="center">
           <ToggleButtonGroup
-            sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}
+            sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}
             size="small"
-            exclusive
-            value={type}
-            onChange={(__, _type) => {
-              if (_type) {
-                setType(_type);
+            value={types}
+            onChange={(__, _types) => {
+              if (_types) {
+                setTypes(_types.length < 2 ? _types : []);
               }
             }}
           >
-            <ToggleButton value="all" aria-label="all">
-              {t('all')}
-            </ToggleButton>
             <ToggleButton value="personal" aria-label="personal">
               {t('route.views.manager.personal')}
             </ToggleButton>
@@ -215,7 +205,7 @@ const ViewsBase: FC = () => {
               {t('route.views.manager.global')}
             </ToggleButton>
           </ToggleButtonGroup>
-        </InputAdornment>
+        </Stack>
       }
       aboveSearch={
         <Typography
@@ -226,43 +216,48 @@ const ViewsBase: FC = () => {
         </Typography>
       }
       afterSearch={
-        views.length > 0 ? (
-          <Autocomplete
-            options={views}
-            renderOption={(props, o) => (
-              <li {...props}>
-                <Stack>
-                  <Typography variant="body1">{t(o.title)}</Typography>
-                  <Typography variant="caption">
-                    <code>{o.query}</code>
-                  </Typography>
-                </Stack>
-              </li>
-            )}
-            renderInput={params => (
-              <TextField {...params} label={t('route.views.manager.default')} sx={{ minWidth: '300px' }} />
-            )}
-            filterOptions={(_views, { inputValue }) =>
-              _views.filter(
-                v =>
-                  t(v.title).toLowerCase().includes(inputValue.toLowerCase()) ||
-                  v.query.toLowerCase().includes(inputValue.toLowerCase())
-              )
-            }
-            getOptionLabel={(v: View) => t(v.title)}
-            isOptionEqualToValue={(view, value) => view.view_id === value.view_id}
-            value={views.find(v => v.view_id === defaultView) ?? null}
-            onChange={(_, option: View) => setDefaultView(option?.view_id)}
-          />
-        ) : (
-          <Skeleton variant="rounded" width="300px" height="initial" />
-        )
+        <Stack direction="row" spacing={1}>
+          {views.length > 0 ? (
+            <Autocomplete
+              options={views}
+              renderOption={(props, o) => (
+                <li {...props}>
+                  <Stack>
+                    <Typography variant="body1">{t(o.title)}</Typography>
+                    <Typography variant="caption">
+                      <code>{o.query}</code>
+                    </Typography>
+                  </Stack>
+                </li>
+              )}
+              renderInput={params => (
+                <TextField {...params} label={t('route.views.manager.default')} sx={{ minWidth: '300px' }} />
+              )}
+              filterOptions={(_views, { inputValue }) =>
+                _views.filter(
+                  v =>
+                    t(v.title).toLowerCase().includes(inputValue.toLowerCase()) ||
+                    v.query.toLowerCase().includes(inputValue.toLowerCase())
+                )
+              }
+              getOptionLabel={(v: View) => t(v.title)}
+              isOptionEqualToValue={(view, value) => view.view_id === value.view_id}
+              value={views.find(v => v.view_id === defaultView) ?? null}
+              onChange={(_, option: View) => setDefaultView(option?.view_id)}
+            />
+          ) : (
+            <Skeleton variant="rounded" width="300px" height="initial" />
+          )}
+          <Button variant="outlined" component={Link} to="/views/create">
+            {t('route.views.create')}
+          </Button>
+        </Stack>
       }
       belowSearch={
         <Stack direction="row" spacing={1} alignItems="center">
           <Checkbox
             size="small"
-            disabled={favourites?.length < 1}
+            disabled={user.favourite_views?.length < 1}
             checked={favouritesOnly}
             onChange={(_, checked) => setFavouritesOnly(checked)}
           />
@@ -272,17 +267,26 @@ const ViewsBase: FC = () => {
         </Stack>
       }
       renderer={({ item }: TuiListItemProps<View>, classRenderer) => (
-        <Card key={item.item.view_id} variant="outlined" sx={{ p: 1, mb: 1 }} className={classRenderer()}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <TuiIconButton route={`/hits?qid=${item.item.view_id}`} tooltip={t('route.views.manager.open')}>
-              <Search />
-            </TuiIconButton>
+        <Card
+          key={item.item.view_id}
+          variant="outlined"
+          sx={{ p: 1, mb: 1, transitionProperty: 'border-color', '&:hover': { borderColor: 'primary.main' } }}
+          className={classRenderer()}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            sx={{ color: 'inherit', textDecoration: 'none' }}
+            component={Link}
+            to={`/views/${item.item.view_id}`}
+          >
             <ViewTitle {...item.item} />
             <FlexOne />
             {((item.item.owner === user.username && item.item.type !== 'readonly') ||
               (item.item.type === 'global' && user.is_admin)) && (
               <Tooltip title={t('button.edit')}>
-                <IconButton onClick={() => onEdit(item.item)}>
+                <IconButton component={Link} to={`/views/${item.item.view_id}/edit`}>
                   <Edit />
                 </IconButton>
               </Tooltip>
@@ -304,9 +308,9 @@ const ViewsBase: FC = () => {
                 </div>
               </Tooltip>
             )}
-            <Tooltip title={t('button.favourite')}>
-              <IconButton onClick={() => onFavourite(item.item.view_id)}>
-                {favourites.includes(item.item.view_id) ? <Star /> : <StarBorder />}
+            <Tooltip title={t('button.pin')}>
+              <IconButton onClick={e => onFavourite(e, item.item.view_id)}>
+                {user.favourite_views?.includes(item.item.view_id) ? <Star /> : <StarBorder />}
               </IconButton>
             </Tooltip>
           </Stack>

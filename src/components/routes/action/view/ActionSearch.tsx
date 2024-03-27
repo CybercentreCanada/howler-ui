@@ -1,5 +1,6 @@
 import { Delete, Engineering } from '@mui/icons-material';
 import {
+  Autocomplete,
   Button,
   Card,
   CardContent,
@@ -7,10 +8,8 @@ import {
   Chip,
   Grid,
   IconButton,
-  InputAdornment,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
+  TextField,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -23,13 +22,14 @@ import useAppUser from 'commons/components/app/hooks/useAppUser';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import ItemManager from 'components/elements/display/ItemManager';
 import useMyApi from 'components/hooks/useMyApi';
-import { Action } from 'models/entities/generated/Action';
+import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Action } from 'models/entities/generated/Action';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Link, useSearchParams } from 'react-router-dom';
-import { VALID_ACTION_TRIGGERS } from 'utils/constants';
+import { StorageKey, VALID_ACTION_TRIGGERS } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 import useMyActionFunctions from '../useMyActionFunctions';
 
@@ -41,13 +41,14 @@ const ActionSearch: FC = () => {
   const { load } = useTuiListMethods();
   const [searchParams, setSearchParams] = useSearchParams();
   const { deleteAction } = useMyActionFunctions();
+  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
   const [searching, setSearching] = useState<boolean>(false);
   const [hasError, setHasError] = useState(false);
   const [phrase, setPhrase] = useState(searchParams.get('phrase') || '');
   const [offset, setOffset] = useState(parseInt(searchParams.get('offset')) || 0);
   const [response, setResponse] = useState<HowlerSearchResponse<Action>>(null);
-  const [searchModifier, setSearchModifier] = useState<string>('all');
+  const [searchModifiers, setSearchModifiers] = useState<string[]>([]);
 
   // Search Handler.
   const onSearch = useCallback(async () => {
@@ -65,14 +66,14 @@ const ActionSearch: FC = () => {
       const sanitizedPhrase = sanitizeLuceneQuery(phrase);
       let query = `name:(*${sanitizedPhrase}*) OR query:(*${sanitizedPhrase}*)`;
 
-      if (searchModifier !== 'all') {
-        query = `(${query}) AND (triggers:(${searchModifier}))`;
+      if (searchModifiers.length > 0) {
+        query = `(${query}) AND (triggers:(${searchModifiers.join(' OR ')}))`;
       }
 
       const _response = await dispatchApi(
         api.search.action.post({
           query,
-          rows: 25,
+          rows: pageCount,
           offset
         })
       );
@@ -83,7 +84,7 @@ const ActionSearch: FC = () => {
     } finally {
       setSearching(false);
     }
-  }, [dispatchApi, load, offset, phrase, searchModifier, searchParams, setSearchParams]);
+  }, [dispatchApi, load, offset, pageCount, phrase, searchModifiers, searchParams, setSearchParams]);
 
   const onPageChange = useCallback(
     (_offset: number) => {
@@ -95,10 +96,6 @@ const ActionSearch: FC = () => {
     },
     [offset, searchParams, setSearchParams]
   );
-
-  const onTriggerChange = useCallback((_, value) => {
-    setSearchModifier(value);
-  }, []);
 
   // Effect to initialize list of users.
   useEffect(
@@ -132,7 +129,7 @@ const ActionSearch: FC = () => {
   useEffect(() => {
     onSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchModifier]);
+  }, [searchModifiers]);
 
   // Search result list item renderer.
   const renderer = useCallback(
@@ -201,7 +198,7 @@ const ActionSearch: FC = () => {
         </Card>
       );
     },
-    [navigate, t]
+    [deleteAction, navigate, onSearch, t, user.roles, user.username]
   );
 
   return (
@@ -220,28 +217,21 @@ const ActionSearch: FC = () => {
           {t('route.actions.search.prompt')}
         </Typography>
       }
-      searchAdornment={
-        <InputAdornment position="end">
-          <ToggleButtonGroup
-            sx={{ display: 'grid', gridTemplateColumns: '1fr '.repeat(VALID_ACTION_TRIGGERS.length + 1).trim() }}
-            size="small"
-            exclusive
-            value={searchModifier ?? 'all'}
-            onChange={onTriggerChange}
-          >
-            <ToggleButton value="all" aria-label="all">
-              {t('all')}
-            </ToggleButton>
-            {VALID_ACTION_TRIGGERS.map(trigger => (
-              <ToggleButton key={trigger} value={trigger} aria-label={trigger}>
-                {t(`route.actions.trigger.${trigger}`)}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </InputAdornment>
+      searchFilters={
+        <Autocomplete
+          multiple
+          size="small"
+          value={searchModifiers}
+          onChange={(__, values) => setSearchModifiers(values)}
+          getOptionLabel={trigger => t(`route.actions.trigger.${trigger}`)}
+          options={VALID_ACTION_TRIGGERS}
+          renderInput={params => (
+            <TextField {...params} sx={{ maxWidth: '500px' }} label={t('route.actions.trigger')} />
+          )}
+        />
       }
       afterSearch={
-        <Button variant="outlined" sx={{ whiteSpace: 'nowrap' }} component={Link} to="/action/create">
+        <Button variant="outlined" sx={{ whiteSpace: 'nowrap' }} component={Link} to="/action/execute">
           {t('route.actions.create')}
         </Button>
       }

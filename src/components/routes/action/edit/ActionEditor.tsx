@@ -1,30 +1,32 @@
-import { Add, PlayCircleOutline, Save, Search } from '@mui/icons-material';
-import Close from '@mui/icons-material/Close';
+import { Add, PlayCircleOutline, Save } from '@mui/icons-material';
 import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   CircularProgress,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   LinearProgress,
   Stack,
   TextField,
+  Tooltip,
   Typography
 } from '@mui/material';
 import api from 'api';
-import { TuiPhrase } from 'commons/addons/controls';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import useAppUser from 'commons/components/app/hooks/useAppUser';
 import PageCenter from 'commons/components/pages/PageCenter';
-import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
 import useMyApi from 'components/hooks/useMyApi';
-import { difference } from 'lodash';
+import HitQuery from 'components/routes/hits/search/HitQuery';
+import _, { difference } from 'lodash';
 import { ActionOperation } from 'models/ActionTypes';
-import { Operation } from 'models/entities/generated/Operation';
 import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Action } from 'models/entities/generated/Action';
+import { Operation } from 'models/entities/generated/Operation';
+import { ChangeEventHandler, FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
@@ -36,56 +38,25 @@ import useMyActionFunctions from '../useMyActionFunctions';
 
 const ActionEditor: FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const { dispatchApi } = useMyApi();
   const { getHitFields } = useContext(FieldContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const params = useParams();
-  const location = useLocation();
   const { user } = useAppUser<HowlerUser>();
 
-  const {
-    response,
-    setResponse,
-    loading,
-    setLoading,
-    responseQuery,
-    report,
-    progress,
-    onSearch,
-    saveAction,
-    submitAction
-  } = useMyActionFunctions();
+  const { response, loading, setLoading, responseQuery, report, progress, onSearch, saveAction, submitAction } =
+    useMyActionFunctions();
 
   const [operations, setOperations] = useState<ActionOperation[]>([]);
   const [name, setName] = useState('');
-  const [query, setQuery] = useState(searchParams.get('query') || '');
   const [userOperations, setUserOperations] = useState<Operation[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [triggers, setTriggers] = useState<Action['triggers']>([]);
 
-  const isCreate = useMemo(() => location.pathname.endsWith('/create'), [location]);
   const availableOperations = useMemo(
     () => operations.filter(o => !userOperations.some(uo => uo.operation_id === o.id)),
     [operations, userOperations]
   );
-
-  // Handler for when search term value changes.
-  const onValueChange = useCallback((value: string) => setQuery(value), []);
-
-  // Handler for keyboard event in order to trigger search onEnter.
-  const onKeyDown = useCallback(
-    (parsedEvent: TuiKeyboardParsedEvent) => {
-      if (parsedEvent.isEnter) {
-        onSearch(query);
-      }
-    },
-    [onSearch, query]
-  );
-
-  // Clean button handler.
-  const onClear = useCallback(() => {
-    setQuery('');
-    setResponse(null);
-  }, [setResponse]);
 
   const onActionChange = useCallback(
     (index: number) => (a: Operation) => {
@@ -94,26 +65,42 @@ const ActionEditor: FC = () => {
 
         return [..._userActions];
       });
+
+      const newOperation = operations.find(op => op.id === a.operation_id);
+
+      setTriggers(triggers.filter(_trigger => newOperation.triggers.includes(_trigger)));
     },
-    []
+    [operations, triggers]
   );
 
   const onActionDelete = useCallback(
-    (index: number) => () => setUserOperations(_userActions => _userActions.filter((_, _index) => _index !== index)),
+    (index: number) => () => setUserOperations(_userActions => _userActions.filter((__, _index) => _index !== index)),
     []
   );
 
-  const _submitAction = useCallback(() => submitAction(query, userOperations), [query, submitAction, userOperations]);
+  const _submitAction = useCallback(
+    () => submitAction(responseQuery, userOperations),
+    [responseQuery, submitAction, userOperations]
+  );
+
+  const onTriggerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    async e => {
+      if (e.target.checked && !triggers.includes(e.target.name)) {
+        setTriggers([...triggers, e.target.name]);
+      } else if (!e.target.checked && triggers.includes(e.target.name)) {
+        setTriggers(triggers.filter(_t => _t !== e.target.name));
+      }
+    },
+    [triggers]
+  );
 
   useEffect(() => {
     dispatchApi(api.action.operations.get())
       .then(_operations => _operations.filter(a => difference(a.roles, user.roles).length < 1))
       .then(setOperations);
 
-    getHitFields().then(fields => setSuggestions(fields.map(f => f.key)));
-
-    if (query) {
-      onSearch(query);
+    if (responseQuery) {
+      onSearch(responseQuery);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchApi, getHitFields]);
@@ -143,12 +130,11 @@ const ActionEditor: FC = () => {
 
         const existingAction = result.items[0];
         setName(existingAction.name);
-        setQuery(existingAction.query);
         searchParams.set('query', existingAction.query);
         setSearchParams(new URLSearchParams(searchParams), { replace: true });
         setUserOperations(existingAction.operations);
         setLoading(false);
-        onSearch(query);
+        onSearch(existingAction.query);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,13 +143,75 @@ const ActionEditor: FC = () => {
   return (
     <PageCenter maxWidth="1500px" textAlign="left" height="100%">
       <Stack spacing={1}>
-        {params.id && (
+        <Stack direction="row" spacing={1}>
           <TextField
             label={t('route.actions.name')}
+            size="small"
             disabled={loading}
             value={name}
             onChange={e => setName(e.target.value)}
+            fullWidth
           />
+
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={loading ? <CircularProgress size={16} /> : <Save />}
+            sx={{ minWidth: '150px' }}
+            disabled={
+              !name ||
+              loading ||
+              userOperations.length < 1 ||
+              userOperations.some(
+                a =>
+                  !operationReady(
+                    a?.data_json,
+                    operations.find(_a => _a.id === a.operation_id)
+                  )
+              )
+            }
+            onClick={() => saveAction(name, responseQuery, userOperations, triggers)}
+          >
+            {t('route.actions.save')}
+          </Button>
+        </Stack>
+
+        {user.roles.includes('automation_advanced') && (
+          <FormGroup>
+            <Stack direction="row" spacing={1} ml={-1} mr={-1}>
+              {_.uniq(operations.flatMap(op => op.triggers)).map(trigger => {
+                const disabled =
+                  userOperations.length < 1 ||
+                  !userOperations.every(userOperation =>
+                    operations
+                      .find(operation => operation.id === userOperation.operation_id)
+                      ?.triggers.includes(trigger)
+                  );
+
+                const component = (
+                  <FormControlLabel
+                    key={trigger}
+                    disabled={disabled}
+                    control={
+                      <Checkbox
+                        sx={{ mr: 0.5 }}
+                        name={trigger}
+                        onChange={onTriggerChange}
+                        checked={triggers?.includes(trigger) ?? false}
+                      />
+                    }
+                    label={t(`route.actions.trigger.${trigger}`)}
+                  />
+                );
+
+                return disabled && userOperations.length > 0 ? (
+                  <Tooltip title={t(`route.actions.trigger.disabled.explanation`)}>{component}</Tooltip>
+                ) : (
+                  component
+                );
+              })}
+            </Stack>
+          </FormGroup>
         )}
         <Stack direction="row" justifyContent="space-between" alignItems="end" sx={{ mb: -1 }}>
           <Typography
@@ -174,71 +222,8 @@ const ActionEditor: FC = () => {
           </Typography>
           <SocketBadge size="small" />
         </Stack>
-        <TuiPhrase
-          suggestions={suggestions}
-          fullWidth
-          autoComplete="off"
-          value={query}
-          onChange={onValueChange}
-          onKeyDown={onKeyDown}
-          startAdornment={
-            <IconButton onClick={() => onSearch(query)}>
-              <Search />
-            </IconButton>
-          }
-          endAdornment={
-            <IconButton onClick={onClear}>
-              <Close />
-            </IconButton>
-          }
-        />
-        <Stack direction="row" alignItems="center" spacing={1}>
-          {response && <QueryResultText count={response.total} query={query} />}
-          <FlexOne />
-          {!params.id && !isCreate && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={loading ? <CircularProgress size={16} /> : <PlayCircleOutline />}
-              disabled={
-                !response ||
-                loading ||
-                userOperations.length < 1 ||
-                userOperations.some(
-                  a =>
-                    !operationReady(
-                      a?.data,
-                      operations.find(_a => _a.id === a.operation_id)
-                    )
-                )
-              }
-              onClick={_submitAction}
-            >
-              {t('route.actions.execute')}
-            </Button>
-          )}
-          {(params.id || isCreate || report) && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={loading ? <CircularProgress size={16} /> : <Save />}
-              disabled={
-                loading ||
-                userOperations.length < 1 ||
-                userOperations.some(
-                  a =>
-                    !operationReady(
-                      a?.data,
-                      operations.find(_a => _a.id === a.operation_id)
-                    )
-                )
-              }
-              onClick={() => saveAction(name, responseQuery, userOperations)}
-            >
-              {t('route.actions.save')}
-            </Button>
-          )}
-        </Stack>
+        <HitQuery triggerSearch={onSearch} />
+        {response && <QueryResultText count={response.total} query={responseQuery} />}
         {loading &&
           (progress[1] > 0 ? (
             <LinearProgress
@@ -262,7 +247,7 @@ const ActionEditor: FC = () => {
                 query={responseQuery}
                 operation={operation}
                 operations={[operation, ...availableOperations]}
-                values={a.data}
+                values={a.data_json}
                 onChange={onActionChange(index)}
                 onDelete={onActionDelete(index)}
               />
@@ -284,7 +269,7 @@ const ActionEditor: FC = () => {
                         ..._userActions,
                         {
                           operation_id: operations.find(a => !_userActions.some(_a => _a.operation_id === a.id)).id,
-                          data: {}
+                          data_json: '{}'
                         }
                       ])
                     }
@@ -294,6 +279,31 @@ const ActionEditor: FC = () => {
                 </Stack>
               </CardContent>
             </Card>
+          )}
+
+          {operations.length > 0 && !location.pathname.endsWith('/edit') && (
+            <Button
+              variant="outlined"
+              color="success"
+              sx={{ alignSelf: 'start' }}
+              startIcon={loading ? <CircularProgress size={16} /> : <PlayCircleOutline />}
+              disabled={
+                !responseQuery ||
+                !response ||
+                loading ||
+                userOperations.length < 1 ||
+                userOperations.some(
+                  a =>
+                    !operationReady(
+                      a?.data_json,
+                      operations.find(_a => _a.id === a.operation_id)
+                    )
+                )
+              }
+              onClick={_submitAction}
+            >
+              {t('route.actions.execute')}
+            </Button>
           )}
         </Stack>
       )}

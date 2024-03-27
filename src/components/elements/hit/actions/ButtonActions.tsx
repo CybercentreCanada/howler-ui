@@ -1,9 +1,9 @@
 import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import { FC, useMemo } from 'react';
-import { Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { HitShortcuts } from '../HitShortcuts';
-import { ActionButton, ASSESSMENT_KEYBINDS, StyledBadge, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
+import { ASSESSMENT_KEYBINDS, ActionButton, StyledBadge, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
 
 interface DesktopActionProps {
   availableTransitions: ActionButton[];
@@ -28,6 +28,7 @@ const ButtonActions: FC<DesktopActionProps> = ({
   shortcuts,
   vote
 }) => {
+  const { t } = useTranslation();
   const config = useMyApiConfig();
 
   const isHorizontal = useMemo(() => orientation === 'horizontal', [orientation]);
@@ -84,9 +85,7 @@ const ButtonActions: FC<DesktopActionProps> = ({
               }
         ]}
       >
-        <FormLabel>
-          <Trans i18nKey="hit.details.actions.transition" />
-        </FormLabel>
+        <FormLabel>{t('hit.details.actions.transition')}</FormLabel>
         {availableTransitions.map((option, index) => {
           const gridSx = isHorizontal
             ? { gridColumn: Math.floor(index / 2 + 1), gridRow: (index % 2) + 2 }
@@ -109,7 +108,7 @@ const ButtonActions: FC<DesktopActionProps> = ({
                 isHorizontal && (theme => ({ fontSize: theme.typography.caption.fontSize }))
               ]}
             >
-              <Trans i18nKey={`hit.details.actions.transition.${option.name}`} />
+              {t(`hit.details.actions.transition.${option.name}`)}
             </Button>
           );
 
@@ -131,7 +130,7 @@ const ButtonActions: FC<DesktopActionProps> = ({
                 : { gridRow: Math.ceil(availableTransitions.length / 2 + 2) }
             }
           >
-            <Trans i18nKey="hit.details.actions.assess" />
+            {t('hit.details.actions.assess')}
           </FormLabel>
         )}
         {canAssess &&
@@ -179,9 +178,7 @@ const ButtonActions: FC<DesktopActionProps> = ({
           )}
       </FormControl>
       <FormControl disabled={loading || !canVote} sx={{ opacity: +canVote }}>
-        <FormLabel sx={{ mb: 1 }}>
-          <Trans i18nKey="hit.details.actions.vote" />
-        </FormLabel>
+        <FormLabel sx={{ mb: 1 }}>{t('hit.details.actions.vote')}</FormLabel>
         <RadioGroup value={selectedVote} onChange={e => vote(e.currentTarget.value)}>
           {VOTE_OPTIONS.map(action => {
             const button = (

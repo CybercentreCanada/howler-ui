@@ -14,11 +14,13 @@ import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { parseEvent } from 'commons/components/utils/keyboard';
 import useMyApi from 'components/hooks/useMyApi';
+import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import { HowlerUser } from 'models/entities/HowlerUser';
 import { ChangeEvent, FC, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 const COLUMN: TuiTableColumn[] = [
@@ -33,6 +35,7 @@ const UserSearch: FC = () => {
   const { dispatchApi } = useMyApi();
   const { load } = useTuiListMethods();
   const [searchParams, setSearchParams] = useSearchParams();
+  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
   const [searching, setSearching] = useState<boolean>(false);
   const [phrase, setPhrase] = useState('');
@@ -47,7 +50,7 @@ const UserSearch: FC = () => {
       const _response = await dispatchApi(
         api.search.user.post({
           query: `name:*${sanitizedPhrase}* OR uname:*${sanitizedPhrase}* OR email:*${sanitizedPhrase}*`,
-          rows: 25,
+          rows: pageCount,
           offset
         })
       );
@@ -56,7 +59,7 @@ const UserSearch: FC = () => {
     } finally {
       setSearching(false);
     }
-  }, [dispatchApi, load, offset, phrase]);
+  }, [dispatchApi, load, offset, pageCount, phrase]);
 
   const onPageChange = useCallback(
     (_offset: number) => {

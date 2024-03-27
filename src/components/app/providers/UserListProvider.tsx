@@ -5,6 +5,7 @@ import { createContext, FC, PropsWithChildren, useCallback, useState } from 'rea
 
 interface UserListContextType {
   users: { [id: string]: HowlerUser };
+  searchUsers: (query: string) => void;
   fetchUsers: (ids: Set<string>) => void;
 }
 
@@ -14,6 +15,24 @@ const UserListProvider: FC<PropsWithChildren> = ({ children }) => {
   const { dispatchApi } = useMyApi();
 
   const [users, setUsers] = useState<{ [id: string]: HowlerUser }>({});
+
+  const searchUsers = useCallback(
+    async (query: string) => {
+      const newUsers = (
+        await dispatchApi(api.search.user.post({ query, rows: 1000 }), {
+          throwError: false,
+          logError: false,
+          showError: false
+        })
+      )?.items?.reduce((dict, user) => ({ ...dict, [user.username]: user }), {});
+
+      setUsers(_users => ({
+        ..._users,
+        ...newUsers
+      }));
+    },
+    [dispatchApi]
+  );
 
   const fetchUsers = useCallback(
     async (ids: Set<string>) => {
@@ -25,23 +44,12 @@ const UserListProvider: FC<PropsWithChildren> = ({ children }) => {
         return;
       }
 
-      const newUsers = (
-        await dispatchApi(api.search.user.post({ query: `id:${[...idsToGet].join(' OR ')}` }), {
-          throwError: false,
-          logError: false,
-          showError: false
-        })
-      )?.items?.reduce((dict, user) => ({ ...dict, [user.username]: user }), {});
-
-      setUsers({
-        ...users,
-        ...newUsers
-      });
+      await searchUsers(`id:${[...idsToGet].join(' OR ')}`);
     },
-    [dispatchApi, users]
+    [searchUsers, users]
   );
 
-  return <UserListContext.Provider value={{ users, fetchUsers }}>{children}</UserListContext.Provider>;
+  return <UserListContext.Provider value={{ users, fetchUsers, searchUsers }}>{children}</UserListContext.Provider>;
 };
 
 export default UserListProvider;

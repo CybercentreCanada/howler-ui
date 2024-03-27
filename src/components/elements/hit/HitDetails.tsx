@@ -1,11 +1,11 @@
 import { Box, Divider, Skeleton, Typography } from '@mui/material';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import { Hit } from 'models/entities/generated/Hit';
-import { createElement, FC, memo, useContext, useMemo } from 'react';
+import { FC, createElement, memo, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HitLayout } from './HitLayout';
-import AssemblyLineRules from './outlines/al/AssemblyLineRules';
 import DefaultOutline from './outlines/DefaultOutline';
+import AssemblyLineRules from './outlines/al/AssemblyLineRules';
 
 export const DEFAULT_FIELDS = ['howler.hash'];
 
@@ -52,7 +52,7 @@ const HitDetails: FC<{ hit: Hit; layout: HitLayout; type?: 'global' | 'personal'
           {t('hit.details.title')}
         </Typography>
       )}
-      {layout !== HitLayout.DENSE && <Divider orientation="horizontal" sx={theme => ({ mb: 1 })} />}
+      {layout !== HitLayout.DENSE && <Divider orientation="horizontal" sx={{ mb: 1 }} />}
       {outline}
     </Box>
   );

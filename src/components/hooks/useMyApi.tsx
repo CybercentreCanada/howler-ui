@@ -45,6 +45,7 @@ export default function useMyApi() {
             throw error;
           }
         }
+
         return null;
       }
     },

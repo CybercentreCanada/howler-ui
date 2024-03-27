@@ -1,6 +1,5 @@
 import AppsIcon from '@mui/icons-material/Apps';
-import { Divider, List, styled, Toolbar, useMediaQuery, useTheme } from '@mui/material';
-import Skeleton from '@mui/material/Skeleton';
+import { Divider, List, Skeleton, Toolbar, styled, useMediaQuery, useTheme } from '@mui/material';
 import useAppLayout from 'commons/components/app/hooks/useAppLayout';
 import { AppBarBase } from '../topnav/AppBar';
 import { AppUserAvatar } from '../topnav/UserProfile';

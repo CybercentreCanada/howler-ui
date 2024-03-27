@@ -25,13 +25,3 @@ hit = {
 }
 ```
 
-Note the icon can either be:
-
-1. A name identifying an internal application, to use its icon
-2. An external URL
-
-If you'd like to use an internal app, the following values are currently supported:
-
-$APP_LIST
-
-Using any of these values will automatically use the corresponding icon. No need to host your own!

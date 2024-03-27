@@ -1,11 +1,13 @@
 import { Chip, Divider, LinearProgress, Stack } from '@mui/material';
 import api from 'api';
 import Comment from 'components/elements/Comment';
+import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
 import { Analytic } from 'models/entities/generated/Analytic';
 import { Comment as HitComment } from 'models/entities/generated/Comment';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { StorageKey } from 'utils/constants';
 import { compareTimestamp } from 'utils/utils';
 
 interface CommentData {
@@ -15,12 +17,15 @@ interface CommentData {
 }
 
 const AnalyticHitComments: FC<{ analytic: Analytic }> = ({ analytic }) => {
-  const [userIds, setUserIds] = useState<Set<string>>(new Set());
-  const users = useMyUserList(userIds);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
+
   const [comments, setComments] = useState<CommentData[]>([]);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [userIds, setUserIds] = useState<Set<string>>(new Set());
+
+  const users = useMyUserList(userIds);
 
   useEffect(() => {
     setUserIds(new Set(comments.map(c => c.comment.user)));
@@ -35,7 +40,7 @@ const AnalyticHitComments: FC<{ analytic: Analytic }> = ({ analytic }) => {
     api.search.hit
       .post({
         query: `howler.analytic:${analytic.name} AND _exists_:howler.comment`,
-        rows: 25
+        rows: pageCount
       })
       .then(response => {
         setComments(
@@ -51,7 +56,7 @@ const AnalyticHitComments: FC<{ analytic: Analytic }> = ({ analytic }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [analytic]);
+  }, [analytic, pageCount]);
 
   const commentEls = useMemo(
     () =>

@@ -7,12 +7,13 @@ import { Operation } from 'models/entities/generated/Operation';
  * @param values The context to validate on
  * @returns whether all the necessary arguments have been filled in the given step
  */
-export const checkArgsAreFilled = (step: ActionOperationStep, values: { [index: string]: string }) => {
+export const checkArgsAreFilled = (step: ActionOperationStep, values: string) => {
   if (!values) {
     return false;
   }
 
-  return Object.keys(step.args).every(arg => !!values[arg]);
+  const parsedValues = JSON.parse(values);
+  return Object.keys(step.args).every(arg => !!parsedValues[arg]);
 };
 
 /**
@@ -29,7 +30,7 @@ export const checkArgsAreFilled = (step: ActionOperationStep, values: { [index: 
  * @param values The raw values object to convert
  * @returns a list representing the current context
  */
-const buildContext = (values: { [index: string]: string } = {}) => Object.entries(values).map(tuple => tuple.join(':'));
+const buildContext = (values: string = '{}') => Object.entries(JSON.parse(values)).map(tuple => tuple.join(':'));
 
 /**
  * Take the raw options object as specified by the server and get a list of usable options, filtered using the current values suppled for the action entry.
@@ -41,7 +42,7 @@ const buildContext = (values: { [index: string]: string } = {}) => Object.entrie
 export const getOptionsByContext = (
   options: ActionOperationStep['options'],
   arg: string,
-  context: { [index: string]: string }
+  context: string
 ): string[] => {
   if (!options[arg]) {
     return [];
@@ -72,7 +73,7 @@ export const getOptionsByContext = (
  * @param values the current list of values provided by the user
  * @returns A list of arguments to display
  */
-export const getArgsByContext = (args: ActionOperationStep['args'], values: { [index: string]: string }): string[] =>
+export const getArgsByContext = (args: ActionOperationStep['args'], values: string): string[] =>
   Object.entries(args)
     .filter(([_, conditions]) => {
       // If the array is empty, we always want to show this argument
@@ -95,16 +96,17 @@ export const getArgsByContext = (args: ActionOperationStep['args'], values: { [i
  * @param action The action to validate
  * @returns whether the action is ready to execute
  */
-export const operationReady = (data: Operation['data'], action: ActionOperation) => {
+export const operationReady = (data: Operation['data_json'], action: ActionOperation) => {
   if (!data) {
     return false;
   }
 
+  const parsedData = JSON.parse(data);
   return (
     action &&
     getArgsByContext(
       action.steps.reduce((acc, _step) => ({ ...acc, ..._step.args }), {}),
       data
-    ).every(v => !!data[v])
+    ).every(v => !!parsedData[v])
   );
 };

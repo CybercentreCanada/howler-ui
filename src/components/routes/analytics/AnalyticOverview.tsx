@@ -1,5 +1,7 @@
 import { Check, Edit } from '@mui/icons-material';
 import {
+  Alert,
+  AlertTitle,
   Box,
   Card,
   CardContent,
@@ -14,49 +16,19 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import { HowlerGroupedSearchResponse } from 'api/search/grouped';
-import {
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  SubTitle,
-  TimeScale,
-  Title,
-  Tooltip
-} from 'chart.js';
 import 'chartjs-adapter-moment';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyChart from 'components/hooks/useMyChart';
+import useMySnackbar from 'components/hooks/useMySnackbar';
 import { Analytic } from 'models/entities/generated/Analytic';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ESCALATION_COLORS } from 'utils/constants';
-import { stringToColor } from 'utils/utils';
-
-ChartJS.defaults.font.family = `'Roboto', 'Helvetica', 'Arial', sans-serif`;
-
-ChartJS.register(
-  ArcElement,
-  CategoryScale,
-  LinearScale,
-  TimeScale,
-  PointElement,
-  LineElement,
-  Title,
-  SubTitle,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  BarElement
-);
+import { sanitizeLuceneQuery } from 'utils/stringUtils';
+import Assessment from './widgets/Assessment';
+import Created from './widgets/Created';
+import Detection from './widgets/Detection';
+import Escalation from './widgets/Escalation';
+import Status from './widgets/Status';
 
 const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => void }> = ({
   analytic,
@@ -66,15 +38,13 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
   const theme = useTheme();
   const { dispatchApi } = useMyApi();
   const isMd = useMediaQuery(theme.breakpoints.down('md'));
-  const { line, doughnut, bar } = useMyChart();
+  const { showSuccessMessage } = useMySnackbar();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [markdownLoading, setMarkdownLoading] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [empty, setEmpty] = useState(false);
   const [editValue, setEditValue] = useState('');
-  const [ingestionData, setIngestionData] = useState<{ [timestamp: string]: number }>({});
-  const [escalationData, setEscalationData] = useState<HowlerGroupedSearchResponse<Hit>['items']>([]);
-  const [assessmentData, setAssessmentData] = useState<HowlerGroupedSearchResponse<Hit>['items']>([]);
 
   useEffect(() => {
     if (!analytic) {
@@ -83,46 +53,24 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
 
     setLoading(true);
 
-    // Three graphs, three sets of data to retrieve
-    Promise.all([
-      // Histogram of created hits over the last three months
-      api.search.histogram.hit
-        .post('timestamp', {
-          query: `howler.analytic:("${analytic.name}")`,
-          start: 'now-3M',
-          gap: '1d',
-          mincount: 0
-        })
-        .then(setIngestionData),
-
-      // Escalation of generated hits
-      api.search.grouped.hit
-        .post('howler.escalation', {
-          query: `howler.analytic:("${analytic.name}")`,
-          limit: 0
-        })
-        .then(data => setEscalationData(data.items)),
-
-      // Assessed results of generated hits
-      api.search.grouped.hit
-        .post('howler.assessment', {
-          query: `howler.analytic:("${analytic.name}")`,
-          limit: 0
-        })
-        .then(data => setAssessmentData(data.items))
-    ]).finally(() => setLoading(false));
+    api.search.count.hit
+      .post({ query: `howler.analytic:"${sanitizeLuceneQuery(analytic.name)}"` })
+      .then(({ count }) => setEmpty(!count))
+      .finally(() => setLoading(false));
   }, [analytic]);
 
   const onEdit = useCallback(async () => {
     try {
       if (editing) {
         setMarkdownLoading(true);
-        const result = await dispatchApi(api.analytic.put(analytic.analytic_id, editValue), {
+        const result = await dispatchApi(api.analytic.put(analytic.analytic_id, { description: editValue }), {
           showError: true,
           throwError: true
         });
 
         setAnalytic(result);
+
+        showSuccessMessage(t('route.analytics.updated'));
       } else {
         setEditValue(analytic.description);
       }
@@ -130,15 +78,7 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
       setEditing(!editing);
       setMarkdownLoading(false);
     }
-  }, [analytic?.analytic_id, analytic?.description, dispatchApi, editValue, editing, setAnalytic]);
-
-  const escalationColors = useMemo(
-    () =>
-      escalationData.map(e =>
-        ESCALATION_COLORS[e.value] ? theme.palette[ESCALATION_COLORS[e.value]].main : 'rgba(255, 255, 255, 0.16)'
-      ),
-    [escalationData, theme.palette]
-  );
+  }, [analytic, dispatchApi, editValue, editing, setAnalytic, showSuccessMessage, t]);
 
   return (
     <>
@@ -152,7 +92,7 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
         <Box sx={{ maxWidth: '50%', overflow: 'auto' }}>
           <Typography variant="h5" sx={{ mt: 2, mb: 1, display: 'flex', flexDirection: 'row' }}>
             {t('route.analytics.overview.description')}
-            <IconButton sx={{ marginLeft: 'auto' }} disabled={loading || markdownLoading} onClick={onEdit}>
+            <IconButton sx={{ marginLeft: 'auto' }} disabled={markdownLoading} onClick={onEdit}>
               {markdownLoading ? (
                 <CircularProgress size={20} />
               ) : editing ? (
@@ -176,84 +116,44 @@ const AnalyticOverview: FC<{ analytic: Analytic; setAnalytic: (a: Analytic) => v
           )}
         </Box>
         <Stack direction="column" spacing={2}>
-          <Typography variant="h5" sx={{ mt: 2 }}>
+          <Typography variant="h5" sx={{ mt: `${theme.spacing(2)} !important` }}>
             {t('route.analytics.overview.statistics')}
           </Typography>
-          <Card>
-            <CardContent>
-              {analytic && !loading ? (
-                <Line
-                  options={line('route.analytics.ingestion.title')}
-                  data={{
-                    datasets: [
-                      {
-                        label: analytic?.name,
-                        data: Object.keys(ingestionData).map(time => ({
-                          x: new Date(time).getTime(),
-                          y: ingestionData[time]
-                        })),
-                        borderColor: stringToColor(analytic?.name),
-                        backgroundColor: 'transparent',
-                        pointBackgroundColor: Object.keys(ingestionData).map(time =>
-                          ingestionData[time] ? stringToColor(analytic?.name) : 'transparent'
-                        ),
-                        pointBorderWidth: Object.keys(ingestionData).map(time => (ingestionData[time] ? 2 : 0))
-                      }
-                    ]
-                  }}
-                />
-              ) : (
-                <Skeleton variant="rounded" height={200} />
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
-              {analytic && !loading ? (
-                <div style={{ maxWidth: '45%' }}>
-                  <Doughnut
-                    options={doughnut('route.analytics.escalation.title')}
-                    data={{
-                      labels: escalationData.map(e => e.value),
-                      datasets: [
-                        {
-                          label: analytic?.name,
-                          data: escalationData.map(e => e.total),
-                          borderColor: escalationColors,
-                          backgroundColor: escalationColors
-                        }
-                      ]
-                    }}
-                  />
-                </div>
-              ) : (
-                <Skeleton variant="rounded" height={200} width="45%" />
-              )}
-            </CardContent>
-          </Card>
-          {assessmentData.length > 0 && (
-            <Card>
-              <CardContent>
-                {analytic && !loading ? (
-                  <Bar
-                    options={bar('route.analytics.assessment.title')}
-                    data={{
-                      labels: assessmentData.map(e => e.value),
-                      datasets: [
-                        {
-                          label: '',
-                          data: assessmentData.map(a => a.total),
-                          borderColor: assessmentData.map(a => stringToColor(a.value)),
-                          backgroundColor: assessmentData.map(a => stringToColor(a.value))
-                        }
-                      ]
-                    }}
-                  />
-                ) : (
-                  <Skeleton variant="rounded" height={200} />
-                )}
-              </CardContent>
-            </Card>
+          {loading ? (
+            <Skeleton variant="rounded" width="100%" height="90px" />
+          ) : empty ? (
+            <Alert variant="outlined" severity="warning">
+              <AlertTitle>{t('route.analytics.overview.empty.title')}</AlertTitle>
+              {t('route.analytics.overview.empty.description')}
+            </Alert>
+          ) : (
+            <>
+              <Card>
+                <CardContent>
+                  <Created analytic={analytic} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <Escalation analytic={analytic} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <Assessment analytic={analytic} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <Status analytic={analytic} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <Detection analytic={analytic} />
+                </CardContent>
+              </Card>
+            </>
           )}
         </Stack>
       </Stack>

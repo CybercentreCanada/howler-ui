@@ -5,8 +5,8 @@ export interface APIIndex {
   default: boolean;
   indexed: boolean;
   list: boolean;
-  deprecated: boolean;
   stored: boolean;
+  deprecated: boolean;
   type: string;
   description: string;
   deprecated_description: string;
@@ -30,7 +30,7 @@ export interface APIIndexes {
 export interface APILookups {
   'howler.status': ['open', 'in-progress', 'on-hold', 'resolved'];
   'howler.scrutiny': ['unseen', 'surveyed', 'scanned', 'inspected', 'investigated'];
-  'howler.escalation': ['alert', 'evidence', 'hit', 'miss'];
+  'howler.escalation': ['miss', 'hit', 'alert', 'evidence'];
   'howler.assessment': [
     'ambiguous',
     'security',
@@ -54,6 +54,8 @@ export interface APIConfiguration {
   auth: {
     allow_apikeys: boolean;
     allow_extended_apikeys: boolean;
+    max_apikey_duration_amount?: number;
+    max_apikey_duration_unit?: 'seconds' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
     oauth_providers: string[];
     internal: {
       enabled: boolean;
@@ -74,11 +76,8 @@ export interface APIConfiguration {
     apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string }[];
     banner?: unknown;
     banner_level: string;
-    notebook: boolean;
   };
   features: {
-    spellbook: boolean;
-    alfred: false;
   };
 }
 

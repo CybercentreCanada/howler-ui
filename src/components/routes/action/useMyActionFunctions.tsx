@@ -1,19 +1,20 @@
 import api from 'api';
 import { HowlerSearchResponse } from 'api/search';
 import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
-import CreateActionModal from 'components/elements/display/modals/CreateActionModal';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyModal from 'components/hooks/useMyModal';
+import useMySnackbar from 'components/hooks/useMySnackbar';
 import { ActionReport } from 'models/ActionTypes';
 import { Hit } from 'models/entities/generated/Hit';
 import { Operation } from 'models/entities/generated/Operation';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { v4 as uuid } from 'uuid';
 
 const useMyActionFunctions = () => {
+  const { t } = useTranslation();
+  const { showErrorMessage } = useMySnackbar();
   const { dispatchApi } = useMyApi();
-  const { showModal } = useMyModal();
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
@@ -67,15 +68,20 @@ const useMyActionFunctions = () => {
     progress,
     onSearch,
     saveAction: useCallback(
-      async (name: string, query: string, operations: Operation[]) => {
+      async (name: string, query: string, operations: Operation[], triggers: string[]) => {
         try {
+          if (!query) {
+            showErrorMessage(t('route.actions.query.empty'));
+            return;
+          }
+
           if (params.id) {
             setLoading(true);
             const result = await dispatchApi(
               api.action.put(params.id, {
                 name,
                 query,
-                operations: operations.map(o => ({ operation_id: o.operation_id, data_json: JSON.stringify(o.data) }))
+                operations
               }),
               { showError: true, throwError: false }
             );
@@ -84,22 +90,13 @@ const useMyActionFunctions = () => {
               navigate(`/action/${params.id}`);
             }
           } else {
-            const _name = await new Promise<string>((res, rej) => {
-              showModal(
-                <CreateActionModal
-                  onSubmit={_rationale => {
-                    res(_rationale);
-                  }}
-                />
-              );
-            });
-
             setLoading(true);
             const newAction = await dispatchApi(
               api.action.post({
-                name: _name,
+                name,
                 query,
-                operations
+                operations,
+                triggers
               }),
               { showError: true, throwError: false }
             );
@@ -112,10 +109,15 @@ const useMyActionFunctions = () => {
           setLoading(false);
         }
       },
-      [dispatchApi, navigate, params.id, showModal]
+      [dispatchApi, navigate, params.id, showErrorMessage, t]
     ),
     submitAction: useCallback(
       async (query: string, operations: Operation[]): Promise<void> => {
+        if (!query) {
+          showErrorMessage(t('route.actions.query.empty'));
+          return;
+        }
+
         setLoading(true);
         const reqId = uuid();
         setRequestId(reqId);
@@ -139,10 +141,10 @@ const useMyActionFunctions = () => {
           onSearch(query);
         }
       },
-      [dispatchApi, onSearch]
+      [dispatchApi, onSearch, showErrorMessage, t]
     ),
     executeAction: useCallback(
-      async (actionId: string) => {
+      async (actionId: string, query?: string) => {
         setLoading(true);
         const reqId = uuid();
         setRequestId(reqId);
@@ -153,6 +155,7 @@ const useMyActionFunctions = () => {
             await dispatchApi(
               api.action.execute.post({
                 request_id: reqId,
+                query,
                 action_id: actionId
               }),
               { throwError: false, showError: true }

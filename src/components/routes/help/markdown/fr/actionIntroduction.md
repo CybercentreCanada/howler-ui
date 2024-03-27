@@ -1,8 +1,5 @@
 # Utilisation des actions dans Howler
 
-
-
-
 Les actions sont une fonctionnalité de Howler qui permet aux utilisateurs d'effectuer des tâches particulières sur un grand nombre de hits, en automatisant l'exécution d'une tâche sur chaque hit. Il y a actuellement `action_count` opérations supportées dans Howler :
 
 `action_list`

@@ -26,8 +26,4 @@ export type AppSearchService<T = any> = {
   onItemSelect?: (item: AppSearchItem<T>, state?: AppSearchServiceState<T>) => void;
   // Search result item renderer.
   itemRenderer: (item: AppSearchItem<T>, options?: AppSearchItemRendererOption<T>) => ReactElement;
-  // Search result header renderer.
-  headerRenderer?: (state: AppSearchServiceState<T>) => ReactElement;
-  // Search result footer renderer.
-  footerRenderer?: (state: AppSearchServiceState<T>) => ReactElement;
 };

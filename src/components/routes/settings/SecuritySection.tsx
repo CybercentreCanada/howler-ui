@@ -1,8 +1,9 @@
 import AddIcon from '@mui/icons-material/Add';
-import moment from 'moment';
 import { Chip, Grid, IconButton, TableCell, TableRow } from '@mui/material';
+import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import moment from 'moment';
 import { FC, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
@@ -25,6 +26,7 @@ const SecuritySection: FC<{
 }> = ({ user, editPassword, addApiKey, removeApiKey, editQuota }) => {
   const { t } = useTranslation();
   const { get } = useMyLocalStorage();
+  const { config } = useMyApiConfig();
   const isOAuth = useMemo(() => get<string>(StorageKey.APP_TOKEN)?.includes('.'), [get]);
 
   return (
@@ -37,41 +39,44 @@ const SecuritySection: FC<{
           type="password"
         />
       )}
-      <TableRow sx={{ cursor: 'pointer' }}>
-        <TableCell style={{ whiteSpace: 'nowrap' }}>{t('page.settings.security.table.apikeys')}</TableCell>
-        <TableCell width="100%">
-          <Grid container spacing={1}>
-            {user?.apikeys?.map(apiKey => (
-              <Grid item key={apiKey[0]}>
-                <Chip
-                  label={
-                    apiKey[0].toLocaleLowerCase() +
-                    (apiKey[1].length > 0
-                      ? ` (${apiKey[1].map(permission => t(APIKEY_LABELS[permission])).join(', ')})`
-                      : '')
-                  }
-                  style={{backgroundColor: moment.utc(apiKey[2]).isBefore(moment().utc()) ? 'orange': 'default'}}
-                  onDelete={removeApiKey ? () => removeApiKey(apiKey) : null}
-                />
-              </Grid>
-            ))}
-            {user?.apikeys?.length < 1 && (
-              <Grid item>
-                <Trans i18nKey="none" />
-              </Grid>
+      {config?.configuration.auth.allow_apikeys && (
+        <TableRow sx={{ cursor: 'pointer' }}>
+          <TableCell style={{ whiteSpace: 'nowrap' }}>{t('page.settings.security.table.apikeys')}</TableCell>
+          <TableCell width="100%">
+            <Grid container spacing={1}>
+              {user?.apikeys?.map(apiKey => (
+                <Grid item key={apiKey[0]}>
+                  <Chip
+                    label={
+                      apiKey[0].toLocaleLowerCase() +
+                      (apiKey[1].length > 0
+                        ? ` (${apiKey[1].map(permission => t(APIKEY_LABELS[permission])).join(', ')})`
+                        : '')
+                    }
+                    style={{ backgroundColor: moment.utc(apiKey[2]).isBefore(moment().utc()) ? 'orange' : 'default' }}
+                    onDelete={removeApiKey ? () => removeApiKey(apiKey) : null}
+                  />
+                </Grid>
+              ))}
+              {user?.apikeys?.length < 1 && (
+                <Grid item>
+                  <Trans i18nKey="none" />
+                </Grid>
+              )}
+            </Grid>
+          </TableCell>
+          <TableCell align="right">
+            {addApiKey && (
+              <IconButton onClick={addApiKey}>
+                <AddIcon fontSize="small" />
+              </IconButton>
             )}
-          </Grid>
-        </TableCell>
-        <TableCell align="right">
-          {addApiKey && (
-            <IconButton onClick={addApiKey}>
-              <AddIcon fontSize="small" />
-            </IconButton>
-          )}
-        </TableCell>
-      </TableRow>
+          </TableCell>
+        </TableRow>
+      )}
       <EditRow
         titleKey="page.settings.security.table.apiquota"
+        descriptionKey="page.settings.security.table.apiquota.description"
         value={user?.api_quota}
         validate={value => value && /^[0-9]*$/m.test(value.toString())}
         type="number"

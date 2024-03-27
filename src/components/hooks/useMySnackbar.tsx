@@ -8,10 +8,10 @@ export default function useMySnackbar() {
       preventDuplicate: true,
       anchorOrigin: {
         vertical: 'bottom',
-        horizontal: 'center'
+        horizontal: 'right'
       },
       SnackbarProps: {
-        onClick: _snack => {
+        onClick: () => {
           closeSnackbar();
         }
       }
@@ -19,33 +19,38 @@ export default function useMySnackbar() {
     [closeSnackbar]
   );
 
-  const showErrorMessage = useCallback(
-    (message: SnackbarMessage, timeout = 5000) => {
-      enqueueSnackbar(message, { variant: 'error', autoHideDuration: timeout, ...snackBarOptions });
-    },
-    [snackBarOptions, enqueueSnackbar]
+  const enqueue = useCallback(
+    (variant: 'error' | 'success' | 'warning' | 'info') =>
+      (message: SnackbarMessage, timeout = 5000, options: OptionsObject = {}) =>
+        enqueueSnackbar(message, {
+          variant,
+          autoHideDuration: timeout,
+          ...snackBarOptions,
+          ...options,
+          SnackbarProps: {
+            ...(options.SnackbarProps ?? {}),
+            onClick: options.SnackbarProps?.onClick
+              ? e => {
+                  options.SnackbarProps?.onClick(e);
+                  snackBarOptions.SnackbarProps.onClick(e);
+                }
+              : snackBarOptions.SnackbarProps.onClick
+          }
+        }),
+    [enqueueSnackbar, snackBarOptions]
   );
 
-  const showWarningMessage = useCallback(
-    (message: SnackbarMessage, timeout = 5000) => {
-      enqueueSnackbar(message, { variant: 'warning', autoHideDuration: timeout, ...snackBarOptions });
-    },
-    [snackBarOptions, enqueueSnackbar]
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const showErrorMessage = useCallback(enqueue('error'), [enqueue]);
 
-  const showSuccessMessage = useCallback(
-    (message: SnackbarMessage, timeout = 5000) => {
-      enqueueSnackbar(message, { variant: 'success', autoHideDuration: timeout, ...snackBarOptions });
-    },
-    [snackBarOptions, enqueueSnackbar]
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const showWarningMessage = useCallback(enqueue('warning'), [enqueue]);
 
-  const showInfoMessage = useCallback(
-    (message: SnackbarMessage, timeout = 5000) => {
-      enqueueSnackbar(message, { variant: 'info', autoHideDuration: timeout, ...snackBarOptions });
-    },
-    [snackBarOptions, enqueueSnackbar]
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const showSuccessMessage = useCallback(enqueue('success'), [enqueue]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const showInfoMessage = useCallback(enqueue('info'), [enqueue]);
 
   return useMemo(
     () => ({

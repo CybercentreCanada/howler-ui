@@ -17,9 +17,9 @@ import useAppUser from 'commons/components/app/hooks/useAppUser';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
 import useMyApi from 'components/hooks/useMyApi';
+import { HowlerUser } from 'models/entities/HowlerUser';
 import { AnalyticComment } from 'models/entities/generated/AnalyticComment';
 import { Hit } from 'models/entities/generated/Hit';
-import { HowlerUser } from 'models/entities/HowlerUser';
 import { SocketEvent } from 'models/socket/HitUpdate';
 import { KeyboardEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -233,7 +233,7 @@ export default function HitComments({ hit, users }: { hit: Hit; users: { [id: st
       return null;
     }
 
-    const displayedComments = analyticComments.filter(c => !c.detection || c.detection === hit.howler.detection);
+    const displayedComments = analyticComments.filter(c => !c.detection || c.detection === hit?.howler.detection);
 
     return (
       <Accordion variant="outlined">

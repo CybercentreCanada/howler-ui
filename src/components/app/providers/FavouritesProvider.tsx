@@ -1,0 +1,160 @@
+import { QueryStats, SavedSearch } from '@mui/icons-material';
+import { AppLeftNavElement, AppLeftNavGroup } from 'commons/components/app/AppConfigs';
+import useAppLeftNav from 'commons/components/app/hooks/useAppLeftNav';
+import useAppUser from 'commons/components/app/hooks/useAppUser';
+import _ from 'lodash';
+import { HowlerUser } from 'models/entities/HowlerUser';
+import { FC, PropsWithChildren, createContext, useCallback, useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AnalyticContext } from './AnalyticProvider';
+import { ViewContext } from './ViewProvider';
+
+export const FavouriteContext = createContext<{}>(null);
+
+const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
+  const { t } = useTranslation();
+  const leftNav = useAppLeftNav();
+  const appUser = useAppUser<HowlerUser>();
+  const views = useContext(ViewContext);
+  const analytics = useContext(AnalyticContext);
+
+  const processViewElement = useCallback((): AppLeftNavElement => {
+    const viewElement = leftNav.elements.find(el => el.element?.id === 'views');
+    const favourites = appUser.user?.favourite_views;
+
+    // There are no favourites and no nav elements - return
+    if (favourites.length < 1 && !viewElement) {
+      return null;
+    }
+
+    // There are no favourites, but the nav element exists - remove it
+    if (favourites.length < 1) {
+      return null;
+    }
+
+    // The favourite list is fully represented, skip
+    if (favourites.length === (viewElement?.element as AppLeftNavGroup)?.items?.length) {
+      return viewElement;
+    }
+
+    const items = _.uniqBy(
+      favourites
+        .map(view_id => {
+          const view = views.views?.find(v => v.view_id === view_id);
+          return view
+            ? {
+                id: view.view_id,
+                text: t(view.title),
+                route: `/views/${view.view_id}`,
+                nested: true
+              }
+            : null;
+        })
+        .filter(v => !!v),
+      val => val.id
+    );
+
+    if (viewElement) {
+      const newViewElement = {
+        ...viewElement,
+        element: {
+          ...viewElement.element,
+          items
+        }
+      };
+
+      return newViewElement;
+    } else {
+      return {
+        type: 'group',
+        element: {
+          id: 'views',
+          i18nKey: 'route.views.saved',
+          icon: <SavedSearch />,
+          items
+        }
+      };
+    }
+  }, [appUser.user?.favourite_views, leftNav, t, views.views]);
+
+  const processAnalyticElement = useCallback((): AppLeftNavElement => {
+    const analyticElement = leftNav.elements.find(el => el.element?.id === 'analytics');
+    const favourites = appUser.user?.favourite_analytics;
+
+    // There are no favourites and no nav elements - return
+    if (favourites.length < 1 && !analyticElement) {
+      return null;
+    }
+
+    // There are no favourites, but the nav element exists - remove it
+    if (favourites.length < 1) {
+      return null;
+    }
+
+    // The favourite list is fully represented, skip
+    if (favourites.length === (analyticElement?.element as AppLeftNavGroup)?.items?.length) {
+      return analyticElement;
+    }
+
+    const items = favourites
+      .map(aid => {
+        const analytic = analytics.analytics.find(v => v.analytic_id === aid);
+        return analytic
+          ? {
+              id: analytic.analytic_id,
+              text: t(analytic.name),
+              route: `/analytics/${analytic.analytic_id}`,
+              nested: true
+            }
+          : null;
+      })
+      .filter(v => !!v);
+
+    if (analyticElement) {
+      return {
+        ...analyticElement,
+        element: {
+          ...analyticElement.element,
+          items
+        }
+      };
+    } else {
+      return {
+        type: 'group',
+        element: {
+          id: 'analytics',
+          i18nKey: 'route.analytics.pinned',
+          icon: <QueryStats />,
+          items
+        }
+      };
+    }
+  }, [analytics.analytics, appUser.user?.favourite_analytics, leftNav, t]);
+
+  useEffect(() => {
+    if (!appUser.isReady() || !views.ready || !analytics.ready) {
+      return;
+    }
+
+    const newElements = leftNav.elements
+      .filter(el => !['views', 'analytics'].includes(el.element?.id as any))
+      .filter(el => !!el);
+
+    const analyticElement = processAnalyticElement();
+    if (analyticElement) {
+      newElements.splice(1, 0, analyticElement);
+    }
+
+    const viewElement = processViewElement();
+    if (viewElement) {
+      newElements.splice(1, 0, viewElement);
+    }
+
+    leftNav.setElements(newElements);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analytics.ready, appUser, views.ready]);
+
+  return <FavouriteContext.Provider value={{}}>{children}</FavouriteContext.Provider>;
+};
+
+export default FavouriteProvider;

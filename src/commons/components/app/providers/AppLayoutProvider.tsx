@@ -1,10 +1,11 @@
-import { CssBaseline, styled, useMediaQuery, useTheme } from '@mui/material';
+import { styled, useMediaQuery, useTheme } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
 import useAppUser from 'commons/components/app/hooks/useAppUser';
 import LeftNavDrawer from 'commons/components/leftnav/LeftNavDrawer';
 import AppBar from 'commons/components/topnav/AppBar';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
-import { createContext, ReactNode, useCallback, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useMemo, useState } from 'react';
 import { AppLayoutMode } from '../AppConfigs';
 import { AppStorageKeys } from '../AppConstants';
 import { AppLayoutContextType } from '../AppContexts';

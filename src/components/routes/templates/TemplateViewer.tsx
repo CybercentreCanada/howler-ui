@@ -1,8 +1,6 @@
 import {
-  Alert,
   Button,
   CircularProgress,
-  Collapse,
   Divider,
   FormControl,
   InputLabel,
@@ -11,7 +9,8 @@ import {
   Select,
   Stack,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  Tooltip
 } from '@mui/material';
 import api from 'api';
 import PageCenter from 'commons/components/pages/PageCenter';
@@ -19,7 +18,7 @@ import TemplateEditor from 'components/routes/templates/TemplateEditor';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Check, Delete, Remove } from '@mui/icons-material';
+import { Check, Delete, Remove, SsidChart } from '@mui/icons-material';
 import hitsData from 'api/hit/:id/data/index.json';
 import AppInfoPanel from 'commons/components/display/AppInfoPanel';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
@@ -27,9 +26,11 @@ import HitDetails, { DEFAULT_FIELDS } from 'components/elements/hit/HitDetails';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyApi from 'components/hooks/useMyApi';
 import _ from 'lodash';
+import { Analytic } from 'models/entities/generated/Analytic';
 import { Hit } from 'models/entities/generated/Hit';
 import { Template } from 'models/entities/generated/Template';
 import { useSearchParams } from 'react-router-dom';
+import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 const CUSTOM_OUTLINES = ['cmt.aws.sigma.rules', 'assemblyline', '6tailphish'];
 
@@ -43,7 +44,7 @@ const TemplateViewer = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(null);
   const [displayFields, setDisplayFields] = useState<string[]>([]);
 
-  const [analytics, setAnalytics] = useState<string[]>([]);
+  const [analytics, setAnalytics] = useState<Analytic[]>([]);
   const [detections, setDetections] = useState<string[]>([]);
 
   const [analytic, setAnalytic] = useState<string>(params.get('analytic') ?? '');
@@ -55,15 +56,15 @@ const TemplateViewer = () => {
   useEffect(() => {
     setLoading(true);
 
-    dispatchApi(api.search.grouped.hit.post('howler.analytic', { limit: 0 }), {
+    dispatchApi(api.search.analytic.post({ query: 'analytic_id:*', rows: 1000 }), {
       logError: false,
       showError: true,
       throwError: true
     })
       .finally(() => setLoading(false))
-      .then(result => result.items.map(i => i.value))
+      .then(result => result.items)
       .then(_analytics => {
-        if (!_analytics.includes(analytic)) {
+        if (!_analytics.some(_analytic => _analytic.name.toLowerCase() === analytic.toLowerCase())) {
           setAnalytic('');
         }
 
@@ -77,11 +78,17 @@ const TemplateViewer = () => {
     if (analytic) {
       setLoading(true);
 
-      dispatchApi(api.search.grouped.hit.post('howler.detection', { limit: 0, query: `howler.analytic:${analytic}` }), {
-        logError: false,
-        showError: true,
-        throwError: true
-      })
+      dispatchApi(
+        api.search.grouped.hit.post('howler.detection', {
+          limit: 0,
+          query: `howler.analytic:"${sanitizeLuceneQuery(analytic)}"`
+        }),
+        {
+          logError: false,
+          showError: true,
+          throwError: true
+        }
+      )
         .finally(() => setLoading(false))
         .then(result => result.items.map(i => i.value))
         .then(_detections => {
@@ -199,13 +206,7 @@ const TemplateViewer = () => {
   return (
     <PageCenter maxWidth="1500px" textAlign="left" height="100%">
       <LinearProgress sx={{ mb: 1, opacity: +loading }} />
-      <Collapse in={isCustomOutline && type === 'global'} sx={{ mb: 2 }}>
-        <Alert variant="outlined" severity="warning" sx={{ width: '100%' }}>
-          {t('route.templates.readonly.warning')} <a href="mailto:apa2b-dl@cybger.gc.ca">APA2B</a>.
-        </Alert>
-      </Collapse>
       <Stack direction="column" spacing={2} divider={<Divider orientation="horizontal" flexItem />} height="100%">
-        <Stack direction="row" spacing={2} mb={2} alignItems="stretch">
           <FormControl sx={{ minWidth: { sm: '200px' } }}>
             <InputLabel id="analytic-label" htmlFor="analytic" size="small">
               {t('route.templates.analytic')}
@@ -219,37 +220,43 @@ const TemplateViewer = () => {
               onChange={e => setAnalytic(e.target.value)}
             >
               {analytics
-                .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+                .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
                 .map(s => (
-                  <MenuItem key={s} value={s}>
-                    {s}
+                  <MenuItem key={s.analytic_id} value={s.name}>
+                    {s.name}
                   </MenuItem>
                 ))}
             </Select>
           </FormControl>
-          <FormControl
-            sx={{ minWidth: { sm: '200px' } }}
-            disabled={!analytic || (isCustomOutline && type === 'global')}
-          >
-            <InputLabel id="detection-label" htmlFor="detection" size="small">
-              {t('route.templates.detection')}
-            </InputLabel>
-            <Select
-              labelId="detection-label"
-              id="detection"
-              size="small"
-              label={t('route.templates.detection')}
-              value={isCustomOutline && type === 'global' ? 'ANY' : detection ?? ''}
-              onChange={e => setDetection(e.target.value)}
+          {!(detections?.length < 2 && detections[0]?.toLowerCase() === 'rule') ? (
+            <FormControl
+              sx={{ minWidth: { sm: '200px' } }}
+              disabled={!analytic || (isCustomOutline && type === 'global')}
             >
-              <MenuItem value="ANY">{t('any')}</MenuItem>
-              {detections.sort().map(s => (
-                <MenuItem key={s} value={s}>
-                  {s}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              <InputLabel id="detection-label" htmlFor="detection" size="small">
+                {t('route.templates.detection')}
+              </InputLabel>
+              <Select
+                labelId="detection-label"
+                id="detection"
+                size="small"
+                label={t('route.templates.detection')}
+                value={isCustomOutline && type === 'global' ? 'ANY' : detection ?? ''}
+                onChange={e => setDetection(e.target.value)}
+              >
+                <MenuItem value="ANY">{t('any')}</MenuItem>
+                {detections.sort().map(s => (
+                  <MenuItem key={s} value={s}>
+                    {s}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <Tooltip title={t('route.templates.rule.explanation')}>
+              <SsidChart color="info" sx={{ alignSelf: 'center' }} />
+            </Tooltip>
+          )}
           <ToggleButtonGroup
             sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}
             size="small"

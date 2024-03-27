@@ -2,20 +2,19 @@ import { Box, IconButton, LinearProgress, Stack, Tooltip } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { useTranslation } from 'react-i18next';
 
-import { EmotionJSX } from '@emotion/react/types/jsx-namespace';
 import { Search } from '@mui/icons-material';
 import { HowlerSearchResponse } from 'api/search';
 import { TuiPhrase } from 'commons/addons/controls';
 import { TuiList, TuiListItemOnSelect, TuiListItemRenderer } from 'commons/addons/lists';
 import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
 import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
-import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 interface ItemManagerProps {
-  aboveSearch?: EmotionJSX.Element;
-  afterSearch?: EmotionJSX.Element;
-  belowSearch?: EmotionJSX.Element;
+  aboveSearch?: ReactNode;
+  afterSearch?: ReactNode;
+  belowSearch?: ReactNode;
+  searchFilters?: ReactNode;
   hasError: boolean;
   onPageChange: (nextOffset: number) => void;
   onSearch: () => void;
@@ -23,7 +22,7 @@ interface ItemManagerProps {
   phrase: string;
   renderer: TuiListItemRenderer<unknown>;
   response: HowlerSearchResponse<unknown>;
-  searchAdornment?: EmotionJSX.Element;
+  searchAdornment?: ReactNode;
   searching: boolean;
   searchPrompt: string;
   setPhrase: (value: string) => void;
@@ -34,6 +33,7 @@ const ItemManager: FC<ItemManagerProps> = ({
   aboveSearch,
   afterSearch,
   belowSearch,
+  searchFilters,
   hasError,
   onPageChange,
   onSearch,
@@ -57,10 +57,7 @@ const ItemManager: FC<ItemManagerProps> = ({
             <TuiPhrase
               value={phrase}
               onChange={setPhrase}
-              onKeyDown={({ event, isEnter }: TuiKeyboardParsedEvent) => {
-                // Prevent HitAction from receiving key events from this component.
-                event.stopPropagation();
-                // If ENTER key, then go for it, search!
+              onKeyDown={({ isEnter }) => {
                 if (isEnter) {
                   onSearch();
                 }
@@ -78,7 +75,7 @@ const ItemManager: FC<ItemManagerProps> = ({
                   </IconButton>
                 </Tooltip>
               }
-              endAdornment={searchAdornment}
+              endAdornment={<>{searchAdornment}</>}
             />
             {searching && (
               <LinearProgress
@@ -92,6 +89,7 @@ const ItemManager: FC<ItemManagerProps> = ({
           </Stack>
           {afterSearch}
         </Stack>
+        {searchFilters}
         {response && (
           <Stack direction="row" alignItems="center" mt={0.5}>
             <TuiSearchTotal

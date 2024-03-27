@@ -1,6 +1,43 @@
 import { useTheme } from '@mui/material';
+import {
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  SubTitle,
+  TimeScale,
+  Title,
+  Tooltip
+} from 'chart.js';
+import 'chartjs-adapter-moment';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+
+ChartJS.defaults.font.family = `'Roboto', 'Helvetica', 'Arial', sans-serif`;
+
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  TimeScale,
+  PointElement,
+  LineElement,
+  Title,
+  SubTitle,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  BarElement,
+  Filler
+);
+
+ChartJS.register(zoomPlugin);
 
 export default function useMyChart() {
   const { t } = useTranslation();
@@ -10,7 +47,7 @@ export default function useMyChart() {
    * Generate a basic set of default options for our graphs
    */
   const generateOptions = useCallback(
-    (i18nKey: string) => ({
+    (i18nKey: string, subtitleKey = 'route.analytics.overview.limit') => ({
       responsive: true,
       plugins: {
         legend: {
@@ -33,13 +70,31 @@ export default function useMyChart() {
         },
         subtitle: {
           display: true,
-          text: t('route.analytics.overview.limit'),
+          text: t(subtitleKey),
           color: theme.palette.text.secondary,
           font: {
             size: 10
           },
           padding: {
             bottom: 10
+          }
+        },
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'y' as const
+          },
+          pan: {
+            enabled: true,
+            mode: 'xy' as 'x' | 'y' | 'xy'
+          },
+          limits: {
+            y: { min: 0 }
           }
         }
       },
@@ -71,6 +126,8 @@ export default function useMyChart() {
 
       options.plugins.subtitle = null;
 
+      options.plugins.zoom.pan.mode = 'x';
+
       return options;
     },
 
@@ -91,6 +148,12 @@ export default function useMyChart() {
         y: { beginAtZero: true, ticks: { precision: 0, color: theme.palette.text.primary } },
         x: { ticks: { color: theme.palette.text.primary } }
       } as any;
+
+      return options;
+    },
+
+    scatter: (titleKey: string, subtitleKey?: string) => {
+      const options = generateOptions(titleKey, subtitleKey);
 
       return options;
     }

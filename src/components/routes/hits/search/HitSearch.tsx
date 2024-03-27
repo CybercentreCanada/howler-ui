@@ -1,286 +1,134 @@
-import { MoreHoriz, Star, StarOutline, ViewComfy, ViewCompact, ViewModule } from '@mui/icons-material';
+import { Close, Edit, ErrorOutline, SavedSearch } from '@mui/icons-material';
 import {
+  Alert,
   Box,
-  Collapse,
-  emphasize,
-  FormControl,
-  FormLabel,
+  Divider,
   IconButton,
-  Menu,
-  Paper,
+  LinearProgress,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
-  Typography
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import api from 'api';
-import { HowlerSearchRequest, HowlerSearchResponse } from 'api/search';
-import { TuiQueryChangeReason, TuiQueryItem } from 'commons/addons/controls/query';
-import { TuiQuery } from 'commons/addons/controls/query/TuiQuery';
-import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
+import { HowlerSearchResponse } from 'api/search';
+import FlexOne from 'commons/addons/flexers/FlexOne';
 import { TuiList, TuiListItemOnSelect, TuiListItemProps } from 'commons/addons/lists';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
 import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
 import VSBox from 'commons/addons/vsbox/VSBox';
 import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
 import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
-import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
-import { FieldContext } from 'components/app/providers/FieldProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
-import HitAggregate from 'components/elements/hit/HitAggregate';
+import { ViewContext } from 'components/app/providers/ViewProvider';
+import HowlerCard from 'components/elements/display/HowlerCard';
+import HitHeader from 'components/elements/hit/HitHeader';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import HitOutline from 'components/elements/hit/HitOutline';
-import { ViewTitle } from 'components/elements/view/ViewTitle';
-import useMyApi from 'components/hooks/useMyApi';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
-import i18n from 'i18n';
 import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useParams } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router';
+import { Link, SetURLSearchParams, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
-import HitFilters from './HitFilters';
-import { HitSearchMenu } from './HitSearchMenu';
-import HitSort, { SortData } from './HitSort';
-import { useHowlerQueryStore } from './hooks/useHowlerQueryStore';
+import BundleParentMenu from './BundleParentMenu';
+import HitContextMenu from './HitContextMenu';
+import HitFilter from './HitFilter';
+import HitQuery from './HitQuery';
+import HitSort from './HitSort';
+import SearchSpan from './SearchSpan';
 
-export type HowlerHitSearchRequest = HowlerSearchRequest & { dispatch: boolean };
-
-const parseSort = (sortString: string): SortData =>
-  (sortString ?? '').split(',').reduce((acc, val, index) => {
-    const [key, sortDirection] = val.split(' ');
-
-    if (key && sortDirection) {
-      acc[key] = {
-        direction: sortDirection as 'asc' | 'desc',
-        priority: index
-      };
-    }
-
-    return acc;
-  }, {} as SortData);
-
-const removeSelected = (_params: URLSearchParams) => {
-  const copy = new URLSearchParams(_params);
-  copy.delete('selected');
-  return copy.toString();
-};
-
-const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = ({ onSelection, top }) => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const store = useHowlerQueryStore();
-  const location = useLocation();
-  const routeParams = useParams();
-  const paramsRef = useRef<URLSearchParams>();
+const HitSearch: FC<{
+  error?: string;
+  onSelection: TuiListItemOnSelect<Hit>;
+  onSortChange: (sort: string) => void;
+  onLookupChange: (filter: string) => void;
+  onSpanChange: (span: string) => void;
+  onPageChange: (offset: number) => void;
+  triggerSearch: (query: string) => void;
+  params: URLSearchParams;
+  setParams: SetURLSearchParams;
+  response: HowlerSearchResponse<Hit>;
+  searching: boolean;
+  top?: number;
+}> = ({
+  error,
+  onSelection,
+  onSortChange,
+  onLookupChange,
+  onPageChange,
+  onSpanChange,
+  triggerSearch,
+  response,
+  searching,
+  top = 0
+}) => {
   const { t } = useTranslation();
-  const { dispatchApi } = useMyApi();
-  const { load } = useTuiListMethods<Hit>();
-  const { getHitFields } = useContext(FieldContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const routeParams = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { refresh } = useContext(TemplateContext);
-  const { get, set } = useMyLocalStorage();
-  const [layout, setLayout] = useState(isMobile ? HitLayout.COMFY : get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL);
-  const [searching, setSearching] = useState<boolean>(false);
-  const [aggregating, setAggregating] = useState<boolean>(false);
-  const [dropdownView, setDropdownView] = useState<'sort' | 'aggregate' | 'filter'>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [hasError, setHasError] = useState<boolean>(false);
-  const [openSetting, setOpenSetting] = useState<null | HTMLElement>(null);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [response, setResponse] = useState<HowlerSearchResponse<Hit>>();
+  const viewContext = useContext(ViewContext);
+  const { get } = useMyLocalStorage();
 
-  // [params] -  initializing with default view/query if none was provided.
-  const [params, setParams] = useSearchParams(
-    !searchParams.has('query') &&
-      !searchParams.has('qid') &&
-      !location.pathname.startsWith('/bundles') &&
-      store.provider.defaultView
-      ? {
-          qid: store.provider.defaultView
-        }
-      : {}
+  const verticalSorters = useMediaQuery('(max-width: 1919px)');
+
+  const [bundleHit, setBundleHit] = useState<Hit>(null);
+
+  const viewId = useMemo(
+    () => (location.pathname.startsWith('/views') ? routeParams.id : null),
+    [location.pathname, routeParams.id]
   );
 
-  // [request] -  initializing state with created desc sorter.
-  const [request, setRequest] = useState<HowlerHitSearchRequest>({
-    dispatch: false,
-    offset: 0,
-    rows: 25,
-    query: null,
-    sort: 'event.created desc',
-    track_total_hits: !!params.get('track_total_hits') && params.get('track_total_hits') !== 'false'
-  });
+  const selectedView = useMemo(
+    () => viewContext.views?.find(_view => _view.view_id === viewId),
+    [viewContext.views, viewId]
+  );
+
+  const layout: HitLayout = useMemo(
+    () => (isMobile ? HitLayout.COMFY : get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL),
+    [get]
+  );
+
+  const viewUrl = useMemo(() => {
+    if (viewId) {
+      return `/views/${viewId}/edit`;
+    }
+
+    const keys = [];
+    if (searchParams.has('query')) {
+      keys.push(`query=${searchParams.get('query')}`);
+    }
+
+    if (searchParams.has('sort')) {
+      keys.push(`sort=${searchParams.get('sort')}`);
+    }
+
+    if (searchParams.has('span')) {
+      keys.push(`span=${searchParams.get('span')}`);
+    }
+
+    return keys.length > 0 ? `/views/create?${keys.join('&')}` : '/views/create';
+  }, [searchParams, viewId]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/bundles') && routeParams.id) {
+      api.hit.get(routeParams.id).then(result => {
+        setBundleHit(result);
+      });
+    } else {
+      setBundleHit(null);
+    }
+  }, [location.pathname, routeParams.id]);
 
   // Load the index field for a hit in order to provide autocomplete suggestions.
   useEffect(() => {
-    getHitFields().then(fields => setSuggestions(fields.map(f => f.key)));
     refresh();
-  }, [getHitFields, refresh]);
-
-  // Trigger a new search when the request state changes.
-  useEffect(() => {
-    if (request.dispatch) {
-      setSearching(true);
-      setHasError(false);
-      dispatchApi(api.search.hit.post(request), { showError: false, throwError: true })
-        .then(setResponse)
-        .catch(() => setHasError(true))
-        .finally(() => setSearching(false));
-    }
-  }, [request, dispatchApi]);
-
-  // Load the items into list when response changes.
-  // This hook should only trigger when the 'response' changes.
-  useEffect(() => {
-    if (response) {
-      // Here we do not use the params hook in order to ensure this hook doesn't trigger on param changes.
-      // Having a dependency on 'params' hook causes list to be reset from response objects.
-      // This can cause issue in cases there were 'replace' issues in between response changes.
-      const _params = new URLSearchParams(window.location.search);
-      load(
-        response.items.map((h: Hit) => ({
-          id: h.howler.id,
-          item: h,
-          selected: _params.get('selected') === h.howler.id,
-          cursor: _params.get('selected') === h.howler.id
-        }))
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [response, load, window.location.search]);
-
-  // Handler for downstream TuiQuery 'onChange' callback.
-  const onQueryChange = useCallback(
-    (reason: TuiQueryChangeReason, query: string, nextState: URLSearchParams) => {
-      if (query === 'woof!') {
-        i18n.changeLanguage('woof');
-      }
-
-      // Detect whether only the 'selected' parameter changed.
-      const selectionOnly = reason === 'init' && removeSelected(nextState) === removeSelected(paramsRef.current);
-
-      // Remember the last time we came through here.
-      paramsRef.current = new URLSearchParams(nextState);
-
-      // Ensure we update 'query' parameter.
-      setParams(nextState);
-
-      // Don't trigger search if only the 'selected' parameter changed.
-      if (!selectionOnly) {
-        const bundle = location.pathname.startsWith('/bundles') && routeParams.id;
-        setRequest(_request => ({
-          ..._request,
-          dispatch: true,
-          query: bundle ? `(howler.bundles:${bundle}) AND (${query || '*:*'})` : query,
-          offset: nextState.has('offset') ? parseInt(nextState.get('offset')) : 0,
-          filters: nextState.has('filter') ? nextState.getAll('filter') : []
-        }));
-      }
-    },
-    [location.pathname, routeParams.id, setParams]
-  );
-
-  // Update the request object when the pagination component's page changes.
-  const onPageChange = useCallback(
-    (offset: number) => {
-      params.set('offset', `${offset}`);
-      setParams(params);
-    },
-    [params, setParams]
-  );
-
-  // Handler to open the settings menu.
-  const handleOpenSetting = (event: React.MouseEvent<HTMLElement>) => setOpenSetting(event.currentTarget);
-
-  // Handler to close the settings menu.
-  const handleCloseSetting = () => setOpenSetting(null);
-
-  // Handler for when to change the HitLayout.
-  const onLayoutChange = useCallback(
-    (e: React.MouseEvent<HTMLElement>, l: HitLayout) => {
-      e.preventDefault();
-      setLayout(l);
-      set(StorageKey.HIT_LAYOUT, l);
-    },
-    [set]
-  );
-
-  // Handler for when changes occur in the lookup component
-  const onLookupChange = useCallback(
-    (filters: string[]) => {
-      if (filters.length > 0) {
-        params.delete('filter');
-        filters.forEach(filter => params.append('filter', filter));
-      } else {
-        params.delete('filter');
-      }
-      setParams(params);
-    },
-    [params, setParams]
-  );
-
-  // Handler for filter toggling button.
-  const onFilter = useCallback(() => {
-    setShowDropdown(dropdownView !== 'filter' ? true : !showDropdown);
-    setDropdownView(dropdownView !== 'filter' ? 'filter' : dropdownView);
-  }, [dropdownView, showDropdown]);
-
-  // Handler for aggregate toggling button.
-  const onAggregate = useCallback(() => {
-    setShowDropdown(dropdownView !== 'aggregate' ? true : !showDropdown);
-    setDropdownView(dropdownView !== 'aggregate' ? 'aggregate' : dropdownView);
-  }, [dropdownView, showDropdown]);
-
-  // Handler for aggregate toggling button.
-  const onSort = useCallback(() => {
-    setShowDropdown(dropdownView !== 'sort' ? true : !showDropdown);
-    setDropdownView(dropdownView !== 'sort' ? 'sort' : dropdownView);
-  }, [dropdownView, showDropdown]);
-
-  // Handlder for when sorting criteria changes.
-  const onSortChange = useCallback(
-    (sortData: SortData) => {
-      setRequest({
-        ...request,
-        sort: Object.keys(sortData)
-          .sort((a, b) => sortData[a].priority - sortData[b].priority)
-          .map(k => `${k} ${sortData[k].direction}`)
-          .join(',')
-      });
-    },
-    [request]
-  );
-
-  // Render the TuiQueryStore option items.
-  // Essentially renderer for each saved views.
-  const storeOptionRenderer = useCallback(
-    (item: TuiQueryItem) => {
-      const view = store.provider.views.find(v => v.view_id === item.id);
-      return view && <ViewTitle {...view} />;
-    },
-    [store.provider.views]
-  );
-
-  // Render the TuiQueryStore menu option items.
-  // This builds the action menu at the end of each options.
-  const storeOptionMenuRenderer = useCallback(
-    (item: TuiQueryItem) => {
-      const favourited = store.provider.favourites.some(view_id => view_id === item.id);
-      return [
-        <TuiIconButton
-          key={item.id}
-          onClick={() => (favourited ? store.provider.removeFavourite(item.id) : store.provider.addFavourite(item.id))}
-        >
-          {favourited ? <Star /> : <StarOutline />}
-        </TuiIconButton>
-      ];
-    },
-    [store]
-  );
+  }, [refresh]);
 
   // Search result list item renderer.
   const renderer = useCallback(
@@ -305,7 +153,7 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
             item.cursor && {
               '& .MuiPaper-root': { borderColor: grey[500] }
             },
-            item.selected && {
+            searchParams.get('selected') === item.id && {
               '& .MuiPaper-root': { borderColor: 'primary.main' }
             }
           ]}
@@ -314,157 +162,145 @@ const HitSearch: FC<{ onSelection: TuiListItemOnSelect<Hit>; top?: number }> = (
         </Box>
       );
     },
-    [layout]
+    [layout, searchParams]
+  );
+
+  const viewButton = (
+    <Tooltip title={viewId ? t('route.views.edit') : t('route.views.create')}>
+      <IconButton size="small" component={Link} disabled={!viewId && !searchParams.has('query')} to={viewUrl}>
+        {viewId ? <Edit fontSize="small" /> : <SavedSearch />}
+      </IconButton>
+    </Tooltip>
   );
 
   return (
-    store.ready && (
-      <VSBox top={top}>
-        <VSBoxHeader mb={1} ml={-2} mr={-2}>
-          <Box mb={2} mt={2}>
-            <Typography
-              sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic', mb: 0.5 })}
-              variant="body2"
+    <VSBox top={top}>
+      <Stack ml={-1} mr={-1} sx={{ '& .overflowingContentWidgets > *': { zIndex: '2000 !important' } }} spacing={1}>
+        {viewId &&
+          (selectedView ? (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Tooltip title={selectedView.query}>
+                <Typography
+                  sx={theme => ({ color: theme.palette.text.primary })}
+                  variant="body1"
+                  component={Link}
+                  to={`/views/${selectedView.view_id}/edit`}
+                >
+                  {t(selectedView.title)}
+                </Typography>
+              </Tooltip>
+              {viewButton}
+            </Stack>
+          ) : (
+            <Alert
+              variant="outlined"
+              severity="error"
+              action={
+                <IconButton size="small" component={Link} to="/search">
+                  <Close fontSize="small" />
+                </IconButton>
+              }
             >
-              {t('hit.search.prompt')}
-            </Typography>
+              {t('view.notfound')}
+            </Alert>
+          ))}
 
-            <TuiQuery
-              q="query"
-              state={params}
-              store={store}
-              searching={searching || aggregating}
-              onChange={onQueryChange}
-              PhraseProps={{
-                suggestions,
-                onKeyDown: ({ event, isEnter }: TuiKeyboardParsedEvent) => {
-                  event.stopPropagation();
-                },
-                endAdornment: (
-                  <HitSearchMenu
-                    hasError={hasError}
-                    dropdownView={dropdownView}
-                    request={request}
-                    response={response}
-                    onSort={onSort}
-                    onAggregate={onAggregate}
-                    onFilter={onFilter}
-                  />
-                )
+        {bundleHit && (
+          <Stack spacing={1} sx={{ mx: -1 }}>
+            <HowlerCard
+              sx={[
+                { p: 1, border: '4px solid transparent', cursor: 'pointer' },
+                location.pathname.startsWith('/bundles') &&
+                  !searchParams.has('selected') && { borderColor: 'primary.main' }
+              ]}
+              onClick={() => {
+                searchParams.delete('selected');
+                setSearchParams(searchParams);
               }}
-              StoreProps={{
-                OptionProps: {
-                  renderer: storeOptionRenderer,
-                  menuRenderer: storeOptionMenuRenderer
+            >
+              <HitHeader hit={bundleHit} layout={HitLayout.DENSE} useListener />
+            </HowlerCard>
+          </Stack>
+        )}
+
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography
+            sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic', mb: 0.5 })}
+            variant="body2"
+          >
+            {t('hit.search.prompt')}
+          </Typography>
+          {error && (
+            <Tooltip title={`${t('route.advanced.error')}: ${error}`}>
+              <ErrorOutline fontSize="small" color="error" />
+            </Tooltip>
+          )}
+          <FlexOne />
+          {bundleHit?.howler.bundles.length > 0 && <BundleParentMenu bundle={bundleHit} />}
+          {bundleHit && (
+            <Tooltip title={t('hit.bundle.close')}>
+              <IconButton size="small" onClick={() => navigate('/search')}>
+                <Close />
+              </IconButton>
+            </Tooltip>
+          )}
+          {!viewId && viewButton}
+        </Stack>
+
+        <HitQuery disabled={viewId && !selectedView} searching={searching} triggerSearch={triggerSearch} />
+
+        <Box sx={{ position: 'relative', pb: 1.5 }}>
+          <Stack
+            direction={verticalSorters ? 'column' : 'row'}
+            justifyContent="space-between"
+            spacing={1}
+            divider={!verticalSorters && <Divider flexItem orientation="vertical" />}
+            sx={[
+              { '& > :not(.MuiDivider-root )': { flex: 1 } },
+              viewId &&
+                !selectedView && {
+                  opacity: 0.25,
+                  pointerEvents: 'none'
                 }
-              }}
+            ]}
+          >
+            <HitSort onChange={onSortChange} useDefault={!viewId} />
+            <HitFilter onChange={onLookupChange} />
+            <SearchSpan onChange={onSpanChange} useDefault={!viewId} />
+          </Stack>
+          {searching && (
+            <LinearProgress sx={theme => ({ position: 'absolute', bottom: theme.spacing(0.5), left: 0, right: 0 })} />
+          )}
+        </Box>
+      </Stack>
+
+      <VSBoxHeader ml={-1} mr={-1} pb={1}>
+        {response && (
+          <Stack direction="row" alignItems="center">
+            <TuiSearchTotal
+              total={response.total}
+              pageLength={response.items.length}
+              offset={response.offset}
+              sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic' })}
             />
-            <Collapse in={showDropdown} unmountOnExit>
-              <Paper
-                sx={theme => ({
-                  backgroundColor: emphasize(theme.palette.background.default, 0.025),
-                  p: 2,
-                  border: '1px solid',
-                  borderColor: emphasize(theme.palette.background.default, 0.1),
-                  borderTopLeftRadius: 0,
-                  borderTopRightRadius: 0,
-                  borderTop: 0,
-                  marginTop: '-2px'
-                })}
-                elevation={0}
-              >
-                {
-                  {
-                    aggregate: (
-                      <HitAggregate
-                        query={request.query}
-                        compact
-                        onStart={() => setAggregating(true)}
-                        onComplete={() => setAggregating(false)}
-                      />
-                    ),
-                    filter: <HitFilters onChange={onLookupChange} />,
-                    sort: <HitSort sort={parseSort(request.sort)} suggestions={suggestions} onChange={onSortChange} />
-                  }[dropdownView]
-                }
-              </Paper>
-            </Collapse>
-
-            {response && (
-              <>
-                <Stack direction="row" alignItems="center">
-                  <TuiSearchTotal
-                    total={response.total}
-                    pageLength={response.items.length}
-                    offset={response.offset}
-                    sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic' })}
-                  />
-                  <Box flex={1} />
-                  <TuiSearchPagination
-                    total={response.total}
-                    limit={response.rows}
-                    offset={response.offset}
-                    onChange={onPageChange}
-                  />
-                  {!isMobile && (
-                    <>
-                      <Tooltip title={t('page.hits.view.layout')}>
-                        <IconButton
-                          aria-controls={!!openSetting ? 'basic-menu' : undefined}
-                          aria-haspopup="true"
-                          aria-expanded={!!openSetting ? 'true' : undefined}
-                          onClick={handleOpenSetting}
-                          size="small"
-                          sx={{ minWidth: 'auto' }}
-                        >
-                          <MoreHoriz />
-                        </IconButton>
-                      </Tooltip>
-                      <Menu
-                        anchorEl={openSetting}
-                        open={!!openSetting}
-                        onClose={handleCloseSetting}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        PaperProps={{
-                          sx: {
-                            '& ul': {
-                              p: 2,
-                              display: 'flex',
-                              flexDirection: 'column'
-                            }
-                          }
-                        }}
-                      >
-                        <FormControl>
-                          <FormLabel sx={{ mb: 1 }}>{t('page.hits.view.layout')}</FormLabel>
-                          <ToggleButtonGroup value={layout} exclusive onChange={onLayoutChange}>
-                            <ToggleButton value={HitLayout.DENSE}>
-                              <ViewCompact />
-                            </ToggleButton>
-                            <ToggleButton value={HitLayout.NORMAL}>
-                              <ViewModule />
-                            </ToggleButton>
-                            <ToggleButton value={HitLayout.COMFY}>
-                              <ViewComfy />
-                            </ToggleButton>
-                          </ToggleButtonGroup>
-                        </FormControl>
-                      </Menu>
-                    </>
-                  )}
-                </Stack>
-              </>
-            )}
-          </Box>
-        </VSBoxHeader>
-        <VSBoxContent mr={-2} ml={-2}>
+            <Box flex={1} />
+            <TuiSearchPagination
+              total={response.total}
+              limit={response.rows}
+              offset={response.offset}
+              onChange={onPageChange}
+            />
+          </Stack>
+        )}
+      </VSBoxHeader>
+      <VSBoxContent mr={-1} ml={-1}>
+        <HitContextMenu>
           <TuiList keyboard onSelection={onSelection}>
             {renderer}
           </TuiList>
-        </VSBoxContent>
-      </VSBox>
-    )
+        </HitContextMenu>
+      </VSBoxContent>
+    </VSBox>
   );
 };
 

@@ -1,3 +1,5 @@
+<!-- docs/ingestion/bundles.fr.md -->
+
 # Les groupes des hits Howler
 
 Les groupes des hits peuvent être utilisés pour regrouper facilement un grand nombre d'alertes similaires, ce qui permet aux analystes de les traiter comme un seul incident. Prenons l'exemple d'un ordinateur qui effectue à plusieurs reprises un appel réseau vers `baddomain.ru` - bien qu'une alerte puisse être générée pour chaque cas où cet ordinateur accède à ce domaine, il est logique que les analystes traitent toutes ces alertes comme un seul et même cas.

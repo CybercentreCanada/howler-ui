@@ -1,4 +1,6 @@
+import { isNull, isUndefined } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
+import { MY_LOCAL_STORAGE_PREFIX } from 'utils/constants';
 import useLocalStorage from './useLocalStorage';
 
 /**
@@ -20,7 +22,7 @@ export default function useLocalStorageItem<T>(
   initialValue?: T,
   prefix?: string
 ): [T, (value: T, save?: boolean) => void, () => void] {
-  const { get, set, has, remove } = useLocalStorage(prefix);
+  const { get, set, has, remove } = useLocalStorage(prefix ?? MY_LOCAL_STORAGE_PREFIX);
   const [value, setValue] = useState<T>(get(key) ?? initialValue);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function useLocalStorageItem<T>(
       value,
       (newValue, save = true) => {
         if (save) {
-          if (newValue) {
+          if (!isNull(newValue) && !isUndefined(newValue)) {
             set(key, newValue);
           } else {
             remove(key);

@@ -1,4 +1,14 @@
-import { Add, Edit, LocalPolice, MoodBad, NewReleases, PsychologyAlt, Star, Timeline } from '@mui/icons-material';
+import {
+  Add,
+  Check,
+  Edit,
+  LocalPolice,
+  MoodBad,
+  NewReleases,
+  PsychologyAlt,
+  Star,
+  Timeline
+} from '@mui/icons-material';
 import {
   Backdrop,
   Box,
@@ -9,7 +19,10 @@ import {
   FormControl,
   FormHelperText,
   IconButton,
+  InputAdornment,
   InputLabel,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   Select,
   Stack,
@@ -31,12 +44,12 @@ type LabelState = {
 };
 
 const LABEL_TYPE = {
-  insight: { icon: <PsychologyAlt />, color: '#FFFFFF' }, //brain icon
-  mitigation: { icon: <LocalPolice />, color: blue[600] }, //police badge
-  victim: { icon: <MoodBad />, color: pink[400] }, //crime outline
-  campaign: { icon: <Timeline />, color: orange[900] }, //net graph?
-  threat: { icon: <NewReleases />, color: red[400] },
-  operation: { icon: <Star />, color: yellow[600] },
+  insight: { icon: <PsychologyAlt fontSize="small" />, color: '#FFFFFF' }, //brain icon
+  mitigation: { icon: <LocalPolice fontSize="small" />, color: blue[600] }, //police badge
+  victim: { icon: <MoodBad fontSize="small" />, color: pink[400] }, //crime outline
+  campaign: { icon: <Timeline fontSize="small" />, color: orange[900] }, //net graph?
+  threat: { icon: <NewReleases fontSize="small" />, color: red[400] },
+  operation: { icon: <Star fontSize="small" />, color: yellow[600] },
   generic: {},
   assignments: {}
 };
@@ -111,7 +124,7 @@ const HitLabels: FC<{ hit: Hit; readOnly?: boolean }> = ({ hit, readOnly = false
               const category = label.category.toLowerCase();
 
               return (
-                <Tooltip title={t(`hit.label.category.${category}`)}>
+                <Tooltip title={t(`hit.label.category.${category}`)} key={label.label + hit.howler.id}>
                   <Chip
                     icon={LABEL_TYPE[category]?.icon ?? undefined}
                     variant="filled"
@@ -142,7 +155,7 @@ const HitLabels: FC<{ hit: Hit; readOnly?: boolean }> = ({ hit, readOnly = false
       {labels.map(label => {
         const category = label.category.toLowerCase();
         return (
-          <Tooltip title={t(`hit.label.category.${category}`)}>
+          <Tooltip title={t(`hit.label.category.${category}`)} key={label.label + hit.howler.id}>
             <Chip
               icon={LABEL_TYPE[category]?.icon ?? undefined}
               key={label.label + hit.howler.id}
@@ -194,14 +207,17 @@ const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> =
   };
 
   return (
-    <Stack spacing={1} direction="row">
-      <FormControl sx={{ minWidth: { sm: '150px' } }}>
+    <Stack spacing={1} direction="column">
+      <FormControl>
         <InputLabel id="type-label" htmlFor="label-category" size="small">
           {t('hit.label.edit.add.category')}
         </InputLabel>
         <Select
           size="small"
-          sx={{ textTransform: 'capitalize' }}
+          sx={{
+            '#label-category': { display: 'flex', flexDirection: 'row', alignItems: 'center' },
+            '.MuiListItemIcon-root': { minWidth: 36, marginLeft: '2px' }
+          }}
           label={t('hit.label.edit.add.category')}
           id="label-category"
           labelId="type-label"
@@ -209,37 +225,39 @@ const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> =
           onChange={e => setCategory(e.target.value)}
         >
           {Object.keys(LABEL_TYPE).map(key => (
-            <MenuItem value={key} sx={{ textTransform: 'capitalize' }}>
-              <Box display="flex" alignItems="center">
-                {LABEL_TYPE[key].icon}
-                {key}
-              </Box>
+            <MenuItem value={key}>
+              <ListItemIcon>{LABEL_TYPE[key].icon ?? <Check sx={{ opacity: 0 }} />}</ListItemIcon>
+              <ListItemText sx={{ textTransform: 'capitalize' }}>{key}</ListItemText>
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-      <FormControl sx={{ minWidth: { sm: '200px' } }} error={!!error}>
-        <TextField
-          label={t('hit.label.edit.add.label')}
-          size="small"
-          value={label}
-          onChange={e => setLabel(e.currentTarget.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              handleAdd();
-            } else if (error) {
-              setError('');
-            }
-          }}
-        />
-        <FormHelperText>{error}</FormHelperText>
-      </FormControl>
-      <FormControl>
-        <IconButton onClick={handleAdd}>
-          <Add />
-        </IconButton>
-        <FormHelperText> </FormHelperText>
-      </FormControl>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <FormControl fullWidth error={!!error}>
+          <TextField
+            label={t('hit.label.edit.add.label')}
+            value={label}
+            onChange={e => setLabel(e.currentTarget.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                handleAdd();
+              } else if (error) {
+                setError('');
+              }
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleAdd}>
+                    <Add />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+          <FormHelperText>{error}</FormHelperText>
+        </FormControl>
+      </Stack>
     </Stack>
   );
 };

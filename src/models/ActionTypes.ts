@@ -30,6 +30,7 @@ export interface ActionOperation {
   roles: string[];
   steps: ActionOperationStep[];
   triggers: string[];
+  priority?: number;
 }
 
 export interface ActionRequest {

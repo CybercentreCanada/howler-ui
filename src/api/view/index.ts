@@ -14,8 +14,8 @@ export function post(newData: Partial<View>): Promise<View> {
   return hpost(uri(), newData);
 }
 
-export function put(id: string, title: string, query: string): Promise<View> {
-  return hput(uri(id), { title, query });
+export function put(id: string, title: string, query: string, sort: string, span: string): Promise<View> {
+  return hput(uri(id), { title, query, sort, span });
 }
 
 export function del(id: string): Promise<void> {

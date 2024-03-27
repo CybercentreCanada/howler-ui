@@ -1,18 +1,16 @@
 import PageCenter from 'commons/components/pages/PageCenter';
 import Markdown from 'components/elements/display/Markdown';
-import raw from 'raw.macro';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import CLIENT_EN from './markdown/en/client.md';
+import CLIENT_FR from './markdown/fr/client.md';
 
 const ClientDocumentation: FC = () => {
   const { i18n } = useTranslation();
 
   const md = useMemo(
-    () =>
-      (i18n.language === 'en' ? raw(`./markdown/en/client.md`) : raw(`./markdown/fr/client.md`)).replace(
-        /\$CURRENT_URL/g,
-        window.location.origin
-      ),
+    () => (i18n.language === 'en' ? CLIENT_EN : CLIENT_FR).replace(/\$CURRENT_URL/g, window.location.origin),
     [i18n.language]
   );
 

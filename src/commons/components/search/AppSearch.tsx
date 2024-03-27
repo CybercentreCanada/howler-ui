@@ -162,13 +162,7 @@ export default function AppSearch() {
     <ClickAwayListener onClickAway={() => state.set({ ...state, menu: false })}>
       <AppSearchRoot ref={menuRef} sx={{ mr: !showSearchIcon && 1 }} menuOpen={state.menu}>
         {showSearchIcon ? (
-          <IconButton
-            color="inherit"
-            size="large"
-            onClick={() => {
-              state.set({ ...state, menu: true, mode: 'fullscreen' });
-            }}
-          >
+          <IconButton color="inherit" size="large" onClick={onToggleFullscreen}>
             <Tooltip
               title={
                 <Stack direction="column" textAlign="center">
@@ -245,14 +239,12 @@ export default function AppSearch() {
               onClear={onClear}
               onToggleFullscreen={onToggleFullscreen}
             />
-            {provided && service.headerRenderer && service.headerRenderer(state)}
           </DialogTitle>
           {provided && state.items && (
             <DialogContent>
               <AppSearchResult />
             </DialogContent>
           )}
-          {provided && service.footerRenderer && service.footerRenderer(state)}
         </Dialog>
       </AppSearchRoot>
     </ClickAwayListener>

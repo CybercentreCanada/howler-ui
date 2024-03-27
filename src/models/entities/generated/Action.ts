@@ -5,9 +5,9 @@ import { Operation } from './Operation';
  */
 export interface Action {
   action_id?: string;
-  owner_id?: string;
   name?: string;
   operations?: Operation[];
+  owner_id?: string;
   query?: string;
   triggers?: string[];
 }

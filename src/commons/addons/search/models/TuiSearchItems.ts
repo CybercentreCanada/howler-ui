@@ -96,8 +96,9 @@ export default class TuiSearchItems<T> {
               }
             })
             .filter(tv => tv !== null);
-          // eslint-disable-next-line no-eval
-          return eval(termValues.join(' '));
+
+          // https://esbuild.github.io/content-types/#direct-eval
+          return (0, eval)(termValues.join(' '));
         })
       : this._items;
   }

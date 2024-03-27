@@ -28,7 +28,7 @@ const BundleButton: FC<{ ids: string[]; disabled?: boolean }> = ({ ids, disabled
     <>
       <TuiIconButton
         size="small"
-        tooltip={`hit.panel.bundles.open${ids.length > 1 ? '' : '.prompt'}`}
+        tooltip={t(`hit.panel.bundles.open${ids.length > 1 ? '' : '.prompt'}`)}
         onClick={onClick}
         disabled={disabled}
         aria-disabled={disabled}

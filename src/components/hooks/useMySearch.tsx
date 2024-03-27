@@ -8,11 +8,15 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
+import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
+import { useMyLocalStorageItem } from './useMyLocalStorage';
 
 export default function useMySearch(): AppSearchService<Hit> {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
+
   return useMemo(
     () => ({
       onEnter: async (value: string, state: AppSearchServiceState<Hit>) => {
@@ -23,7 +27,7 @@ export default function useMySearch(): AppSearchService<Hit> {
           const sanitizedValue = sanitizeLuceneQuery(value);
           const searchResult = await api.search.hit.post({
             offset: 0,
-            rows: 25,
+            rows: pageCount,
             query:
               `howler.assignment:*${sanitizedValue}* OR howler.analytic:*${sanitizedValue}* OR ` +
               `howler.detection:*${sanitizedValue}* OR howler.status:*${sanitizedValue}*`
@@ -67,6 +71,6 @@ export default function useMySearch(): AppSearchService<Hit> {
         );
       }
     }),
-    [navigate, t]
+    [navigate, pageCount, t]
   );
 }

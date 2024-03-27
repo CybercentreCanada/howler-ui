@@ -13,18 +13,6 @@ export type Keybinds = {
   [key: string]: () => void;
 };
 
-export const MANAGE_OPTIONS: ActionButton[] = [
-  { name: 'release', key: 'R' },
-  { name: 'assign_to_other', key: 'T' },
-  { name: 'start', key: 'Y' },
-  { name: 'pause', key: 'U' },
-  { name: 'resume', key: 'I' },
-  { name: 'assign_to_me', key: 'O' },
-  { name: 're_evaluate', key: 'P' },
-  { name: 'demote', key: '-' },
-  { name: 'promote', key: '+' }
-];
-
 export const TOP_ROW = ['legitimate', 'false-positive', 'ambiguous', 'development', 'security'];
 
 export const ASSESSMENT_KEYBINDS = ['A', 'S', 'D', 'F', 'G', 'Z', 'X', 'C', 'V', 'B'];

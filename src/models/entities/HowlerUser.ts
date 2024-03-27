@@ -13,4 +13,6 @@ export interface HowlerUser extends AppUser {
   has_password?: boolean;
   is_active?: boolean;
   favourite_views?: string[];
+  favourite_analytics?: string[];
+  dashboard?: { entry_id: string; type: 'view' | 'analytic'; config: string }[];
 }

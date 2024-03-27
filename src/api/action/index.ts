@@ -14,45 +14,18 @@ export function get(id: string): Promise<Action> {
       query: `action_id:${id}`,
       rows: 1
     })
-    .then(res => res.items[0])
-    .then(_action => ({
-      ..._action,
-      // TODO: Fix this once operations have been all migrated
-      operations: _action.operations.map(operation => ({
-        ...operation,
-        data: operation.data_json ? JSON.parse(operation.data_json) : operation.data
-      }))
-    }));
+    .then(res => res.items[0]);
 }
 
 export function post(data: Action): Promise<Action> {
-  return hpost(uri(), {
-    ...data,
-    operations: data.operations.map(operation => ({
-      ...operation,
-      data_json: operation.data_json ? operation.data_json : JSON.stringify(operation.data)
-    }))
-  });
+  return hpost(uri(), data);
 }
 
 export function put(id: string, data: Action): Promise<Action> {
-  return hput(uri(id), {
-    ...data,
-    operations: data.operations.map(operation => ({
-      ...operation,
-      data_json: operation.data_json ? operation.data_json : JSON.stringify(operation.data)
-    }))
-  });
+  return hput(uri(id), data);
 }
 
 export function patch(id: string, data: Action): Promise<Action> {
-  if (data.operations) {
-    data.operations = data.operations.map(operation => ({
-      ...operation,
-      data_json: operation.data_json ? operation.data_json : JSON.stringify(operation.data)
-    }));
-  }
-
   return hpatch(uri(id), data);
 }
 
@@ -60,4 +33,4 @@ export function del(id: string): Promise<void> {
   return hdelete(uri(id));
 }
 
-export { operations, execute };
+export { execute, operations };
