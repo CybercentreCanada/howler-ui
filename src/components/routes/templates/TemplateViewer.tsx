@@ -207,6 +207,7 @@ const TemplateViewer = () => {
     <PageCenter maxWidth="1500px" textAlign="left" height="100%">
       <LinearProgress sx={{ mb: 1, opacity: +loading }} />
       <Stack direction="column" spacing={2} divider={<Divider orientation="horizontal" flexItem />} height="100%">
+        <Stack direction="row" spacing={2} mb={2} alignItems="stretch">
           <FormControl sx={{ minWidth: { sm: '200px' } }}>
             <InputLabel id="analytic-label" htmlFor="analytic" size="small">
               {t('route.templates.analytic')}
