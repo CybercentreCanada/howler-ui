@@ -139,17 +139,8 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               icon: <Terminal />,
               nested: true,
               route: '/action'
-            },
+            }
           ].filter(entry => !!entry)
-        }
-      },
-      {
-        type: 'item',
-        element: {
-          id: 'advanced',
-          i18nKey: 'route.advanced',
-          route: '/advanced',
-          icon: <Code />
         }
       },
       {

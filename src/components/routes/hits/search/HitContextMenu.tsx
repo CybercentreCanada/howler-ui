@@ -6,7 +6,6 @@ import {
   KeyboardArrowRight,
   OpenInNew,
   QueryStats,
-  Save,
   SettingsSuggest
 } from '@mui/icons-material';
 import { Box, Divider, Fade, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper } from '@mui/material';
@@ -49,15 +48,10 @@ const HitContextMenu: FC<PropsWithChildren<{}>> = ({ children }) => {
 
   const hitItem = useMemo(() => items.find(item => item.id === hitId), [hitId, items]);
 
-  const {
-    availableTransitions,
-    canVote,
-    canAssess,
-    manage,
-    assess,
-    vote,
-    selectedVote,
-  } = useHitActions(hitItem?.item, newHit => replaceById(hitItem, { ...hitItem, item: newHit }));
+  const { availableTransitions, canVote, canAssess, manage, assess, vote, selectedVote } = useHitActions(
+    hitItem?.item,
+    newHit => replaceById(hitItem, { ...hitItem, item: newHit })
+  );
 
   const onContextMenu: MouseEventHandler<HTMLDivElement> = useCallback(
     async event => {
