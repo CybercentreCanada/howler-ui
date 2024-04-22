@@ -73,7 +73,7 @@ const HitSummary: FC<{
       setKeyCounts(_keyCounts);
 
       // Sort the fields based on the number of occurrences
-      const sortedKeys = Object.keys(_keyCounts).sort((a, b) => _keyCounts[b].count - _keyCounts[a].count);
+      const sortedKeys = Object.keys(_keyCounts).sort((a, b) => (_keyCounts[b]?.count ?? 0) - (_keyCounts[a]?.count ?? 0));
 
       // Facet each field
       for (const key of sortedKeys) {
@@ -137,7 +137,7 @@ const HitSummary: FC<{
             {t('hit.summary.aggregate.nokeys.description')}
           </Alert>
         )}
-        {Object.keys(aggregateResults).flatMap(key => [
+        {Object.keys(aggregateResults).filter(key => !!keyCounts[key]).flatMap(key => [
           <Fade in key={key + '-refs'}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <Typography key={key + '-title'} variant="body1">
