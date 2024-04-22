@@ -1,4 +1,5 @@
-import { Alert, AlertTitle, Box, Chip, Divider, Fade, Grid, Stack, Typography } from '@mui/material';
+import { InfoOutlined } from '@mui/icons-material';
+import { Alert, AlertTitle, Box, Chip, Divider, Fade, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import api from 'api';
 import { HowlerSearchResponse } from 'api/search';
 import { FieldContext } from 'components/app/providers/FieldProvider';
@@ -13,7 +14,7 @@ import { StorageKey } from 'utils/constants';
 import { getTimeRange } from 'utils/utils';
 import HitGraph from './aggregate/HitGraph';
 
-const HitAggregate: FC<{
+const HitSummary: FC<{
   query: string;
   response?: HowlerSearchResponse<Hit>;
   execute?: boolean;
@@ -27,8 +28,10 @@ const HitAggregate: FC<{
   const { hitFields } = useContext(FieldContext);
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
-  const [keyCounts, setKeyCounts] = useState<{ [key: string]: number }>({});
-  const [aggregateResults, setAggregateResults] = useState<{ [key: string]: { [value: string]: number } }>({});
+  const [keyCounts, setKeyCounts] = useState<{ [key: string]: { count: number; sources: string[] } }>({});
+  const [aggregateResults, setAggregateResults] = useState<{
+    [key: string]: { [value: string]: number };
+  }>({});
 
   const performAggregation = useCallback(async () => {
     if (onStart) {
@@ -40,23 +43,37 @@ const HitAggregate: FC<{
     try {
       // Get a list of every key in every template of the hits we're searching
       const _keyCounts = (response?.items ?? [])
-        .flatMap(h => getMatchingTemplate(h)?.keys ?? [])
-        // Take that array and reduce it to unique keys and the number of times we see it
+        .flatMap(h => {
+          const matchingTemplate = getMatchingTemplate(h);
+          return (matchingTemplate?.keys ?? []).map(key => ({
+            key,
+            source: `${matchingTemplate.analytic}: ${matchingTemplate.detection ?? t('any')}`
+          }));
+        })
+        // Take that array and reduce it to unique keys and the number of times we see it,
+        // as well as the templates we sourced this key from
         .reduce((acc, val) => {
-          if (acc[val]) {
-            acc[val]++;
+          if (acc[val.key]) {
+            acc[val.key].count++;
+
+            if (!acc[val.key].sources.includes(val.source)) {
+              acc[val.key].sources.push(val.source);
+            }
           } else {
-            acc[val] = 1;
+            acc[val.key] = {
+              count: 1,
+              sources: [val.source]
+            };
           }
 
           return acc;
-        }, {} as { [index: string]: number });
+        }, {} as { [index: string]: { count: number; sources: string[] } });
 
       // We'll save this for later
       setKeyCounts(_keyCounts);
 
       // Sort the fields based on the number of occurrences
-      const sortedKeys = Object.keys(_keyCounts).sort((a, b) => _keyCounts[b] - _keyCounts[a]);
+      const sortedKeys = Object.keys(_keyCounts).sort((a, b) => _keyCounts[b].count - _keyCounts[a].count);
 
       // Facet each field
       for (const key of sortedKeys) {
@@ -84,7 +101,7 @@ const HitAggregate: FC<{
         onComplete();
       }
     }
-  }, [dispatchApi, getMatchingTemplate, onComplete, onStart, pageCount, query, response?.items]);
+  }, [dispatchApi, getMatchingTemplate, onComplete, onStart, pageCount, query, response?.items, t]);
 
   const setSearch = useCallback(
     (key, value) => {
@@ -127,8 +144,22 @@ const HitAggregate: FC<{
                 {key}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                ({keyCounts[key]} {t('references')})
+                ({keyCounts[key].count} {t('references')})
               </Typography>
+              <Tooltip
+                title={
+                  <Stack>
+                    <Typography variant="caption">{t('hit.summary.aggregate.sources')}</Typography>
+                    {keyCounts[key].sources.map(source => (
+                      <Typography key={source} variant="caption">
+                        {source}
+                      </Typography>
+                    ))}
+                  </Stack>
+                }
+              >
+                <InfoOutlined fontSize="inherit" />
+              </Tooltip>
             </Stack>
           </Fade>,
           <Fade in key={key + '-results'}>
@@ -163,4 +194,4 @@ const HitAggregate: FC<{
   );
 };
 
-export default HitAggregate;
+export default HitSummary;

@@ -2,7 +2,7 @@ import { AccountTree } from '@mui/icons-material';
 import { IconButton, Paper, Popover, Skeleton, Stack, Tooltip } from '@mui/material';
 import api from 'api';
 import HowlerCard from 'components/elements/display/HowlerCard';
-import HitHeader from 'components/elements/hit/HitHeader';
+import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import { Hit } from 'models/entities/generated/Hit';
 import { FC, useCallback, useEffect, useState } from 'react';
@@ -59,7 +59,7 @@ const BundleParentMenu: FC<{ bundle: Hit }> = ({ bundle }) => {
                     sx={{ p: 1, cursor: 'pointer' }}
                     onClick={() => onSelect(parent.howler.id)}
                   >
-                    <HitHeader hit={parent} layout={HitLayout.DENSE} />
+                    <HitBanner hit={parent} layout={HitLayout.DENSE} />
                   </HowlerCard>
                 ))}
           </Stack>

@@ -82,7 +82,8 @@ export default function useMyChart() {
         zoom: {
           zoom: {
             wheel: {
-              enabled: true
+              enabled: true,
+              modifierKey: 'ctrl' as const
             },
             pinch: {
               enabled: true
@@ -121,8 +122,8 @@ export default function useMyChart() {
 
   return {
     // https://www.chartjs.org/docs/latest/charts/line.html
-    line: (titleKey: string) => {
-      const options = generateOptions(titleKey);
+    line: (titleKey: string, subtitleKey?: string) => {
+      const options = generateOptions(titleKey, subtitleKey);
 
       options.plugins.subtitle = null;
 
@@ -132,15 +133,15 @@ export default function useMyChart() {
     },
 
     // https://www.chartjs.org/docs/latest/charts/doughnut.html
-    doughnut: (titleKey: string) => {
-      const options = { ...generateOptions(titleKey), scales: null };
+    doughnut: (titleKey: string, subtitleKey?: string) => {
+      const options = { ...generateOptions(titleKey, subtitleKey), scales: null };
 
       return options;
     },
 
     // https://www.chartjs.org/docs/latest/charts/bar.html
-    bar: (titleKey: string) => {
-      const options = generateOptions(titleKey);
+    bar: (titleKey: string, subtitleKey?: string) => {
+      const options = generateOptions(titleKey, subtitleKey);
 
       options.plugins.legend = { display: false } as any;
 

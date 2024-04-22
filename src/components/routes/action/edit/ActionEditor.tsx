@@ -23,9 +23,9 @@ import useMyApi from 'components/hooks/useMyApi';
 import HitQuery from 'components/routes/hits/search/HitQuery';
 import _, { difference } from 'lodash';
 import { ActionOperation } from 'models/ActionTypes';
+import { HowlerUser } from 'models/entities/HowlerUser';
 import { Action } from 'models/entities/generated/Action';
 import { Operation } from 'models/entities/generated/Operation';
-import { HowlerUser } from 'models/entities/HowlerUser';
 import { ChangeEventHandler, FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
@@ -223,7 +223,22 @@ const ActionEditor: FC = () => {
           <SocketBadge size="small" />
         </Stack>
         <HitQuery triggerSearch={onSearch} />
-        {response && <QueryResultText count={response.total} query={responseQuery} />}
+        {response ? (
+          <QueryResultText count={response.total} query={responseQuery} />
+        ) : (
+          <Typography
+            sx={theme => ({
+              color: theme.palette.text.secondary,
+              fontSize: '0.9em',
+              fontStyle: 'italic',
+              mb: 0.5,
+              '& a': { color: theme.palette.text.secondary }
+            })}
+            variant="body2"
+          >
+            {t('route.actions.search.warning')}
+          </Typography>
+        )}
         {loading &&
           (progress[1] > 0 ? (
             <LinearProgress

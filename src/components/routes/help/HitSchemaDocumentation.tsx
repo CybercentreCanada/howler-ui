@@ -13,7 +13,8 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import Throttler from 'commons/addons/utils/Throttler';
 import Markdown from 'components/elements/display/Markdown';
@@ -44,6 +45,7 @@ const TableHeader: FC = () => {
 const RowEntry: FC<{ field: string }> = memo(({ field }) => {
   const { t } = useTranslation();
   const { config } = useMyApiConfig();
+  const theme = useTheme();
 
   return (
     <TableRow>
@@ -59,6 +61,31 @@ const RowEntry: FC<{ field: string }> = memo(({ field }) => {
       </TableCell>
       <TableCell>
         <Markdown md={config.indexes.hit[field].description ?? t('help.hit.schema.description.missing')} />
+        {config.indexes.hit[field].regex && (
+          <a href={`https://regexr.com/?expression=${encodeURIComponent(config.indexes.hit[field].regex)}`}>
+            <Typography>{t('help.hit.schema.regex')}</Typography>
+          </a>
+        )}
+        {config.indexes.hit[field].values?.length > 0 && (
+          <Stack spacing={1}>
+            <Typography>{t('help.hit.schema.values')}:</Typography>
+            <Stack direction="row" spacing={0.5}>
+              {config.indexes.hit[field].values.map(val => (
+                <code
+                  style={{
+                    padding: theme.spacing(0.5),
+                    border: 'thin solid',
+                    borderColor: theme.palette.divider,
+                    borderRadius: theme.shape.borderRadius
+                  }}
+                  key={val}
+                >
+                  {val}
+                </code>
+              ))}
+            </Stack>
+          </Stack>
+        )}
         {config.indexes.hit[field].deprecated_description && (
           <Alert variant="outlined" color="error">
             <AlertTitle>{t('deprecation.instructions')}</AlertTitle>

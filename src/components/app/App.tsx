@@ -15,9 +15,10 @@ import useMyPreferences from 'components/hooks/useMyPreferences';
 import useMySitemap from 'components/hooks/useMySitemap';
 import useMyTheme from 'components/hooks/useMyTheme';
 import useMyUser from 'components/hooks/useMyUser';
-import useLogin from 'components/logins/hooks/useLogin';
 import LoginScreen from 'components/logins/Login';
+import useLogin from 'components/logins/hooks/useLogin';
 import NotFoundPage from 'components/routes/404';
+import Logout from 'components/routes/Logout';
 import ActionEditor from 'components/routes/action/edit/ActionEditor';
 import ActionDetails from 'components/routes/action/view/ActionDetails';
 import ActionSearchProvider from 'components/routes/action/view/ActionSearch';
@@ -38,14 +39,13 @@ import ViewDocumentation from 'components/routes/help/ViewDocumentation';
 import HitBrowser from 'components/routes/hits/search/HitBrowser';
 import HitViewer from 'components/routes/hits/view/HitViewer';
 import Home from 'components/routes/home';
-import Logout from 'components/routes/Logout';
 import Settings from 'components/routes/settings/Settings';
-import Templates from 'components/routes/templates/Templates';
 import TemplateViewer from 'components/routes/templates/TemplateViewer';
+import Templates from 'components/routes/templates/Templates';
 import ViewComposer from 'components/routes/views/ViewComposer';
 import Views from 'components/routes/views/Views';
-import { Hit } from 'models/entities/generated/Hit';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Hit } from 'models/entities/generated/Hit';
 import { FC, PropsWithChildren, useEffect } from 'react';
 import { Routes, useLocation, useNavigate } from 'react-router';
 import { BrowserRouter, Route } from 'react-router-dom';
@@ -63,6 +63,7 @@ import SocketProvider from './providers/SocketProvider';
 import TemplateProvider from './providers/TemplateProvider';
 import UserListProvider from './providers/UserListProvider';
 import ViewProvider from './providers/ViewProvider';
+
 
 // Your application's initialization flow.
 const MyApp: FC = () => {

@@ -1,13 +1,13 @@
 import { CardContent, Divider, Typography } from '@mui/material';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import JSONViewer from 'components/elements/display/JSONViewer';
-import HitHeader from 'components/elements/hit/HitHeader';
+import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import { Hit } from 'models/entities/generated/Hit';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const HitHeaderDocumentation: FC = () => {
+const HitBannerDocumentation: FC = () => {
   const { t } = useTranslation();
 
   const dummyHit = useMemo<Hit>(
@@ -52,19 +52,19 @@ const HitHeaderDocumentation: FC = () => {
 
   return (
     <>
-      <h1>{t('help.hit.header.title')}</h1>
-      <Typography variant="body1">{t('help.hit.header.description')}</Typography>
+      <h1>{t('help.hit.banner.title')}</h1>
+      <Typography variant="body1">{t('help.hit.banner.description')}</Typography>
       <Divider orientation="horizontal" sx={{ my: 2 }} />
       <HowlerCard sx={{ mb: 2 }}>
         <CardContent>
-          <HitHeader hit={dummyHit} layout={HitLayout.COMFY} />
+          <HitBanner hit={dummyHit} layout={HitLayout.COMFY} />
         </CardContent>
       </HowlerCard>
-      <Typography variant="body1">{t('help.hit.header.json')}</Typography>
+      <Typography variant="body1">{t('help.hit.banner.json')}</Typography>
       <Divider orientation="horizontal" sx={{ my: 2 }} />
       <JSONViewer data={dummyHit} />
     </>
   );
 };
 
-export default HitHeaderDocumentation;
+export default HitBannerDocumentation;

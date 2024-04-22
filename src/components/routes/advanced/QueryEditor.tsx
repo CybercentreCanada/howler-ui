@@ -177,6 +177,9 @@ const QueryEditor: FC<QueryEditorProps> = ({
       renderLineHighlight: 'gutter',
       fontSize,
       autoClosingBrackets: 'always',
+      scrollbar: {
+        horizontal: 'hidden'
+      },
       ...editorOptions
     }),
     [setQuery, fontSize, editorOptions]

@@ -1,6 +1,5 @@
 import {
   Autocomplete,
-  Button,
   Card,
   Checkbox,
   IconButton,
@@ -15,7 +14,7 @@ import {
 import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Clear, Edit, Star, StarBorder } from '@mui/icons-material';
+import { Clear, Edit, SavedSearch, Star, StarBorder } from '@mui/icons-material';
 import api from 'api';
 import { HowlerSearchResponse } from 'api/search';
 import FlexOne from 'commons/addons/flexers/FlexOne';
@@ -28,15 +27,16 @@ import ItemManager from 'components/elements/display/ItemManager';
 import { ViewTitle } from 'components/elements/view/ViewTitle';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
-import { View } from 'models/entities/generated/View';
 import { HowlerUser } from 'models/entities/HowlerUser';
-import { Link, useSearchParams } from 'react-router-dom';
+import { View } from 'models/entities/generated/View';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 const ViewsBase: FC = () => {
   const { t } = useTranslation();
   const { user } = useAppUser<HowlerUser>();
+  const navigate = useNavigate();
   const { dispatchApi } = useMyApi();
   const { addFavourite, fetchViews, removeFavourite, removeView, views, defaultView, setDefaultView } =
     useContext(ViewContext);
@@ -216,42 +216,37 @@ const ViewsBase: FC = () => {
         </Typography>
       }
       afterSearch={
-        <Stack direction="row" spacing={1}>
-          {views.length > 0 ? (
-            <Autocomplete
-              options={views}
-              renderOption={(props, o) => (
-                <li {...props}>
-                  <Stack>
-                    <Typography variant="body1">{t(o.title)}</Typography>
-                    <Typography variant="caption">
-                      <code>{o.query}</code>
-                    </Typography>
-                  </Stack>
-                </li>
-              )}
-              renderInput={params => (
-                <TextField {...params} label={t('route.views.manager.default')} sx={{ minWidth: '300px' }} />
-              )}
-              filterOptions={(_views, { inputValue }) =>
-                _views.filter(
-                  v =>
-                    t(v.title).toLowerCase().includes(inputValue.toLowerCase()) ||
-                    v.query.toLowerCase().includes(inputValue.toLowerCase())
-                )
-              }
-              getOptionLabel={(v: View) => t(v.title)}
-              isOptionEqualToValue={(view, value) => view.view_id === value.view_id}
-              value={views.find(v => v.view_id === defaultView) ?? null}
-              onChange={(_, option: View) => setDefaultView(option?.view_id)}
-            />
-          ) : (
-            <Skeleton variant="rounded" width="300px" height="initial" />
-          )}
-          <Button variant="outlined" component={Link} to="/views/create">
-            {t('route.views.create')}
-          </Button>
-        </Stack>
+        views.length > 0 ? (
+          <Autocomplete
+            options={views}
+            renderOption={(props, o) => (
+              <li {...props}>
+                <Stack>
+                  <Typography variant="body1">{t(o.title)}</Typography>
+                  <Typography variant="caption">
+                    <code>{o.query}</code>
+                  </Typography>
+                </Stack>
+              </li>
+            )}
+            renderInput={params => (
+              <TextField {...params} label={t('route.views.manager.default')} sx={{ minWidth: '300px' }} />
+            )}
+            filterOptions={(_views, { inputValue }) =>
+              _views.filter(
+                v =>
+                  t(v.title).toLowerCase().includes(inputValue.toLowerCase()) ||
+                  v.query.toLowerCase().includes(inputValue.toLowerCase())
+              )
+            }
+            getOptionLabel={(v: View) => t(v.title)}
+            isOptionEqualToValue={(view, value) => view.view_id === value.view_id}
+            value={views.find(v => v.view_id === defaultView) ?? null}
+            onChange={(_, option: View) => setDefaultView(option?.view_id)}
+          />
+        ) : (
+          <Skeleton variant="rounded" width="300px" height="initial" />
+        )
       }
       belowSearch={
         <Stack direction="row" spacing={1} alignItems="center">
@@ -318,6 +313,9 @@ const ViewsBase: FC = () => {
       )}
       response={response}
       searchPrompt="route.views.manager.search"
+      onCreate={() => navigate('/views/create')}
+      createPrompt="route.views.create"
+      createIcon={<SavedSearch sx={{ mr: 1 }} />}
     />
   );
 };

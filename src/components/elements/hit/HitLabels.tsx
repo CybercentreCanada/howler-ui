@@ -54,7 +54,11 @@ const LABEL_TYPE = {
   assignments: {}
 };
 
-const HitLabels: FC<{ hit: Hit; readOnly?: boolean }> = ({ hit, readOnly = false }) => {
+const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boolean }> = ({
+  hit,
+  setHit,
+  readOnly = false
+}) => {
   const { dispatchApi } = useMyApi();
   const { t } = useTranslation();
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -74,26 +78,33 @@ const HitLabels: FC<{ hit: Hit; readOnly?: boolean }> = ({ hit, readOnly = false
 
       setLoading(true);
       try {
-        await dispatchApi(api.hit.labels.put(hit.howler.id, label.category, { value: [label.label] }));
+        const updatedHit = await dispatchApi(
+          api.hit.labels.put(hit.howler.id, label.category, { value: [label.label] })
+        );
+
+        setHit?.(updatedHit);
       } finally {
         setLoading(false);
       }
       setLabels([...labels, label]);
     },
-    [dispatchApi, hit.howler.id, labels, t]
+    [dispatchApi, hit.howler.id, labels, setHit, t]
   );
 
   const deleteLabel = useCallback(
     async (label: LabelState) => {
       setLoading(true);
       try {
-        await dispatchApi(api.hit.labels.del(hit.howler.id, label.category, { value: [label.label] }));
+        const updatedHit = await dispatchApi(
+          api.hit.labels.del(hit.howler.id, label.category, { value: [label.label] })
+        );
+        setHit?.(updatedHit);
       } finally {
         setLoading(false);
       }
       setLabels(labels.filter(x => !(label.category === x.category && label.label === x.label)));
     },
-    [dispatchApi, hit.howler.id, labels]
+    [dispatchApi, hit.howler.id, labels, setHit]
   );
 
   useEffect(() => {

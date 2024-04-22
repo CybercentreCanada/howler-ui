@@ -119,7 +119,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
           onChange={e => setName(e.target.value)}
           onKeyDown={handleKeydown}
         />
-        {/* TODO: allow custom crontabs */}
+        {/* TODO: allow custom crontabs ala spellbook */}
         <FormControl sx={{ minWidth: '250px' }}>
           <InputLabel>{t('rule.interval')}</InputLabel>
           <Select label={t('rule.interval')} onChange={event => setCrontab(event.target.value)} value={crontab}>

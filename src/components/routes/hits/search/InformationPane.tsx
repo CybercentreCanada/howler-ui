@@ -8,17 +8,17 @@ import FlexPort from 'commons/addons/flexers/FlexPort';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
+import JSONViewer from 'components/elements/display/JSONViewer';
 import BundleButton from 'components/elements/display/icons/BundleButton';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
-import JSONViewer from 'components/elements/display/JSONViewer';
 import HitActions from 'components/elements/hit/HitActions';
-import HitAggregate from 'components/elements/hit/HitAggregate';
+import HitBanner from 'components/elements/hit/HitBanner';
 import HitComments from 'components/elements/hit/HitComments';
 import HitDetails from 'components/elements/hit/HitDetails';
-import HitHeader from 'components/elements/hit/HitHeader';
 import HitLabels from 'components/elements/hit/HitLabels';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import HitRelated from 'components/elements/hit/HitRelated';
+import HitSummary from 'components/elements/hit/HitSummary';
 import HitWorklog from 'components/elements/hit/HitWorklog';
 import RelatedLink from 'components/elements/hit/related/RelatedLink';
 import useMyApi from 'components/hooks/useMyApi';
@@ -35,7 +35,7 @@ import { StorageKey } from 'utils/constants';
 import { getUserList } from 'utils/hitFunctions';
 import { tryParse } from 'utils/utils';
 
-const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
+const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { dispatchApi } = useMyApi();
@@ -86,7 +86,6 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
         _setHit(_hit);
         setUserIds(getUserList(_hit));
         setAnalytic(await getAnalyticFromName(_hit.howler.analytic));
-
         if (tab === 'hit_aggregate' && !_hit.howler.is_bundle) {
           setTab('hit_comments');
         }
@@ -109,9 +108,9 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
   );
 
   useEffect(() => {
-    addListener<HitUpdate>('hitPanel', handler);
+    addListener<HitUpdate>('infoPane', handler);
 
-    return () => removeListener('hitPanel');
+    return () => removeListener('infoPane');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handler]);
 
@@ -171,7 +170,7 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
     if (loading && !hit?.howler?.is_bundle) {
       return <Skeleton variant="rounded" height={152} />;
     } else if (!!hit && !hit.howler.is_bundle) {
-      return <HitHeader layout={HitLayout.DENSE} hit={hit} />;
+      return <HitBanner layout={HitLayout.DENSE} hit={hit} />;
     } else {
       return null;
     }
@@ -231,14 +230,14 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
           {!loading ? (
             <>
               <HitDetails hit={hit} layout={HitLayout.DENSE} />
-              <HitLabels hit={hit} />
+              <HitLabels hit={hit} setHit={setHit} />
             </>
           ) : (
             <Skeleton height={124} />
           )}
         </Collapse>
       )}
-      {hit?.howler?.links?.length > 0 && (
+      {(hit?.howler?.links?.length > 0) && (
         <Stack direction="row" spacing={1} pr={2}>
           {hit?.howler?.links?.length > 0 &&
             hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href} compact {...l} />)}
@@ -277,7 +276,7 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
               <JSONViewer data={!loading && hit?.howler?.data?.map(entry => tryParse(entry))} collapse={false} />
             ),
             hit_worklog: () => <HitWorklog hit={!loading && hit} users={users} />,
-            hit_aggregate: () => <HitAggregate query={`howler.bundles:(${hit?.howler?.id})`} />,
+            hit_aggregate: () => <HitSummary query={`howler.bundles:(${hit?.howler?.id})`} />,
             hit_related: () => <HitRelated hit={hit} />
           }[tab]()}
         </FlexPort>
@@ -293,4 +292,4 @@ const HitPanel: FC<{ onClose?: () => void }> = ({ onClose }) => {
   );
 };
 
-export default HitPanel;
+export default InformationPane;

@@ -1,3 +1,4 @@
+import { OpenInNew } from '@mui/icons-material';
 import {
   avatarClasses,
   AvatarGroup,
@@ -6,7 +7,6 @@ import {
   Divider,
   iconButtonClasses,
   Stack,
-  styled,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -18,30 +18,25 @@ import { uniqueId } from 'lodash';
 import { Hit } from 'models/entities/generated/Hit';
 import { HowlerUser } from 'models/entities/HowlerUser';
 import { HitUpdate } from 'models/socket/HitUpdate';
-import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, MouseEventHandler, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { Link } from 'react-router-dom';
 import { ESCALATION_COLORS, PROVIDER_COLORS } from 'utils/constants';
 import { stringToColor } from 'utils/utils';
 import HowlerAvatar from '../display/HowlerAvatar';
-import HitHeaderTooltip from './HitHeaderTooltip';
+import HitBannerTooltip from './HitBannerTooltip';
 import { HitLayout } from './HitLayout';
 import HitTimestamp from './HitTimestamp';
 
-const CustomStack = styled(Stack)(({ theme }) => ({
-  height: '100%',
-  padding: theme.spacing(1)
-}));
-
-type HitHeaderProps = {
+type HitBannerProps = {
   hit: Hit;
   layout?: HitLayout;
   showAssigned?: boolean;
   useListener?: boolean;
 };
 
-const HitHeader: FC<HitHeaderProps> = ({
+const HitBanner: FC<HitBannerProps> = ({
   hit: hitData,
   layout = HitLayout.NORMAL,
   showAssigned = true,
@@ -130,7 +125,7 @@ const HitHeader: FC<HitHeaderProps> = ({
       );
     } else {
       return (
-        <HitHeaderTooltip hit={hit}>
+        <HitBannerTooltip hit={hit}>
           <Box
             sx={theme => ({
               gridColumn: { xs: 'span 3', sm: 'span 1' },
@@ -161,7 +156,7 @@ const HitHeader: FC<HitHeaderProps> = ({
               />
             )}
           </Box>
-        </HitHeaderTooltip>
+        </HitBannerTooltip>
       );
     }
   }, [compressed, hit, iconUrl, providerColor]);
@@ -182,8 +177,12 @@ const HitHeader: FC<HitHeaderProps> = ({
       sx={{ width: '100%', ml: 0, overflow: 'hidden' }}
     >
       {leftBox}
-      <CustomStack
-        sx={{ gridColumn: { xs: 'span 3', sm: 'span 1', md: 'span 1' } }}
+      <Stack
+        sx={theme => ({
+          height: '100%',
+          padding: theme.spacing(1),
+          gridColumn: { xs: 'span 3', sm: 'span 1', md: 'span 1' }
+        })}
         spacing={layout !== HitLayout.COMFY ? 1 : 2}
         divider={
           <Divider
@@ -283,7 +282,7 @@ const HitHeader: FC<HitHeaderProps> = ({
             </Wrapper>
           </>
         )}
-      </CustomStack>
+      </Stack>
       <Stack
         direction="column"
         spacing={layout !== HitLayout.COMFY ? 0.5 : 1}
@@ -373,9 +372,37 @@ const HitHeader: FC<HitHeaderProps> = ({
             />
           )}
         </Stack>
+        {/* intenal: begin */}
+        {(hit.alfred?.retention_url || hit.alfred?.incident_urls?.length > 0) && (
+          <Chip
+            sx={{
+              width: 'fit-content',
+              display: 'inline-flex',
+              '& .MuiChip-icon': {
+                marginLeft: 0
+              }
+            }}
+            label={t(`alfred.${hit.alfred?.incident_urls?.length > 0 ? 'retained' : 'staged'}`)}
+            size={layout !== HitLayout.COMFY ? 'small' : 'medium'}
+            color={hit.alfred?.incident_urls?.length > 0 ? 'success' : 'primary'}
+            onClick={onAlfredClick}
+            onDelete={onAlfredClick}
+            icon={
+              hit.alfred.retained_by && (
+                <HowlerAvatar
+                  userId={hit.alfred.retained_by}
+                  sx={{ height: layout !== HitLayout.COMFY ? 24 : 32, width: layout !== HitLayout.COMFY ? 24 : 32 }}
+                />
+              )
+            }
+            deleteIcon={<OpenInNew />}
+            onMouseDown={event => event.button === 1 && onAlfredClick(event)}
+          />
+        )}
+        {/* intenal: end */}
       </Stack>
     </Box>
   );
 };
 
-export default HitHeader;
+export default HitBanner;

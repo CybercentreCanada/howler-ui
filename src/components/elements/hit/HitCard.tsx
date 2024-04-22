@@ -5,12 +5,12 @@ import { Hit } from 'models/entities/generated/Hit';
 import { HitUpdate } from 'models/socket/HitUpdate';
 import { FC, memo, useCallback, useContext, useEffect, useState } from 'react';
 import HowlerCard from '../display/HowlerCard';
+import HitBanner from './HitBanner';
 import HitDetails from './HitDetails';
-import HitHeader from './HitHeader';
 import HitLabels from './HitLabels';
 import { HitLayout } from './HitLayout';
 
-const HitOutline: FC<{ hit: Hit; layout: HitLayout; readOnly?: boolean; useListener?: boolean }> = ({
+const HitCard: FC<{ hit: Hit; layout: HitLayout; readOnly?: boolean; useListener?: boolean }> = ({
   hit: _hit,
   layout,
   readOnly = true,
@@ -48,11 +48,11 @@ const HitOutline: FC<{ hit: Hit; layout: HitLayout; readOnly?: boolean; useListe
   return (
     <HowlerCard tabIndex={0} sx={{ position: 'relative' }}>
       <CardContent>
-        <HitHeader hit={hit} layout={layout} />
+        <HitBanner hit={hit} layout={layout} />
         {layout !== HitLayout.DENSE && (
           <>
             <HitDetails hit={hit} layout={layout} />
-            <HitLabels hit={hit} readOnly={readOnly} />
+            <HitLabels hit={hit} setHit={setHit} readOnly={readOnly} />
           </>
         )}
       </CardContent>
@@ -60,4 +60,4 @@ const HitOutline: FC<{ hit: Hit; layout: HitLayout; readOnly?: boolean; useListe
   );
 };
 
-export default memo(HitOutline);
+export default memo(HitCard);

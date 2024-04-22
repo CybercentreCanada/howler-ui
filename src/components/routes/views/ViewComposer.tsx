@@ -24,8 +24,8 @@ import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
 import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { ViewContext } from 'components/app/providers/ViewProvider';
+import HitCard from 'components/elements/hit/HitCard';
 import { HitLayout } from 'components/elements/hit/HitLayout';
-import HitOutline from 'components/elements/hit/HitOutline';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMySnackbar from 'components/hooks/useMySnackbar';
@@ -235,7 +235,7 @@ const ViewComposer: FC = () => {
             <Stack spacing={1}>
               {!response?.total && <TuiListEmpty />}
               {response?.items.map(hit => (
-                <HitOutline key={hit.howler.id} hit={hit} layout={HitLayout.DENSE} />
+                <HitCard key={hit.howler.id} hit={hit} layout={HitLayout.DENSE} />
               ))}
             </Stack>
           </VSBoxContent>

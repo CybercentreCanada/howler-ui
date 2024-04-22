@@ -3,7 +3,7 @@ import { Card, CardContent, IconButton, Skeleton, Stack, Typography } from '@mui
 import api from 'api';
 import TuiListEmpty from 'commons/addons/lists/TuiListEmpty';
 import { ViewContext } from 'components/app/providers/ViewProvider';
-import HitHeader from 'components/elements/hit/HitHeader';
+import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyApi from 'components/hooks/useMyApi';
 import { Hit } from 'models/entities/generated/Hit';
@@ -75,7 +75,7 @@ const ViewCard: FC<ViewSettings> = ({ viewId, limit }) => {
               onClick={() => navigate((h.howler.is_bundle ? '/bundles/' : '/hits/') + h.howler.id)}
             >
               <CardContent>
-                <HitHeader layout={HitLayout.DENSE} hit={h} />
+                <HitBanner layout={HitLayout.DENSE} hit={h} />
               </CardContent>
             </Card>
           ))

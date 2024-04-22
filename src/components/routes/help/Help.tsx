@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { HelpCenter, OpenInNew } from '@mui/icons-material';
+import { Help, HelpCenter, OpenInNew } from '@mui/icons-material';
 import {
+  Alert,
+  AlertTitle,
   Button,
   Card,
   CardActions,
@@ -12,6 +14,7 @@ import {
   Stack,
   Typography
 } from '@mui/material';
+import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { AppLeftNavGroup } from 'commons/components/app/AppConfigs';
 import PageCenter from 'commons/components/pages/PageCenter';
 import useMyPreferences from 'components/hooks/useMyPreferences';
@@ -21,7 +24,9 @@ import { Link } from 'react-router-dom';
 
 const TABS = {
   'help.hit': ['schema', 'header', 'bundle', 'links'],
-  'help.actions': ['introduction']
+  'help.actions': [
+    'introduction',
+  ]
 };
 
 const HelpDashboard = () => {

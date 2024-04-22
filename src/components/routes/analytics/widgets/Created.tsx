@@ -3,11 +3,11 @@ import api from 'api';
 import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
 import { Analytic } from 'models/entities/generated/Analytic';
-import { FC, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { stringToColor } from 'utils/utils';
 
-const Created: FC<{ analytic: Analytic }> = ({ analytic }) => {
+const Created = forwardRef<any, { analytic: Analytic }>(({ analytic }, ref) => {
   const { line } = useMyChart();
 
   const [loading, setLoading] = useState(false);
@@ -33,6 +33,7 @@ const Created: FC<{ analytic: Analytic }> = ({ analytic }) => {
 
   return analytic && !loading ? (
     <Line
+      ref={ref as any}
       options={line('route.analytics.ingestion.title') as any}
       data={{
         datasets: [
@@ -55,6 +56,6 @@ const Created: FC<{ analytic: Analytic }> = ({ analytic }) => {
   ) : (
     <Skeleton variant="rounded" height={200} />
   );
-};
+});
 
 export default Created;

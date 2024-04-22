@@ -1,6 +1,6 @@
 import { useMonaco } from '@monaco-editor/react';
 import { Height, Search } from '@mui/icons-material';
-import { Box, Card, Skeleton, alpha, useTheme } from '@mui/material';
+import { Badge, Box, Card, Skeleton, Tooltip, alpha, useTheme } from '@mui/material';
 import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import QueryEditor from 'components/routes/advanced/QueryEditor';
 import type { IDisposable, editor } from 'monaco-editor';
@@ -25,6 +25,8 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
   const theme = useTheme();
   const monaco = useMonaco();
 
+  const prevQuery = useRef<string | null>(null);
+
   const [query, setQuery] = useState(new URLSearchParams(window.location.search).get('query') || 'howler.id:*');
   const [loaded, setLoaded] = useState(false);
   const [multiline, setMultiline] = useState(false);
@@ -33,6 +35,8 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
   const wrapper = useRef<HTMLDivElement>();
 
   const search = useCallback(() => triggerSearch(sanitizeMultilineLucene(query)), [query, triggerSearch]);
+
+  const isDirty = useMemo(() => query !== new URLSearchParams(location.search).get('query'), [query, location]);
 
   useEffect(() => {
     if (!monaco) {
@@ -87,8 +91,9 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    if (urlParams.has('query') && urlParams.get('query') !== query) {
-      setQuery(urlParams.get('query'));
+    if (urlParams.has('query') && urlParams.get('query') !== prevQuery.current) {
+      prevQuery.current = urlParams.get('query');
+      setQuery(prevQuery.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
@@ -127,23 +132,34 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
     <Card
       ref={wrapper}
       variant="outlined"
-      sx={{
-        width: '100%',
-        height: multiline ? `${DEFAULT_MULTILINE_HEIGHT + y}px` : theme.spacing(7),
-        p: 1,
-        position: 'relative',
-        overflow: 'visible',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        '& .monaco-editor': {
-          position: 'absolute !important'
-        }
-      }}
+      sx={[
+        {
+          width: '100%',
+          height: multiline ? `${DEFAULT_MULTILINE_HEIGHT + y}px` : theme.spacing(7),
+          p: 1,
+          position: 'relative',
+          overflow: 'visible',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          '& .monaco-editor': {
+            position: 'absolute !important'
+          },
+          transition: theme.transitions.create('border-color')
+        },
+        isDirty &&
+          new URLSearchParams(location.search).has('query') && {
+            borderColor: 'warning.main'
+          }
+      ]}
       onKeyDown={e => e.stopPropagation()}
     >
       <TuiIconButton disabled={searching || disabled} onClick={search} sx={{ mr: 1, alignSelf: 'start' }}>
-        <Search sx={{ fontSize: '20px' }} />
+        <Tooltip title={t('route.search')}>
+          <Badge invisible={!isDirty} color="warning" variant="dot">
+            <Search sx={{ fontSize: '20px' }} />
+          </Badge>
+        </Tooltip>
       </TuiIconButton>
       <QueryEditor
         query={preppedQuery}

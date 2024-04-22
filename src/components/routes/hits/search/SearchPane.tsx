@@ -1,4 +1,4 @@
-import { Close, Edit, ErrorOutline, SavedSearch } from '@mui/icons-material';
+import { Close, Edit, ErrorOutline, SavedSearch, Terminal } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -23,9 +23,9 @@ import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import HowlerCard from 'components/elements/display/HowlerCard';
-import HitHeader from 'components/elements/hit/HitHeader';
+import HitBanner from 'components/elements/hit/HitBanner';
+import HitCard from 'components/elements/hit/HitCard';
 import { HitLayout } from 'components/elements/hit/HitLayout';
-import HitOutline from 'components/elements/hit/HitOutline';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
 import { Hit } from 'models/entities/generated/Hit';
 import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -41,7 +41,7 @@ import HitQuery from './HitQuery';
 import HitSort from './HitSort';
 import SearchSpan from './SearchSpan';
 
-const HitSearch: FC<{
+const SearchPane: FC<{
   error?: string;
   onSelection: TuiListItemOnSelect<Hit>;
   onSortChange: (sort: string) => void;
@@ -158,7 +158,7 @@ const HitSearch: FC<{
             }
           ]}
         >
-          <HitOutline hit={item.item} layout={layout} />
+          <HitCard hit={item.item} layout={layout} />
         </Box>
       );
     },
@@ -192,17 +192,19 @@ const HitSearch: FC<{
               {viewButton}
             </Stack>
           ) : (
-            <Alert
-              variant="outlined"
-              severity="error"
-              action={
-                <IconButton size="small" component={Link} to="/search">
-                  <Close fontSize="small" />
-                </IconButton>
-              }
-            >
-              {t('view.notfound')}
-            </Alert>
+            viewContext.ready && (
+              <Alert
+                variant="outlined"
+                severity="error"
+                action={
+                  <IconButton size="small" component={Link} to="/search">
+                    <Close fontSize="small" />
+                  </IconButton>
+                }
+              >
+                {t('view.notfound')}
+              </Alert>
+            )
           ))}
 
         {bundleHit && (
@@ -218,7 +220,7 @@ const HitSearch: FC<{
                 setSearchParams(searchParams);
               }}
             >
-              <HitHeader hit={bundleHit} layout={HitLayout.DENSE} useListener />
+              <HitBanner hit={bundleHit} layout={HitLayout.DENSE} useListener />
             </HowlerCard>
           </Stack>
         )}
@@ -245,6 +247,15 @@ const HitSearch: FC<{
             </Tooltip>
           )}
           {!viewId && viewButton}
+          <Tooltip title={t('route.actions.save')}>
+            <IconButton
+              component={Link}
+              disabled={!searchParams.has('query')}
+              to={`/action/execute?query=${searchParams.get('query')}`}
+            >
+              <Terminal />
+            </IconButton>
+          </Tooltip>
         </Stack>
 
         <HitQuery disabled={viewId && !selectedView} searching={searching} triggerSearch={triggerSearch} />
@@ -304,4 +315,4 @@ const HitSearch: FC<{
   );
 };
 
-export default HitSearch;
+export default SearchPane;

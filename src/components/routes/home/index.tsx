@@ -196,6 +196,7 @@ const Home: FC = () => {
 
                   return (
                     <EntryWrapper
+                      key={entry.entry_id}
                       editing={isEditing}
                       id={settings.viewId}
                       onDelete={() =>
@@ -210,6 +211,7 @@ const Home: FC = () => {
 
                   return (
                     <EntryWrapper
+                      key={entry.entry_id}
                       editing={isEditing}
                       id={getIdFromEntry(entry)}
                       onDelete={() =>

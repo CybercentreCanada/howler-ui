@@ -1,8 +1,11 @@
-import { OpenInNew } from '@mui/icons-material';
-import { Box, Card, CardContent, IconButton, Skeleton, Stack, Typography } from '@mui/material';
-import api from 'api';
+import { CenterFocusWeak, OpenInNew } from '@mui/icons-material';
+import { Box, Card, CardContent, IconButton, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import { Chart } from 'chart.js';
+import FlexOne from 'commons/addons/flexers/FlexOne';
+import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { Analytic } from 'models/entities/generated/Analytic';
-import { FC, useEffect, useState } from 'react';
+import { FC, useContext, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Assessment from '../analytics/widgets/Assessment';
 import Created from '../analytics/widgets/Created';
@@ -16,16 +19,15 @@ export interface AnalyticSettings {
 }
 
 const AnalyticCard: FC<AnalyticSettings> = ({ analyticId, type }) => {
+  const { t } = useTranslation();
   const [analytic, setAnalytic] = useState<Analytic>(null);
+  const { getAnalyticFromId } = useContext(AnalyticContext);
+
+  const chartRef = useRef<Chart>();
 
   useEffect(() => {
-    api.search.analytic
-      .post({
-        query: `analytic_id:${analyticId}`,
-        rows: 1
-      })
-      .then(result => setAnalytic(result.items[0]));
-  }, [analyticId]);
+    getAnalyticFromId(analyticId).then(setAnalytic);
+  }, [analyticId, getAnalyticFromId]);
 
   return (
     <Card variant="outlined" sx={{ height: '100%' }}>
@@ -37,12 +39,20 @@ const AnalyticCard: FC<AnalyticSettings> = ({ analyticId, type }) => {
           <IconButton size="small" component={Link} to={`/analytics/${analytic?.analytic_id}`}>
             <OpenInNew fontSize="small" />
           </IconButton>
+          <FlexOne />
+          {!['assessment', 'escalation'].includes(type) && (
+            <Tooltip title={t('hit.summary.zoom.reset')}>
+              <IconButton onClick={() => chartRef.current?.resetZoom()}>
+                <CenterFocusWeak />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
         {{
-          assessment: () => <Assessment analytic={analytic} />,
-          created: () => <Created analytic={analytic} />,
-          status: () => <Status analytic={analytic} />,
-          detection: () => <Detection analytic={analytic} />,
+          assessment: () => <Assessment ref={chartRef} analytic={analytic} />,
+          created: () => <Created ref={chartRef} analytic={analytic} />,
+          status: () => <Status ref={chartRef} analytic={analytic} />,
+          detection: () => <Detection ref={chartRef} analytic={analytic} />,
           escalation: () => (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Escalation analytic={analytic} maxWidth="80%" />

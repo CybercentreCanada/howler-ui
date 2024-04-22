@@ -41,7 +41,8 @@ const useMyActionFunctions = () => {
       const _response = await dispatchApi(
         api.search.hit.post({
           query,
-          rows: 3
+          rows: 3,
+          track_total_hits: true
         })
       );
 

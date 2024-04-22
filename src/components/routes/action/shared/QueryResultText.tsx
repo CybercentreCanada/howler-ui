@@ -18,7 +18,7 @@ const QueryResultText: FC<{ count: number; query: string }> = ({ count, query })
       variant="body2"
     >
       {t('route.actions.search.total', { count })}{' '}
-      <Link to={`/hits?query=${encodeURIComponent(query)}`}>{t('link.open')}</Link>
+      <Link to={`/hits?query=${encodeURIComponent(query)}`}>{t('search.open')}</Link>
     </Typography>
   );
 };

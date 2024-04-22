@@ -1,9 +1,10 @@
 import api from 'api';
 import useMySitemap from 'components/hooks/useMySitemap';
 import { capitalize } from 'lodash';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { AnalyticContext } from '../providers/AnalyticProvider';
 
 const useTitle = () => {
   const { t } = useTranslation();
@@ -11,6 +12,7 @@ const useTitle = () => {
   const params = useParams();
   const searchParams = useSearchParams()[0];
   const sitemap = useMySitemap();
+  const { getAnalyticFromId } = useContext(AnalyticContext);
 
   const setTitle = useCallback((title: string) => {
     document.querySelector('title').innerHTML = title;
@@ -21,11 +23,13 @@ const useTitle = () => {
 
     if (searchType === 'analytic') {
       if (params.id) {
-        const result = await api.search.analytic.post({ query: `analytic_id:${params.id}`, rows: 1 });
+        const analytic = await getAnalyticFromId(params.id);
 
-        const analytic = result.items[0];
-
-        setTitle(`${t('route.analytics.view')} - ${analytic.name}`);
+        if (analytic) {
+          setTitle(`${t('route.analytics.view')} - ${analytic.name}`);
+        } else {
+          setTitle(`${t('route.analytics.view')}`);
+        }
       } else {
         setTitle(`Howler - ${t('route.analytics')}`);
       }
@@ -61,7 +65,7 @@ const useTitle = () => {
         setTitle(`Howler - ${t(matchingRoute.title)}`);
       }
     }
-  }, [location.pathname, params.id, searchParams, setTitle, sitemap.routes, t]);
+  }, [getAnalyticFromId, location.pathname, params.id, searchParams, setTitle, sitemap.routes, t]);
 
   useEffect(() => {
     runChecks();

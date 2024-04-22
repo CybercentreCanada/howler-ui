@@ -13,6 +13,7 @@ interface AnalyticContextType {
   removeFavourite: (analytic: Analytic) => Promise<void>;
   getIdFromName: (name: string) => Promise<string>;
   getAnalyticFromName: (name: string) => Promise<Analytic>;
+  getAnalyticFromId: (id: string) => Promise<Analytic>;
 }
 
 export const AnalyticContext = createContext<AnalyticContextType>(null);
@@ -65,10 +66,41 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
     [appUser]
   );
 
+  const getAnalyticFromId = useCallback(
+    async (id: string) => {
+      const candidate = analytics.analytics.find(_analytic => _analytic.analytic_id === id);
+      if (candidate) {
+        return candidate;
+      }
+
+      // We check to see if there's already a request in progress
+      if (!PROMISES[id]) {
+        PROMISES[id] = api.search.analytic.post({
+          query: `analytic_id:${id}`
+        });
+      }
+
+      try {
+        const result = await PROMISES[id];
+
+        const analytic = result.items?.[0];
+
+        if (analytic) {
+          setAnalytics({ ...analytics, analytics: [...analytics.analytics, analytic] });
+          return analytic;
+        }
+      } catch (e) {}
+
+      return null;
+    },
+    [analytics]
+  );
+
   const getAnalyticFromName = useCallback(
     async (name: string) => {
-      if (analytics[name]) {
-        return analytics[name];
+      const candidate = analytics.analytics.find(_analytic => _analytic.name === name);
+      if (candidate) {
+        return candidate;
       }
 
       // We check to see if there's already a request in progress
@@ -84,7 +116,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
         const analytic = result.items?.[0];
 
         if (analytic) {
-          setAnalytics({ ...analytics, [name]: analytic });
+          setAnalytics({ ...analytics, analytics: [...analytics.analytics, analytic] });
           return analytic;
         }
       } catch (e) {}
@@ -103,7 +135,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <AnalyticContext.Provider
-      value={{ ...analytics, addFavourite, removeFavourite, getAnalyticFromName, getIdFromName }}
+      value={{ ...analytics, addFavourite, removeFavourite, getAnalyticFromName, getAnalyticFromId, getIdFromName }}
     >
       {children}
     </AnalyticContext.Provider>

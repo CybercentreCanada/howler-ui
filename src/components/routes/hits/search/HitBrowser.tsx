@@ -8,18 +8,19 @@ import useTuiListItems from 'commons/addons/lists/hooks/useTuiListItems';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { ViewContext } from 'components/app/providers/ViewProvider';
-import HitAggregate from 'components/elements/hit/HitAggregate';
+import HitSummary from 'components/elements/hit/HitSummary';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import i18n from 'i18n';
+import { isNull, isUndefined } from 'lodash';
 import { Hit } from 'models/entities/generated/Hit';
-import { FC, memo, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, ReactNode, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { convertLucenceToDate } from 'utils/utils';
-import HitPanel from './HitPanel';
-import HitSearch from './HitSearch';
+import InformationPane from './InformationPane';
+import SearchPane from './SearchPane';
 
 const Wrapper = memo<{ show: boolean; isMd: boolean; children: ReactNode; onClose: () => void }>(
   ({ show, isMd, children, onClose }) =>
@@ -74,13 +75,26 @@ const HitBrowser: FC = () => {
   const [span, setSpan] = useState('');
   const [filter, setFilter] = useState<string>(null);
 
+  const summaryQuery = useMemo(() => {
+    const bundle = location.pathname.startsWith('/bundles') && routeParams.id;
+
+    let _fullQuery = query || '*:*';
+    if (bundle) {
+      _fullQuery = `(howler.bundles:${bundle}) AND (${_fullQuery})`;
+    } else if (viewId) {
+      _fullQuery = `(${viewContext.views.find(_view => _view.view_id === viewId)?.query || '*:*'}) AND (${_fullQuery})`;
+    }
+
+    return _fullQuery;
+  }, [location.pathname, query, routeParams.id, viewContext.views, viewId]);
+
   const search = useCallback(
     async (_query?: string) => {
       if (_query === 'woof!') {
         i18n.changeLanguage('woof');
       }
 
-      if (_query) {
+      if (!isNull(_query) && !isUndefined(_query)) {
         setQuery(_query);
         params.set('query', _query);
         setParams(params, { replace: true });
@@ -149,8 +163,7 @@ const HitBrowser: FC = () => {
   // We only run this when ancillary properties (i.e. filters, sorting) change
   useEffect(() => {
     if (viewId || bundleId) {
-      setQuery('');
-      search();
+      search(params.get('query') || '');
     } else if (query || params.has('query')) {
       search(query || params.get('query'));
     } else {
@@ -200,6 +213,12 @@ const HitBrowser: FC = () => {
 
   useEffect(() => setShow(items?.some(item => item.selected)), [items]);
 
+  useEffect(() => {
+    if (location.pathname.startsWith('/views')) {
+      viewContext.fetchViews();
+    }
+  }, [location.pathname, viewContext]);
+
   const onPageChange = useCallback(
     (_offset: number) => {
       setOffset(_offset);
@@ -230,7 +249,7 @@ const HitBrowser: FC = () => {
     <Stack direction="row" flex={1} sx={{ overflow: 'hidden' }}>
       <FlexPort>
         <PageCenter textAlign="left" mt={0} ml={0} mr={0}>
-          <HitSearch
+          <SearchPane
             triggerSearch={search}
             error={error}
             onSelection={onSelection}
@@ -247,7 +266,7 @@ const HitBrowser: FC = () => {
       </FlexPort>
 
       <Wrapper show={show} isMd={isMd} onClose={() => setShow(false)}>
-        <HitAggregate query={query} response={response} execute={!!response && !error} />
+        <HitSummary query={summaryQuery} response={response} execute={!!response && !error} />
         <Card
           variant="outlined"
           sx={[
@@ -272,7 +291,7 @@ const HitBrowser: FC = () => {
               }
           ]}
         >
-          <HitPanel onClose={onClose} />
+          <InformationPane onClose={onClose} />
           {params.get('selected') && !(location.pathname.startsWith('/bundles') && routeParams.id) && (
             <Box
               onClick={onClose}

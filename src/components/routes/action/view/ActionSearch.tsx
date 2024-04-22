@@ -1,7 +1,6 @@
-import { Delete, Engineering } from '@mui/icons-material';
+import { Delete, Engineering, Terminal } from '@mui/icons-material';
 import {
   Autocomplete,
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -23,12 +22,12 @@ import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import ItemManager from 'components/elements/display/ItemManager';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
-import { Action } from 'models/entities/generated/Action';
 import { HowlerUser } from 'models/entities/HowlerUser';
+import { Action } from 'models/entities/generated/Action';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { StorageKey, VALID_ACTION_TRIGGERS } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 import useMyActionFunctions from '../useMyActionFunctions';
@@ -204,6 +203,7 @@ const ActionSearch: FC = () => {
   return (
     <ItemManager
       onSearch={onSearch}
+      onCreate={() => navigate('/action/execute')}
       onPageChange={onPageChange}
       phrase={phrase}
       setPhrase={setPhrase}
@@ -230,14 +230,11 @@ const ActionSearch: FC = () => {
           )}
         />
       }
-      afterSearch={
-        <Button variant="outlined" sx={{ whiteSpace: 'nowrap' }} component={Link} to="/action/execute">
-          {t('route.actions.create')}
-        </Button>
-      }
       renderer={renderer}
       response={response}
+      createPrompt="route.actions.create"
       searchPrompt="route.actions.search"
+      createIcon={<Terminal sx={{ mr: 1 }} />}
     />
   );
 };

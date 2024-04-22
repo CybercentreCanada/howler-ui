@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Card,
   Collapse,
   Divider,
@@ -13,9 +12,8 @@ import {
 } from '@mui/material';
 import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 
-import { KeyboardArrowDown, Language, Lock, Person } from '@mui/icons-material';
+import { Article, KeyboardArrowDown, Language, Lock, Person } from '@mui/icons-material';
 import api from 'api';
 import { HowlerSearchResponse } from 'api/search';
 import { TuiListItem, TuiListItemProps, TuiListProvider } from 'commons/addons/lists';
@@ -204,11 +202,6 @@ const TemplatesBase: FC = () => {
           {t('route.templates.search.prompt')}
         </Typography>
       }
-      afterSearch={
-        <Button variant="outlined" color="primary" component={Link} to="/templates/view">
-          {t('route.templates.create')}
-        </Button>
-      }
       belowSearch={
         types.length !== 1 &&
         offset < 1 &&
@@ -243,7 +236,10 @@ const TemplatesBase: FC = () => {
           }`
         )
       }
+      onCreate={() => navigate('/templates/view')}
+      createPrompt="route.templates.create"
       searchPrompt="route.templates.manager.search"
+      createIcon={<Article sx={{ mr: 1 }} />}
     />
   );
 };

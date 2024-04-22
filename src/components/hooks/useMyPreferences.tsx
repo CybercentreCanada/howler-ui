@@ -22,6 +22,7 @@ import { Avatar, Box, Stack, Typography } from '@mui/material';
 import { AppLeftNavElement, AppPreferenceConfigs } from 'commons/components/app/AppConfigs';
 import Classification from 'components/elements/display/Classification';
 
+import DocumentationButton from 'components/elements/display/DocumentationButton';
 import HowlerLogo from 'components/elements/display/icons/HowlerLogo';
 import { useMemo } from 'react';
 
@@ -139,7 +140,7 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               icon: <Terminal />,
               nested: true,
               route: '/action'
-            }
+            },
           ].filter(entry => !!entry)
         }
       },
@@ -249,6 +250,7 @@ export default function useMyPreferences(): AppPreferenceConfigs {
         adminMenuI18nKey: 'adminmenu',
         quickSearchParam: 'query',
         quickSearchURI: '/hits',
+        leftAfterBreadcrumbs: <DocumentationButton />,
         rightBeforeSearch: <Classification />
       },
       leftnav: {

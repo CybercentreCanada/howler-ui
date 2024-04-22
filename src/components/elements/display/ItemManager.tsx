@@ -1,8 +1,8 @@
-import { Box, IconButton, LinearProgress, Stack, Tooltip } from '@mui/material';
+import { Box, Fab, IconButton, LinearProgress, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { useTranslation } from 'react-i18next';
 
-import { Search } from '@mui/icons-material';
+import { Add, Search } from '@mui/icons-material';
 import { HowlerSearchResponse } from 'api/search';
 import { TuiPhrase } from 'commons/addons/controls';
 import { TuiList, TuiListItemOnSelect, TuiListItemRenderer } from 'commons/addons/lists';
@@ -18,14 +18,17 @@ interface ItemManagerProps {
   hasError: boolean;
   onPageChange: (nextOffset: number) => void;
   onSearch: () => void;
+  onCreate?: () => void;
   onSelect?: TuiListItemOnSelect<unknown>;
   phrase: string;
   renderer: TuiListItemRenderer<unknown>;
   response: HowlerSearchResponse<unknown>;
   searchAdornment?: ReactNode;
   searching: boolean;
+  createPrompt?: string;
   searchPrompt: string;
   setPhrase: (value: string) => void;
+  createIcon?: ReactNode;
 }
 
 // eslint-disable-next-line comma-spacing
@@ -38,19 +41,23 @@ const ItemManager: FC<ItemManagerProps> = ({
   onPageChange,
   onSearch,
   onSelect,
+  onCreate,
   phrase,
   renderer,
   response,
   searchAdornment,
   searching,
+  createPrompt,
   searchPrompt,
-  setPhrase
+  setPhrase,
+  createIcon
 }) => {
   const { t } = useTranslation();
+  const isNarrow = useMediaQuery('(max-width: 1800px)');
 
   return (
-    <PageCenter maxWidth="1500px" textAlign="left" height="100%">
-      <Stack spacing={1}>
+    <PageCenter maxWidth="1200px" textAlign="left" height="100%">
+      <Stack spacing={1} sx={{ position: 'relative' }}>
         {aboveSearch}
         <Stack direction="row" spacing={1}>
           <Stack sx={{ flex: 1 }}>
@@ -109,6 +116,24 @@ const ItemManager: FC<ItemManagerProps> = ({
         )}
         {belowSearch}
         <TuiList onSelection={onSelect}>{renderer}</TuiList>
+        {onCreate && (
+          <Fab
+            variant="extended"
+            size="large"
+            color="primary"
+            sx={theme => ({
+              textTransform: 'none',
+              position: isNarrow ? 'fixed' : 'absolute',
+              right: isNarrow ? theme.spacing(2) : `calc(100% + ${theme.spacing(5)})`,
+              whiteSpace: 'nowrap',
+              ...(isNarrow ? { bottom: theme.spacing(1) } : { top: 0 })
+            })}
+            onClick={onCreate}
+          >
+            {createIcon ?? <Add sx={{ mr: 1 }} />}
+            <Typography>{t(createPrompt ?? 'create')}</Typography>
+          </Fab>
+        )}
       </Stack>
     </PageCenter>
   );

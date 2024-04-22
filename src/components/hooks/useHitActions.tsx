@@ -10,6 +10,7 @@ import { Hit } from 'models/entities/generated/Hit';
 import { Howler } from 'models/entities/generated/Howler';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StorageKey } from 'utils/constants';
 import useMyApi from './useMyApi';
 import useMyApiConfig from './useMyApiConfig';
 import { useMyLocalStorageProvider } from './useMyLocalStorage';
@@ -146,6 +147,7 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
     },
     [dispatchApi, hit, selectedVote, setHit, user.email]
   );
+
 
   const assess = useCallback(
     async (assessment: string) => {

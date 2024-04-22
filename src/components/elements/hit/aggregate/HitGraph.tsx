@@ -109,7 +109,7 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
         return {
           label: `${label} (${category.total})`,
           data: category.items.map(hit => {
-            const createdMoment = moment(hit.event.created);
+            const createdMoment = moment(hit.event?.created ?? hit.timestamp);
 
             return {
               x: createdMoment.clone().hour(0).minute(0).second(0).toISOString(),

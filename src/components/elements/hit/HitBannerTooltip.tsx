@@ -4,11 +4,11 @@ import { FC, memo, PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 
-type HitHeaderTooltipProps = PropsWithChildren<{
-  hit: Hit;
-}>;
-
-const HitHeaderTooltip: FC<HitHeaderTooltipProps> = ({ hit, children }) => {
+const HitBannerTooltip: FC<
+  PropsWithChildren<{
+    hit: Hit;
+  }>
+> = ({ hit, children }) => {
   const { t } = useTranslation();
 
   return (
@@ -38,4 +38,4 @@ const HitHeaderTooltip: FC<HitHeaderTooltipProps> = ({ hit, children }) => {
   );
 };
 
-export default memo(HitHeaderTooltip);
+export default memo(HitBannerTooltip);

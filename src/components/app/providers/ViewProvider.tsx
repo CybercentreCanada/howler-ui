@@ -26,17 +26,35 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
   const { dispatchApi } = useMyApi();
   const appUser = useAppUser<HowlerUser>();
   const [defaultView, setDefaultView] = useMyLocalStorageItem<string>(StorageKey.DEFAULT_VIEW);
+
+  const [loading, setLoading] = useState(false);
   const [views, setViews] = useState<{ ready: boolean; views: View[] }>({ ready: false, views: [] });
-  const fetchViews = useCallback(async () => setViews({ ready: true, views: await api.view.get() }), []);
+
+  const fetchViews = useCallback(
+    async (force = false) => {
+      if (views.ready && !force) {
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        setViews({ ready: true, views: await api.view.get() });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [views.ready]
+  );
 
   useEffect(() => {
-    if (!views.ready) {
-      fetchViews();
+    if (!views.ready && !loading) {
+      setLoading(true);
     }
-  }, [fetchViews, views.ready, appUser]);
+  }, [fetchViews, views.ready, appUser, loading]);
 
   useEffect(() => {
-    if (defaultView && views.views.length > 0 && !views.views.find(v => v.view_id === defaultView)) {
+    if (defaultView && views.views?.length > 0 && !views.views?.find(v => v.view_id === defaultView)) {
       setDefaultView(undefined);
     }
   });

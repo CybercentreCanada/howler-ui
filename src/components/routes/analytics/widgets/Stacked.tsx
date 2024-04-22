@@ -5,14 +5,17 @@ import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
 import _ from 'lodash';
 import { Analytic } from 'models/entities/generated/Analytic';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 
-const Stacked: FC<{ analytic: Analytic; field: string; color?: (value: string) => string }> = ({
-  analytic,
-  field,
-  color
-}) => {
+const Stacked = forwardRef<
+  any,
+  {
+    analytic: Analytic;
+    field: string;
+    color?: (value: string) => string;
+  }
+>(({ analytic, field, color }, ref) => {
   const { line } = useMyChart();
 
   const [loading, setLoading] = useState(false);
@@ -91,6 +94,7 @@ const Stacked: FC<{ analytic: Analytic; field: string; color?: (value: string) =
 
   return analytic && !loading ? (
     <Line
+      ref={ref as any}
       options={options}
       data={{
         datasets
@@ -99,6 +103,6 @@ const Stacked: FC<{ analytic: Analytic; field: string; color?: (value: string) =
   ) : (
     <Skeleton variant="rounded" height={200} />
   );
-};
+});
 
 export default Stacked;

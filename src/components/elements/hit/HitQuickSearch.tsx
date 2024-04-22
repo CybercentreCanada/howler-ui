@@ -6,12 +6,12 @@ import { Trans, useTranslation } from 'react-i18next';
 import { ESCALATION_COLORS, PROVIDER_COLORS, STATUS_COLORS } from 'utils/constants';
 import { formatDate, stringToColor } from 'utils/utils';
 
-type HitHeaderProps = {
+type QuickSearchProps = {
   hit: Hit;
   options: AppSearchItemRendererOption<Hit>;
 };
 
-const HitQuickSearch: FC<HitHeaderProps> = ({ hit, options }) => {
+const HitQuickSearch: FC<QuickSearchProps> = ({ hit, options }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isUnderLg = useMediaQuery(theme.breakpoints.down('lg'));

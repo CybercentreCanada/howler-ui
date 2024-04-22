@@ -9,6 +9,8 @@ export interface APIIndex {
   deprecated: boolean;
   type: string;
   description: string;
+  regex?: string;
+  values?: string[];
   deprecated_description: string;
 }
 

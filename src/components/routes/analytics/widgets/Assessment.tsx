@@ -1,21 +1,20 @@
 import { Box, Skeleton, Typography } from '@mui/material';
 import api from 'api';
-import { HowlerGroupedSearchResponse } from 'api/search/grouped';
+import { HowlerFacetSearchResponse } from 'api/search/facet';
 import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
 import { Analytic } from 'models/entities/generated/Analytic';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import { stringToColor } from 'utils/utils';
 
-const Assessment: FC<{ analytic: Analytic }> = ({ analytic }) => {
+const Assessment = forwardRef<any, { analytic: Analytic }>(({ analytic }, ref) => {
   const { t } = useTranslation();
   const { bar } = useMyChart();
 
   const [loading, setLoading] = useState(false);
-  const [assessmentData, setAssessmentData] = useState<HowlerGroupedSearchResponse<Hit>['items']>([]);
+  const [assessmentData, setAssessmentData] = useState<HowlerFacetSearchResponse>({});
 
   useEffect(() => {
     if (!analytic) {
@@ -24,12 +23,11 @@ const Assessment: FC<{ analytic: Analytic }> = ({ analytic }) => {
 
     setLoading(true);
 
-    api.search.grouped.hit
+    api.search.facet.hit
       .post('howler.assessment', {
-        query: `howler.analytic:("${analytic.name}")`,
-        limit: 0
+        query: `howler.analytic:("${analytic.name}")`
       })
-      .then(data => setAssessmentData(data.items))
+      .then(data => setAssessmentData(data))
       .finally(() => setLoading(false));
   }, [analytic]);
 
@@ -50,15 +48,16 @@ const Assessment: FC<{ analytic: Analytic }> = ({ analytic }) => {
 
   return analytic && !loading ? (
     <Bar
-      options={bar('route.analytics.assessment.title')}
+      ref={ref as any}
+      options={bar('route.analytics.assessment.title', '')}
       data={{
-        labels: assessmentData.map(e => e.value),
+        labels: Object.keys(assessmentData),
         datasets: [
           {
             label: '',
-            data: assessmentData.map(a => a.total),
-            borderColor: assessmentData.map(a => stringToColor(a.value)),
-            backgroundColor: assessmentData.map(a => stringToColor(a.value))
+            data: Object.values(assessmentData),
+            borderColor: Object.keys(assessmentData).map(_analytic => stringToColor(_analytic)),
+            backgroundColor: Object.keys(assessmentData).map(_analytic => stringToColor(_analytic))
           }
         ]
       }}
@@ -66,6 +65,6 @@ const Assessment: FC<{ analytic: Analytic }> = ({ analytic }) => {
   ) : (
     <Skeleton variant="rounded" height={200} />
   );
-};
+});
 
 export default Assessment;

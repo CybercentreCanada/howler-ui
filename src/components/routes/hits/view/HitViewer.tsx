@@ -18,13 +18,13 @@ import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import HowlerCard from 'components/elements/display/HowlerCard';
+import JSONViewer from 'components/elements/display/JSONViewer';
 import BundleButton from 'components/elements/display/icons/BundleButton';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
-import JSONViewer from 'components/elements/display/JSONViewer';
 import HitActions from 'components/elements/hit/HitActions';
+import HitBanner from 'components/elements/hit/HitBanner';
 import HitComments from 'components/elements/hit/HitComments';
 import HitDetails from 'components/elements/hit/HitDetails';
-import HitHeader from 'components/elements/hit/HitHeader';
 import HitLabels from 'components/elements/hit/HitLabels';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import HitRelated from 'components/elements/hit/HitRelated';
@@ -157,9 +157,9 @@ const HitViewer: FC = () => {
         >
           <HowlerCard tabIndex={0} sx={{ position: 'relative' }}>
             <CardContent>
-              <HitHeader hit={hit} layout={HitLayout.COMFY} useListener />
+              <HitBanner hit={hit} layout={HitLayout.COMFY} useListener />
               <HitDetails hit={hit} layout={HitLayout.COMFY} />
-              <HitLabels hit={hit} />
+              <HitLabels hit={hit} setHit={setHit} />
               {(hit?.howler?.links?.length > 0) && (
                 <Stack direction="row" spacing={1}>
                   {hit?.howler?.links?.length > 0 &&
