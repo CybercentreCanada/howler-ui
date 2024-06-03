@@ -8,7 +8,7 @@ RUN groupadd -g 1001 howler-ui && useradd -u 1001 -g howler-ui -s /bin/sh howler
 WORKDIR /howler-ui
 
 # Copying the webpacked project into the working directory
-COPY  --chown=howler-ui:howler-ui ./build /howler-ui/build
+COPY  --chown=howler-ui:howler-ui ./dist /howler-ui/build
 
 RUN npm install serve -g
 
