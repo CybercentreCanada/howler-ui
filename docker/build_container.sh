@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+# Set version
+version=$( (cd .. && echo "console.log(require('./package.json').version)" | node))
+
 # Clean build dir
 (cd .. && rm -rf dist)
 
