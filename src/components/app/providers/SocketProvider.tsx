@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import api from 'api';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
-import { createContext, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import type { PropsWithChildren } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { StorageKey } from 'utils/constants';
 import { getStored, setAxiosCache, setStored } from 'utils/sessionStorage';
 import { isHitUpdate } from 'utils/socketUtils';

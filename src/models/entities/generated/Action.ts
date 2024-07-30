@@ -1,4 +1,4 @@
-import { Operation } from './Operation';
+import type { Operation } from './Operation';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

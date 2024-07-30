@@ -2,11 +2,11 @@ import { Add } from '@mui/icons-material';
 import { Tooltip, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { nextSortState, sortIcon, TuiSearchColumn } from '.';
+import { TuiSearchColumn, nextSortState, sortIcon } from '.';
 import TuiChipSelect, { ChipSelectOption } from '../display/chips/TuiChipSelect';
+import TuiQueryTerm from './TuiSearchTerm';
 import TuiSearchModel from './models/TuiSearchModel';
 import { SEPARATORS, TuiSearchSeparator } from './models/TuiSearchTerms';
-import TuiQueryTerm from './TuiSearchTerm';
 
 type TuiSearchExpressionProps = {
   columns: TuiSearchColumn[];

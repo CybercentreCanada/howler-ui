@@ -1,5 +1,6 @@
 import useLocalStorage from 'commons/components/utils/hooks/useLocalStorage';
-import { createContext, FC, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { MY_LOCAL_STORAGE_PREFIX, StorageKey } from 'utils/constants';
 
 type ValuesType = { [K in StorageKey]?: any };

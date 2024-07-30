@@ -4,8 +4,9 @@ import api from 'api';
 import 'chartjs-adapter-moment';
 import useMyApi from 'components/hooks/useMyApi';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { FC, useCallback, useState } from 'react';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import type { FC } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import QueryEditor from '../advanced/QueryEditor';
 

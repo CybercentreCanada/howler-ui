@@ -13,7 +13,7 @@ import FlexOne from 'commons/addons/flexers/FlexOne';
 import { nextSortState, sortIcon } from 'commons/addons/search';
 import TuiSearchTerms, { TuiSearchDirection } from 'commons/addons/search/models/TuiSearchTerms';
 import useSpacing from 'commons/addons/styles/useSpacing';
-import { memo, MouseEvent, useCallback, useRef, useState } from 'react';
+import { MouseEvent, memo, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TuiTableColumn } from '.';
 

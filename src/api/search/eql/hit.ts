@@ -1,6 +1,7 @@
 import { hpost, joinAllUri } from 'api';
-import { HowlerEQLSearchRequest, HowlerEQLSearchResponse, uri as parentUri } from 'api/search';
-import { Hit } from 'models/entities/generated/Hit';
+import type { HowlerEQLSearchRequest, HowlerEQLSearchResponse } from 'api/search';
+import { uri as parentUri } from 'api/search';
+import type { Hit } from 'models/entities/generated/Hit';
 
 export function uri() {
   return joinAllUri(parentUri(), 'hit', 'eql');

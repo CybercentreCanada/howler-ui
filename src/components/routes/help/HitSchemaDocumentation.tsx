@@ -19,7 +19,8 @@ import {
 import Throttler from 'commons/addons/utils/Throttler';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { ChangeEventHandler, FC, memo, useCallback, useMemo, useState } from 'react';
+import type { ChangeEventHandler, FC } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
@@ -42,7 +43,7 @@ const TableHeader: FC = () => {
   );
 };
 
-const RowEntry: FC<{ field: string }> = memo(({ field }) => {
+const RowEntry: FC<{ field: string }> = memo(function RowEntry({ field }) {
   const { t } = useTranslation();
   const { config } = useMyApiConfig();
   const theme = useTheme();

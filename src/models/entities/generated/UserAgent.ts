@@ -1,5 +1,5 @@
-import { Device } from './Device';
-import { Os } from './Os';
+import type { Device } from './Device';
+import type { Os } from './Os';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

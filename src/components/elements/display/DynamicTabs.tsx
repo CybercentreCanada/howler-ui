@@ -27,7 +27,7 @@ function a11yProps(index: number) {
 const DynamicTabs: React.FC<{ tabs: { title: string; children: React.ReactNode }[] }> = ({ tabs }) => {
   const [value, setValue] = React.useState(0);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -36,12 +36,12 @@ const DynamicTabs: React.FC<{ tabs: { title: string; children: React.ReactNode }
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="dynamic tabs">
           {tabs.map((t, index) => (
-            <Tab label={t.title} {...a11yProps(index)} />
+            <Tab key={t.title} label={t.title} {...a11yProps(index)} />
           ))}
         </Tabs>
       </Box>
       {tabs.map((t, index) => (
-        <CustomTabPanel value={value} index={index}>
+        <CustomTabPanel key={t.title} value={value} index={index}>
           {t.children}
         </CustomTabPanel>
       ))}

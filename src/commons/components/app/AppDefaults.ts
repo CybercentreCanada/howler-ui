@@ -1,10 +1,10 @@
-import {
+import type {
   AppLeftNavConfigs,
   AppPreferenceConfigs,
   AppSiteMapConfigs,
   AppThemeConfigs,
   AppTopNavConfigs
-} from './AppConfigs';
+} from 'commons/components/app/AppConfigs';
 
 // AppPreferenceConfigs defaults.
 export const AppDefaultsPreferencesConfigs: AppPreferenceConfigs = {
@@ -30,7 +30,8 @@ export const AppDefaultsPreferencesConfigs: AppPreferenceConfigs = {
 // AppLeftNavConfigs defaults.
 export const AppDefaultsLeftNavConfigs: AppLeftNavConfigs = {
   elements: [],
-  width: 240
+  width: 240,
+  hideNestedIcons: false
 };
 
 // AppTopNavConfigs defaults.

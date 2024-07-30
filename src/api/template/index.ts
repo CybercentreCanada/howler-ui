@@ -1,5 +1,5 @@
 import { hdelete, hget, hpost, hput, joinAllUri, joinUri, uri as parentUri } from 'api';
-import { Template } from 'models/entities/generated/Template';
+import type { Template } from 'models/entities/generated/Template';
 
 export function uri(id?: string) {
   return id ? joinAllUri(parentUri(), 'template', id) : joinUri(parentUri(), 'template');

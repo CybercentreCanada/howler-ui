@@ -1,5 +1,6 @@
 import { hpost, joinAllUri } from 'api';
-import { HowlerHistogramSearchRequest, HowlerHistogramSearchResponse, uri as parentUri } from 'api/search/histogram';
+import type { HowlerHistogramSearchRequest, HowlerHistogramSearchResponse } from 'api/search/histogram';
+import { uri as parentUri } from 'api/search/histogram';
 
 export function uri(field: string) {
   return joinAllUri(parentUri(), 'hit', field);

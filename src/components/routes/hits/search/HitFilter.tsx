@@ -1,7 +1,9 @@
-import { Autocomplete, Stack, TextField, UseAutocompleteProps } from '@mui/material';
+import type { UseAutocompleteProps } from '@mui/material';
+import { Autocomplete, Stack, TextField } from '@mui/material';
 import api from 'api';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { FC, memo, useCallback, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';

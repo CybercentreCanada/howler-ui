@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
-import { FC, memo } from 'react';
+import type { FC } from 'react';
+import { memo } from 'react';
 
 const ICONS = {
   hit: 'bx:target-lock',

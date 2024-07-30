@@ -1,8 +1,8 @@
-import { Components, PaletteMode, PaletteOptions, Theme } from '@mui/material';
-import { ReactElement, ReactNode } from 'react';
-import { To } from 'react-router-dom';
-import { GravatarD } from '../display/AppAvatar';
-import { AppUserValidatedProp } from './AppUserService';
+import type { Components, PaletteMode, PaletteOptions, Theme } from '@mui/material';
+import type { AppUserValidatedProp } from 'commons/components/app/AppUserService';
+import type { GravatarD } from 'commons/components/display/AppAvatar';
+import type { ReactElement, ReactNode } from 'react';
+import type { To } from 'react-router';
 
 // Specification interface for the 'useAppConfigs' hook.
 export type AppConfigs = {
@@ -78,7 +78,7 @@ export type AppTopNavConfigs = {
 export type AppLeftNavConfigs = {
   elements: AppLeftNavElement[]; // The list of menu elements in the left navigation drawer
   width?: number; // The the width of the left nav drawer when open.
-  hideNestedIcons?: boolean; // Hide the icons for nested menu items
+  hideNestedIcons?: boolean; // Hide the icons for menu items nested within a group
 };
 
 // Specification interface to customize default material-ui 'light' and 'dark' themes.
@@ -134,7 +134,7 @@ export type AppLeftNavItem = {
   userPropValidators?: AppUserValidatedProp[]; // The list of user props to assert before rendering the item.
   icon?: ReactElement<any>; // The icon to render to the left of the 'text'.
   route?: string; // If specified, the leftnav item will render a Link component to this route.
-  nested?: boolean; // If the item should be rendered as a nested item.
+  nested?: boolean; // If the item is within a group and rendered as a nested item. (defaults to true)
   render?: (open: boolean) => ReactElement; // If specified, will be used to render the left nav element (takes precendence over [i18nKey, text, icon, route])
 };
 
@@ -149,7 +149,7 @@ export type AppLeftNavGroup = {
   items: AppLeftNavItem[]; // A list of items to render for this group.
 };
 
-// Specification interface for an item provided to the app swithcer.
+// Specification interface for an item provided to the app switcher.
 export type AppSwitcherItem = {
   alt: string;
   name: string;

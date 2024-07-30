@@ -1,4 +1,4 @@
-import { FileHash } from './FileHash';
+import type { FileHash } from './FileHash';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

@@ -1,11 +1,11 @@
-import ReactJson, { CollapsedFieldProps } from '@microlink/react-json-view';
+import ReactJson, { type CollapsedFieldProps } from '@microlink/react-json-view';
 import { Skeleton, Stack } from '@mui/material';
 import { TuiPhrase } from 'commons/addons/controls';
-import useAppTheme from 'commons/components/app/hooks/useAppTheme';
+import { useAppTheme } from 'commons/components/app/hooks';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import { flatten } from 'flat';
 import { t } from 'i18next';
-import { FC, useMemo, useState } from 'react';
+import { useMemo, useState, type FC } from 'react';
 import { StorageKey } from 'utils/constants';
 import { removeEmpty, searchObject } from 'utils/utils';
 

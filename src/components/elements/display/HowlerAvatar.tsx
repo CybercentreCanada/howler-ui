@@ -1,6 +1,8 @@
-import { Avatar, AvatarProps, SxProps, Theme, Tooltip, useTheme } from '@mui/material';
+import type { AvatarProps, SxProps, Theme } from '@mui/material';
+import { Avatar, Tooltip, useTheme } from '@mui/material';
 import { AvatarContext } from 'components/app/providers/AvatarProvider';
-import { FC, memo, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import type { FC, ReactNode } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { nameToInitials } from 'utils/stringUtils';
 import { stringToColor } from 'utils/utils';
 

@@ -1,5 +1,5 @@
 import { Divider, Icon, Typography, useTheme } from '@mui/material';
-import React, { FC, memo } from 'react';
+import React, { memo, type FC } from 'react';
 
 type NotificationHeaderProps = {
   title: string;
@@ -30,7 +30,9 @@ export const NotificationHeader: FC<NotificationHeaderProps> = memo(({ title = '
         >
           {icon}
         </Icon>
-        <Typography variant="h6" children={title} fontSize="large" fontWeight="bolder" flex={1} />
+        <Typography variant="h6" fontSize="large" fontWeight="bolder" flex={1}>
+          {title}
+        </Typography>
         {children}
       </div>
       <Divider orientation="horizontal" flexItem style={{ width: '100%', marginTop: theme.spacing(0.5) }} />

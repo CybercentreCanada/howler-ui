@@ -1,4 +1,4 @@
-import AppsIcon from '@mui/icons-material/Apps';
+import { Apps } from '@mui/icons-material';
 import {
   Avatar,
   Button,
@@ -12,7 +12,7 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import useAppSwitcher from 'commons/components/app/hooks/useAppSwitcher';
+import { useAppSwitcher } from 'commons/components/app/hooks/useAppSwitcher';
 import { memo, useCallback, useRef, useState } from 'react';
 
 const AppSwitcher = () => {
@@ -35,7 +35,7 @@ const AppSwitcher = () => {
   return (
     <ClickAwayListener onClickAway={onClickAway}>
       <IconButton ref={anchorRef} color="inherit" onClick={onTogglePopper} size="large">
-        <AppsIcon />
+        <Apps />
         <Popper
           sx={{ zIndex: theme.zIndex.drawer + 2 }}
           open={open}
@@ -61,7 +61,7 @@ const AppSwitcher = () => {
                         target={a.newWindow ? '_blank' : null}
                         href={a.route}
                         key={`button-${i}`}
-                        style={{ display: 'inherit', textDecoration: 'none', fontWeight: 400 }}
+                        style={{ display: 'inherit', textDecoration: 'none', fontWeight: 400, color: 'inherit' }}
                       >
                         <div style={{ display: 'inline-flex' }}>
                           <Avatar
@@ -74,8 +74,8 @@ const AppSwitcher = () => {
                                   ? a.img_d
                                   : null
                                 : typeof a.img_l === 'string'
-                                ? a.img_l
-                                : null
+                                  ? a.img_l
+                                  : null
                             }
                             style={
                               a.img_d === null || typeof a.img_d === 'string'
@@ -93,8 +93,8 @@ const AppSwitcher = () => {
                                 ? a.img_d
                                 : a.alt
                               : a.img_l !== null && typeof a.img_l !== 'string'
-                              ? a.img_l
-                              : a.alt}
+                                ? a.img_l
+                                : a.alt}
                           </Avatar>
                         </div>
                         <Typography key={`text-${i}`} variant="caption">

@@ -1,30 +1,20 @@
 import { Circle } from '@mui/icons-material';
 import { Link, Stack, Typography, useTheme } from '@mui/material';
-import { FeedItem } from 'commons/components/notification';
-import { FC, memo } from 'react';
+import { type FeedItem } from 'commons/components/notification';
+import { memo, type FC } from 'react';
 
 export const NotificationItemTitle: FC<FeedItem> = memo(({ title = null, url = null, _isNew = false }) => {
   const theme = useTheme();
 
   return !title ? null : !url ? (
-    <Typography
-      children={
-        <Stack direction="row" alignItems="center" gap={1}>
-          {title}
-          {_isNew && <Circle sx={{ width: '15px' }} />}
-        </Stack>
-      }
-      variant="h6"
-      sx={{ color: theme.palette.primary.main }}
-    />
+    <Typography variant="h6" sx={{ color: theme.palette.primary.main }}>
+      <Stack direction="row" alignItems="center" gap={1}>
+        {title}
+        {_isNew && <Circle sx={{ width: '15px' }} />}
+      </Stack>
+    </Typography>
   ) : (
     <Typography
-      children={
-        <Stack direction="row" alignItems="center" gap={1}>
-          {title}
-          {_isNew && <Circle sx={{ width: '15px' }} />}
-        </Stack>
-      }
       component={Link}
       href={url}
       target="_blank"
@@ -38,6 +28,11 @@ export const NotificationItemTitle: FC<FeedItem> = memo(({ title = null, url = n
         }
       }}
       variant="h6"
-    />
+    >
+      <Stack direction="row" alignItems="center" gap={1}>
+        {title}
+        {_isNew && <Circle sx={{ width: '15px' }} />}
+      </Stack>
+    </Typography>
   );
 });

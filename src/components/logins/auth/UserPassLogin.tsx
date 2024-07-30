@@ -1,5 +1,6 @@
 import { Button, Stack, TextField } from '@mui/material';
-import { FormEvent, useCallback, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useLogin from '../hooks/useLogin';
 

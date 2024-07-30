@@ -1,6 +1,7 @@
 import { hdelete, hput, joinAllUri } from 'api';
-import { LabelActionBody, uri as parentUri } from 'api/hit';
-import { Hit } from 'models/entities/generated/Hit';
+import type { LabelActionBody } from 'api/hit';
+import { uri as parentUri } from 'api/hit';
+import type { Hit } from 'models/entities/generated/Hit';
 
 export function uri(id: string, category: string) {
   return joinAllUri(parentUri(), id, 'labels', category);

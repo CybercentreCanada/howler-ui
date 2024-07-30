@@ -1,9 +1,9 @@
 import { Cancel } from '@mui/icons-material';
 import { Chip, Tooltip } from '@mui/material';
-import { memo, ReactElement, useCallback, useMemo } from 'react';
+import { ReactElement, memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import TuiChipSelect, { ChipSelectOption } from '../display/chips/TuiChipSelect';
-import { isSeparator, isSorter, SEPARATORS, TuiSearchSeparator, TuiSearchTerm } from './models/TuiSearchTerms';
+import { SEPARATORS, TuiSearchSeparator, TuiSearchTerm, isSeparator, isSorter } from './models/TuiSearchTerms';
 
 type TuiQueryTermProps = TuiSearchTerm<any> & {
   cursor: boolean;

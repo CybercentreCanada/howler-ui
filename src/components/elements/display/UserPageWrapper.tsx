@@ -1,7 +1,7 @@
 import { Grid, Stack } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, PropsWithChildren } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { FC, PropsWithChildren } from 'react';
 import HowlerAvatarHeader from './HowlerAvatarHeader';
 
 const UserPageWrapper: FC<PropsWithChildren<{ user: HowlerUser }>> = ({ user, children }) => (

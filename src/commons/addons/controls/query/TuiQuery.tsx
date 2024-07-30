@@ -1,12 +1,12 @@
 import { Add, Clear, Favorite, FavoriteBorder, Search } from '@mui/icons-material';
-import { Alert, Box, Collapse, Divider, emphasize, LinearProgress, ListItemText, Paper, Stack } from '@mui/material';
+import { Alert, Box, Collapse, Divider, LinearProgress, ListItemText, Paper, Stack, emphasize } from '@mui/material';
 
 import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import { TuiIconButtonMenu } from 'commons/addons/display/buttons/TuiIconButtonMenu';
 import { TuiKeyboardParsedEvent } from 'commons/components/utils/keyboard';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { buildQuery, TuiQueryChangeReason, TuiQueryItem, TuiQueryStoreService } from '.';
+import { TuiQueryChangeReason, TuiQueryItem, TuiQueryStoreService, buildQuery } from '.';
 import TuiPhrase, { TuiPhraseProps } from '../phrase/TuiPhrase';
 import { TuiQueryStore, TuiQueryStoreOptionProps } from './elements/TuiQueryStore';
 import { TuiQueryView } from './elements/TuiQueryView';

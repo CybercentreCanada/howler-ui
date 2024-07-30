@@ -4,8 +4,9 @@ import api from 'api';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useEffect, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 

@@ -26,6 +26,7 @@ hit = {
 ```
 
 Notez que l'icône peut être soit :
+
 1. Un nom identifiant une application interne, pour utiliser son icône
 2. Une URL externe
 

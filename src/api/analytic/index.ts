@@ -3,7 +3,7 @@ import * as comments from 'api/analytic/comments';
 import * as favourite from 'api/analytic/favourite';
 import * as owner from 'api/analytic/owner';
 import * as rules from 'api/analytic/rules';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { Analytic } from 'models/entities/generated/Analytic';
 
 type EditOptions = Pick<Analytic, 'description' | 'rule' | 'rule_crontab'>;
 

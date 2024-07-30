@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import i18n, { use } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import helpMainEN from 'locales/en/help/main.json';
 import helpSearchEN from 'locales/en/help/search.json';
@@ -20,15 +20,17 @@ const resources = {
     helpMain: helpMainFR
   },
   woof: {
-    translation: Object.keys(translationEN).reduce((acc, key) => {
-      acc[key] = 'woof';
-      return acc;
-    }, {} as { [key: string]: string })
+    translation: Object.keys(translationEN).reduce(
+      (acc, key) => {
+        acc[key] = 'woof';
+        return acc;
+      },
+      {} as { [key: string]: string }
+    )
   }
 };
 
-i18n
-  .use(LanguageDetector)
+use(LanguageDetector)
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',

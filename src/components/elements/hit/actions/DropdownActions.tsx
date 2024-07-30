@@ -1,8 +1,10 @@
 import { FormControl, formControlClasses, Grid, InputLabel, MenuItem, Select, Skeleton } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActionButton, ASSESSMENT_KEYBINDS, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
+import type { ActionButton } from './SharedComponents';
+import { ASSESSMENT_KEYBINDS, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
 
 interface DropdownActionProps {
   availableTransitions: ActionButton[];

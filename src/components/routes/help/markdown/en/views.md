@@ -9,4 +9,3 @@ You can use views by navigating to the view manager under [Manage > Views](/view
 ## Creating Views
 
 In order to create a view, you can use the create view page, located [here](/views/create). This page allows you to modifer your view, specify a `t(hit.search.sort.fields)` and `t(hit.search.span)`, and save the view with a particular name. You can mark a view as global or personal, depending on who you want to be able to see and use the view.
-

@@ -1,15 +1,15 @@
 import { Box, Skeleton, Typography } from '@mui/material';
 import api from 'api';
-import { HowlerFacetSearchResponse } from 'api/search/facet';
+import type { HowlerFacetSearchResponse } from 'api/search/facet';
 import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import { forwardRef, useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import { stringToColor } from 'utils/utils';
 
-const Assessment = forwardRef<any, { analytic: Analytic }>(({ analytic }, ref) => {
+const Assessment = forwardRef<any, { analytic: Analytic }>(function Assessment({ analytic }, ref) {
   const { t } = useTranslation();
   const { bar } = useMyChart();
 

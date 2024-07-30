@@ -22,4 +22,4 @@ export type TuiListMenuRenderer<T> = (props: TuiListItemProps<T>) => ReactElemen
 
 export type TuiListItemRenderer<T> = (props: TuiListItemProps<T>, classRenderer: () => string) => ReactElement;
 
-export { TuiListProvider, TuiList, TuiListElement };
+export { TuiList, TuiListElement, TuiListProvider };

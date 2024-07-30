@@ -22,7 +22,7 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import { HowlerEQLSearchResponse, HowlerSearchResponse } from 'api/search';
+import type { HowlerEQLSearchResponse, HowlerSearchResponse } from 'api/search';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import FlexOne from 'commons/addons/flexers/FlexOne';
 import PageCenter from 'commons/components/pages/PageCenter';
@@ -31,9 +31,18 @@ import { FieldContext } from 'components/app/providers/FieldProvider';
 import JSONViewer from 'components/elements/display/JSONViewer';
 import useMyModal from 'components/hooks/useMyModal';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 import moment from 'moment';
-import { FC, KeyboardEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+  type KeyboardEventHandler
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { sanitizeMultilineLucene } from 'utils/stringUtils';

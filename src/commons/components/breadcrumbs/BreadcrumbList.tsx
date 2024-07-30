@@ -1,6 +1,6 @@
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { MoreHoriz } from '@mui/icons-material';
 import { Breadcrumbs as MuiBreadcrumbs, Tooltip } from '@mui/material';
-import { BreadcrumbItem } from 'commons/components/app/hooks/useAppSitemap';
+import { type BreadcrumbItem } from 'commons/components/app/hooks';
 import BreadcrumbLastItem from 'commons/components/breadcrumbs/BreadcrumbLastItem';
 import BreadcrumbLinkItem from 'commons/components/breadcrumbs/BreadcrumbLinkItem';
 import { useState } from 'react';
@@ -30,6 +30,26 @@ const splitItems = (
   const before = _items.slice(0, itemsBeforeCount);
   const after = expanded ? _items.slice(itemsBeforeCount) : _items.slice(_items.length - itemsAfterCount);
   return { before, after, hasEllipsis: hasEllipsis || expanded };
+};
+
+const BreadcrumbsEllipsis = ({ onClick, expanded }) => {
+  const { t } = useTranslation();
+  return (
+    <Tooltip title={t(expanded ? 'tooltip.breadcrumbs.min' : 'tooltip.breadcrumbs.max')}>
+      <MoreHoriz
+        fontSize="small"
+        sx={{
+          verticalAlign: 'bottom',
+          marginTop: '5px',
+          display: 'inline-flex',
+          '&:hover': {
+            cursor: 'pointer'
+          }
+        }}
+        onClick={onClick}
+      />
+    </Tooltip>
+  );
 };
 
 export default function BreadcrumbList({
@@ -65,23 +85,3 @@ export default function BreadcrumbList({
     </MuiBreadcrumbs>
   );
 }
-
-const BreadcrumbsEllipsis = ({ onClick, expanded }) => {
-  const { t } = useTranslation();
-  return (
-    <Tooltip title={t(expanded ? 'tooltip.breadcrumbs.min' : 'tooltip.breadcrumbs.max')}>
-      <MoreHorizIcon
-        fontSize="small"
-        sx={{
-          verticalAlign: 'bottom',
-          marginTop: '5px',
-          display: 'inline-flex',
-          '&:hover': {
-            cursor: 'pointer'
-          }
-        }}
-        onClick={onClick}
-      />
-    </Tooltip>
-  );
-};

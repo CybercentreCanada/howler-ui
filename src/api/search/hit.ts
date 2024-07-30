@@ -1,6 +1,7 @@
 import { hpost, joinUri } from 'api';
-import { HowlerSearchRequest, HowlerSearchResponse, uri as parentUri } from 'api/search';
-import { Hit } from 'models/entities/generated/Hit';
+import type { HowlerSearchRequest, HowlerSearchResponse } from 'api/search';
+import { uri as parentUri } from 'api/search';
+import type { Hit } from 'models/entities/generated/Hit';
 
 import * as eql from 'api/search/eql/hit';
 import * as sigma from 'api/search/sigma/hit';

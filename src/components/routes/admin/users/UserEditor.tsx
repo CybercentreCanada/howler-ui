@@ -1,12 +1,12 @@
 import api from 'api';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import UserPageWrapper from 'components/elements/display/UserPageWrapper';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
 import ProfileSection from 'components/routes/settings/ProfileSection';
 import SecuritySection from 'components/routes/settings/SecuritySection';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useCallback, useEffect, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import { useCallback, useEffect, useState, type FC } from 'react';
 import { useParams } from 'react-router';
 
 const UserEditor: FC = () => {

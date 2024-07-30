@@ -1,13 +1,13 @@
 import api from 'api';
-import { HitTransitionBody } from 'api/hit';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import type { HitTransitionBody } from 'api/hit';
+import { useAppUser } from 'commons/components/app/hooks';
 import AssignUserDrawer from 'components/app/drawers/AssignUserDrawer';
 import useAppDrawer from 'components/app/hooks/useAppDrawer';
 import RationaleModal from 'components/elements/display/modals/RationaleModal';
-import { ActionButton } from 'components/elements/hit/actions/SharedComponents';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { Hit } from 'models/entities/generated/Hit';
-import { Howler } from 'models/entities/generated/Howler';
+import type { ActionButton } from 'components/elements/hit/actions/SharedComponents';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { Howler } from 'models/entities/generated/Howler';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
@@ -86,10 +86,10 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
       hit?.howler.votes.benign.includes(user.email)
         ? 'benign'
         : hit?.howler.votes.malicious.includes(user.email)
-        ? 'malicious'
-        : hit?.howler.votes.obscure.includes(user.email)
-        ? 'obscure'
-        : '',
+          ? 'malicious'
+          : hit?.howler.votes.obscure.includes(user.email)
+            ? 'obscure'
+            : '',
     [hit?.howler.votes.benign, hit?.howler.votes.malicious, hit?.howler.votes.obscure, user.email]
   );
 

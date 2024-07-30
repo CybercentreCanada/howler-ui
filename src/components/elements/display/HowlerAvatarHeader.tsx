@@ -1,6 +1,6 @@
 import { Grid, styled, Typography, useTheme } from '@mui/material';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { FC } from 'react';
 import HowlerAvatar from './HowlerAvatar';
 
 const AvatarContainer = styled(Grid)(({ theme }) => ({

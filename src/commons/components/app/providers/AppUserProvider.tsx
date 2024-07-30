@@ -1,5 +1,6 @@
-import { createContext, ReactNode } from 'react';
-import { AppUser, AppUserService } from '../AppUserService';
+import { AppUserContext } from 'commons/components/app/AppContexts';
+import type { AppUser, AppUserService } from 'commons/components/app/AppUserService';
+import { type ReactNode } from 'react';
 
 type AppUserProviderProps<U extends AppUser> = {
   service: AppUserService<U>;
@@ -12,8 +13,6 @@ const AppUserServiceImpl = {
   isReady: () => false,
   validateProps: () => true
 };
-
-export const AppUserContext = createContext<AppUserService<AppUser>>(null);
 
 export default function AppUserProvider<U extends AppUser>({
   service = AppUserServiceImpl,

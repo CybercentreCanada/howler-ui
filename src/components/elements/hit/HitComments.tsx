@@ -13,15 +13,15 @@ import {
 } from '@mui/material';
 import api from 'api';
 import FlexOne from 'commons/addons/flexers/FlexOne';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
-import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
+import { SocketContext, type RecievedDataType } from 'components/app/providers/SocketProvider';
 import useMyApi from 'components/hooks/useMyApi';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { AnalyticComment } from 'models/entities/generated/AnalyticComment';
-import { Hit } from 'models/entities/generated/Hit';
-import { SocketEvent } from 'models/socket/HitUpdate';
-import { KeyboardEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { AnalyticComment } from 'models/entities/generated/AnalyticComment';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { SocketEvent } from 'models/socket/HitUpdate';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState, type KeyboardEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { compareTimestamp, sortByTimestamp } from 'utils/utils';
@@ -150,7 +150,7 @@ export default function HitComments({ hit, users }: { hit: Hit; users: { [id: st
     [loading, onSubmit]
   );
 
-  const checkLength = useCallback(e => setLength(input.current?.value.length), []);
+  const checkLength = useCallback(() => setLength(input.current?.value.length), []);
 
   const handleDelete = useCallback(
     async (commentId: string) => {

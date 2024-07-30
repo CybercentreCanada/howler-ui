@@ -63,6 +63,7 @@ howler.bundle.create_from_map("example-test", bundle_hit, map, [{"score": 0}])
 
 In order to view created bundles on the Howler UI, you can use the query `howler.is_bundle:true`. This will provide a list of created bundles you can look through.
 
+
 Clicking on a bundle will open up a slightly different search UI to normal. In this case, we automatically filter the search results to include only hits that are included in the bundle. To make this obvious, the header representing the bundle will appear above the search bar.
 
 You can continue to filter through hits using the same queries as usual, and view them as usual. When triaging a bundle, assessing it will apply this assessment to all hits in the bundle, **except those that have already been triaged**. That is, if the bundle is open, all open hits will be assessed when you assess it.

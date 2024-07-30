@@ -1,20 +1,21 @@
-import { PaletteMode, StyledEngineProvider, ThemeProvider, useMediaQuery } from '@mui/material';
-import { AppPreferenceConfigs, AppSiteMapConfigs, AppThemeConfigs } from 'commons/components/app/AppConfigs';
+import { StyledEngineProvider, ThemeProvider, useMediaQuery, type PaletteMode } from '@mui/material';
+import type { AppPreferenceConfigs, AppSiteMapConfigs, AppThemeConfigs } from 'commons/components/app/AppConfigs';
+import { AppStorageKeys } from 'commons/components/app/AppConstants';
+import { AppContext, type AppNotificationService } from 'commons/components/app/AppContexts';
+import { AppDefaultsPreferencesConfigs } from 'commons/components/app/AppDefaults';
+import { AppDrawerContainer } from 'commons/components/app/AppDrawerContainer';
+import type { AppSearchService } from 'commons/components/app/AppSearchService';
+import type { AppUser, AppUserService } from 'commons/components/app/AppUserService';
+import AppBarProvider from 'commons/components/app/providers/AppBarProvider';
+import { AppDrawerProvider } from 'commons/components/app/providers/AppDrawerProvider';
+import AppLayoutProvider from 'commons/components/app/providers/AppLayoutProvider';
+import AppLeftNavProvider from 'commons/components/app/providers/AppLeftNavProvider';
+import AppSnackbarProvider from 'commons/components/app/providers/AppSnackbarProvider';
+import AppUserProvider from 'commons/components/app/providers/AppUserProvider';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
+import useThemeBuilder from 'commons/components/utils/hooks/useThemeBuilder';
 import i18n from 'i18n';
-import { createContext, ReactNode, useCallback, useMemo } from 'react';
-import useThemeBuilder from '../utils/hooks/useThemeBuilder';
-import { AppStorageKeys } from './AppConstants';
-import { AppContextType, AppNotificationService } from './AppContexts';
-import { AppDefaultsPreferencesConfigs } from './AppDefaults';
-
-import { AppSearchService } from './AppSearchService';
-import { AppUser, AppUserService } from './AppUserService';
-import AppBarProvider from './providers/AppBarProvider';
-import AppLayoutProvider from './providers/AppLayoutProvider';
-import AppLeftNavProvider from './providers/AppLeftNavProvider';
-import AppSnackbarProvider from './providers/AppSnackbarProvider';
-import AppUserProvider from './providers/AppUserProvider';
+import { useCallback, useMemo, type ReactNode } from 'react';
 
 const { LS_KEY_DARK_MODE } = AppStorageKeys;
 
@@ -27,8 +28,6 @@ export type AppProviderProps<U extends AppUser> = {
   notification?: AppNotificationService;
   children: ReactNode;
 };
-
-export const AppContext = createContext<AppContextType>(null);
 
 export default function AppProvider<U extends AppUser>({
   theme,
@@ -74,13 +73,17 @@ export default function AppProvider<U extends AppUser>({
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={_darkMode ? darkTheme : lightTheme}>
           <AppUserProvider service={user}>
-            <AppBarProvider search={search} notification={notification}>
-              <AppLeftNavProvider>
-                <AppLayoutProvider>
-                  <AppSnackbarProvider>{children}</AppSnackbarProvider>
-                </AppLayoutProvider>
-              </AppLeftNavProvider>
-            </AppBarProvider>
+            <AppDrawerProvider>
+              <AppBarProvider search={search} notification={notification}>
+                <AppLeftNavProvider>
+                  <AppDrawerContainer>
+                    <AppLayoutProvider>
+                      <AppSnackbarProvider>{children}</AppSnackbarProvider>
+                    </AppLayoutProvider>
+                  </AppDrawerContainer>
+                </AppLeftNavProvider>
+              </AppBarProvider>
+            </AppDrawerProvider>
           </AppUserProvider>
         </ThemeProvider>
       </StyledEngineProvider>

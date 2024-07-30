@@ -1,4 +1,4 @@
-import { Body } from './Body';
+import type { Body } from './Body';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

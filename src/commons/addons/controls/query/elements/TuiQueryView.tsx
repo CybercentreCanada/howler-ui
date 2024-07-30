@@ -5,7 +5,7 @@ import TuiChipSelect, { ChipSelectOption } from 'commons/addons/display/chips/Tu
 import { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuid } from 'uuid';
-import { buildQuery, TuiQueryStoreService } from '..';
+import { TuiQueryStoreService, buildQuery } from '..';
 
 type TuiQueryViewProps = {
   q: string;

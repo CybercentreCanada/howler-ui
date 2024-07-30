@@ -3,7 +3,8 @@ import { Badge, IconButton, styled, Tooltip } from '@mui/material';
 import { green, red, yellow } from '@mui/material/colors';
 import { SocketContext, Status } from 'components/app/providers/SocketProvider';
 import i18n from 'i18n';
-import { FC, useContext } from 'react';
+import type { FC } from 'react';
+import { useContext } from 'react';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {

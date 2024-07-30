@@ -15,12 +15,14 @@ import {
 import { LocalizationProvider, StaticDateTimePicker } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import api from 'api';
-import { Privileges } from 'api/auth/apikey';
+import type { Privileges } from 'api/auth/apikey';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMySnackbar from 'components/hooks/useMySnackbar';
+import { type APIConfiguration } from 'models/entities/generated/ApiType';
 import moment from 'moment';
-import { ChangeEvent, FC, useCallback, useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent, FC } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 type ApiKeyDrawerProps = {
@@ -38,11 +40,15 @@ const ApiKeyDrawer: FC<ApiKeyDrawerProps> = ({ onCreated }) => {
   const [createdKey, setCreatedKey] = useState('');
   const [expiryDate, setExpiryDate] = useState<moment.Moment>(null);
 
-  const [amount, unit] = useMemo(() => {
-    const { max_apikey_duration_amount: _amount, max_apikey_duration_unit: _unit } = config?.configuration.auth;
+  const [amount, unit] = useMemo<[number, APIConfiguration['auth']['max_apikey_duration_unit']]>(() => {
+    if (!config) {
+      return [1, 'seconds'];
+    }
+
+    const { max_apikey_duration_amount: _amount, max_apikey_duration_unit: _unit } = config.configuration.auth;
 
     return [_amount, _unit];
-  }, [config?.configuration.auth]);
+  }, [config]);
 
   const maxDate = useMemo(() => {
     if (!amount || !unit) {

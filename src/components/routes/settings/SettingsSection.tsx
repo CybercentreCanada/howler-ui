@@ -1,5 +1,5 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 const SettingsSection: FC<{ title: string; colSpan: number; children: ReactNode }> = ({ title, colSpan, children }) => {
   return (

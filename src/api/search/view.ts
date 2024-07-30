@@ -1,6 +1,7 @@
 import { hpost, joinUri } from 'api';
-import { HowlerSearchRequest, HowlerSearchResponse, uri as parentUri } from 'api/search';
-import { View } from 'models/entities/generated/View';
+import type { HowlerSearchRequest, HowlerSearchResponse } from 'api/search';
+import { uri as parentUri } from 'api/search';
+import type { View } from 'models/entities/generated/View';
 
 export function uri() {
   return joinUri(parentUri(), 'view');

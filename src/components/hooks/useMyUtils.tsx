@@ -1,5 +1,5 @@
 import { darken, lighten } from '@mui/material';
-import useAppTheme from 'commons/components/app/hooks/useAppTheme';
+import { useAppTheme } from 'commons/components/app/hooks';
 import { useCallback } from 'react';
 
 export default function useMyUtils() {

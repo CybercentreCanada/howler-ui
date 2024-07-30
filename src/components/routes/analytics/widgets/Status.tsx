@@ -1,11 +1,11 @@
 import { useTheme } from '@mui/material';
 import 'chartjs-adapter-moment';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import { forwardRef } from 'react';
 import { STATUS_COLORS } from 'utils/constants';
 import Stacked from './Stacked';
 
-const Status = forwardRef<any, { analytic: Analytic }>(({ analytic }, ref) => {
+const Status = forwardRef<any, { analytic: Analytic }>(function Status({ analytic }, ref) {
   const theme = useTheme();
 
   return (

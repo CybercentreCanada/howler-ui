@@ -3,12 +3,13 @@ import PageCenter from 'commons/components/pages/PageCenter';
 import { useTranslation } from 'react-i18next';
 
 import { Add, Search } from '@mui/icons-material';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import { TuiPhrase } from 'commons/addons/controls';
-import { TuiList, TuiListItemOnSelect, TuiListItemRenderer } from 'commons/addons/lists';
+import type { TuiListItemOnSelect, TuiListItemRenderer } from 'commons/addons/lists';
+import { TuiList } from 'commons/addons/lists';
 import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
 import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 interface ItemManagerProps {
   aboveSearch?: ReactNode;

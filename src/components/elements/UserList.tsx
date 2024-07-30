@@ -1,6 +1,8 @@
-import { Autocomplete, Box, IconButton, Popover, SxProps, TextField, Theme, Typography } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
+import { Autocomplete, Box, IconButton, Popover, TextField, Typography } from '@mui/material';
 import { UserListContext } from 'components/app/providers/UserListProvider';
-import { FC, useContext, useEffect, useMemo, useState } from 'react';
+import type { FC } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import HowlerAvatar from './display/HowlerAvatar';
 

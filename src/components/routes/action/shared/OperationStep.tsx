@@ -9,13 +9,14 @@ import {
   TextField
 } from '@mui/material';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import Throttler from 'commons/addons/utils/Throttler';
 import useMyApi from 'components/hooks/useMyApi';
 import { capitalize } from 'lodash';
-import { ActionOperationStep } from 'models/ActionTypes';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import type { ActionOperationStep } from 'models/ActionTypes';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { checkArgsAreFilled, getArgsByContext, getOptionsByContext } from 'utils/actionUtils';
@@ -44,10 +45,10 @@ const OperationStep: FC<{
       errorResponse?.total > 0
         ? 'error'
         : warnResponse?.total > 0
-        ? 'warning'
-        : errorResponse || warnResponse
-        ? 'success'
-        : null,
+          ? 'warning'
+          : errorResponse || warnResponse
+            ? 'success'
+            : null,
     [errorResponse, warnResponse]
   );
 

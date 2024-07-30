@@ -1,8 +1,8 @@
 import { Tooltip } from '@mui/material';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, memo, PropsWithChildren } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC, PropsWithChildren, ReactElement } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
 
 const HitBannerTooltip: FC<
   PropsWithChildren<{

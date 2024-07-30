@@ -1,6 +1,6 @@
 import { Box, Divider, Stack, Typography } from '@mui/material';
-import { GroupDetailsResponse } from 'api/user/groups';
-import { FC } from 'react';
+import type { GroupDetailsResponse } from 'api/user/groups';
+import type { FC } from 'react';
 
 type ViewGroupsDrawerProps = {
   groups: GroupDetailsResponse;

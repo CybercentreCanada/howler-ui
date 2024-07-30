@@ -1,6 +1,7 @@
 import { Box, Stack, Tab, Typography, useMediaQuery, useTheme } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
-import { FC, useCallback, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import ActionIntroductionDocumentation from './ActionIntroductionDocumentation';

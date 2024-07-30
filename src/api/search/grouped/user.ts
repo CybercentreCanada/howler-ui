@@ -1,6 +1,7 @@
 import { hpost, joinAllUri } from 'api';
-import { HowlerGroupedSearchRequest, HowlerGroupedSearchResponse, uri as parentUri } from 'api/search/grouped';
-import { HowlerUser } from 'models/entities/HowlerUser';
+import type { HowlerGroupedSearchRequest, HowlerGroupedSearchResponse } from 'api/search/grouped';
+import { uri as parentUri } from 'api/search/grouped';
+import type { HowlerUser } from 'models/entities/HowlerUser';
 
 export type HowlerApiUser = Omit<HowlerUser, 'username'> & { uname: string };
 

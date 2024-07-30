@@ -21,14 +21,15 @@ import useMyApi from 'components/hooks/useMyApi';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyActionFunctions from 'components/routes/action/useMyActionFunctions';
 import { t } from 'i18next';
-import { Action } from 'models/entities/generated/Action';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, MouseEventHandler, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Action } from 'models/entities/generated/Action';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC, MouseEventHandler, PropsWithChildren } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 // TODO: Eventually make this more generic
 
-const HitContextMenu: FC<PropsWithChildren<{}>> = ({ children }) => {
+const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
   const navigate = useNavigate();
   const analyticContext = useContext(AnalyticContext);
   const { dispatchApi } = useMyApi();

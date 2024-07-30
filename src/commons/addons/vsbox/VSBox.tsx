@@ -1,6 +1,5 @@
-import { Stack, StackProps } from '@mui/material';
-import useAppBar from 'commons/components/app/hooks/useAppBar';
-import useAppBarHeight from 'commons/components/app/hooks/useAppBarHeight';
+import { Stack, type StackProps } from '@mui/material';
+import { useAppBar, useAppBarHeight } from 'commons/components/app/hooks';
 import { createContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 type VSBoxProps = StackProps & {

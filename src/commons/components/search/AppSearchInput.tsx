@@ -5,9 +5,9 @@ import {
   IconButton,
   InputAdornment,
   InputBase,
-  InputBaseProps,
   Stack,
-  Tooltip
+  Tooltip,
+  type InputBaseProps
 } from '@mui/material';
 
 import { memo, useCallback, useRef } from 'react';

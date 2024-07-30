@@ -1,7 +1,8 @@
 import { Box, Divider, Skeleton, Typography } from '@mui/material';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, createElement, memo, useContext, useMemo } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { createElement, memo, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HitLayout } from './HitLayout';
 import DefaultOutline from './outlines/DefaultOutline';

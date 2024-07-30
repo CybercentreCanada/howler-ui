@@ -1,14 +1,12 @@
-import { styled, useMediaQuery, useTheme } from '@mui/material';
-import CssBaseline from '@mui/material/CssBaseline';
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { CssBaseline, styled, useMediaQuery, useTheme } from '@mui/material';
+import { type AppLayoutMode } from 'commons/components/app/AppConfigs';
+import { AppStorageKeys } from 'commons/components/app/AppConstants';
+import { AppLayoutContext } from 'commons/components/app/AppContexts';
+import { useAppConfigs, useAppUser } from 'commons/components/app/hooks';
 import LeftNavDrawer from 'commons/components/leftnav/LeftNavDrawer';
 import AppBar from 'commons/components/topnav/AppBar';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
-import { ReactNode, createContext, useCallback, useMemo, useState } from 'react';
-import { AppLayoutMode } from '../AppConfigs';
-import { AppStorageKeys } from '../AppConstants';
-import { AppLayoutContextType } from '../AppContexts';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 const { LS_KEY_LAYOUT_MODE } = AppStorageKeys;
 
@@ -53,8 +51,6 @@ const AppVerticalRight = styled('div')({
 type AppLayoutProps = {
   children: ReactNode;
 };
-
-export const AppLayoutContext = createContext<AppLayoutContextType>(null);
 
 export default function AppLayoutProvider({ children }: AppLayoutProps) {
   const muiTheme = useTheme();

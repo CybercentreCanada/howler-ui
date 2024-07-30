@@ -1,5 +1,5 @@
+import PageContent from 'commons/components/pages//PageContent';
 import { memo } from 'react';
-import PageContent from './PageContent';
 
 type PageFullWidthProps = {
   children: React.ReactNode;

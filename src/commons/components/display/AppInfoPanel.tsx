@@ -1,5 +1,5 @@
 import { Info } from '@mui/icons-material';
-import { Box, emphasize, Stack, StackProps, Typography, useTheme } from '@mui/material';
+import { Box, Stack, Typography, emphasize, useTheme, type StackProps } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 export type AppInfoPanelProps = { i18nKey: string } & StackProps;

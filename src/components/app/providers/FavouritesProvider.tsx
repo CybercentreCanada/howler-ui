@@ -1,15 +1,14 @@
 import { QueryStats, SavedSearch } from '@mui/icons-material';
-import { AppLeftNavElement, AppLeftNavGroup } from 'commons/components/app/AppConfigs';
-import useAppLeftNav from 'commons/components/app/hooks/useAppLeftNav';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import type { AppLeftNavElement, AppLeftNavGroup } from 'commons/components/app/AppConfigs';
+import { useAppLeftNav, useAppUser } from 'commons/components/app/hooks';
 import _ from 'lodash';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, PropsWithChildren, createContext, useCallback, useContext, useEffect } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import { createContext, useCallback, useContext, useEffect, type FC, type PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnalyticContext } from './AnalyticProvider';
 import { ViewContext } from './ViewProvider';
 
-export const FavouriteContext = createContext<{}>(null);
+export const FavouriteContext = createContext<object>(null);
 
 const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation();

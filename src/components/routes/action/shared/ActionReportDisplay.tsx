@@ -1,18 +1,18 @@
 import { ErrorOutline, ExpandMore, InfoOutlined, TaskAltOutlined } from '@mui/icons-material';
+import type { AlertColor } from '@mui/material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Alert,
-  AlertColor,
   AlertTitle,
   Divider,
   Stack,
   Typography
 } from '@mui/material';
 import Markdown from 'components/elements/display/Markdown';
-import { ActionOperation, ActionReport } from 'models/ActionTypes';
-import { FC } from 'react';
+import type { ActionOperation, ActionReport } from 'models/ActionTypes';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -44,7 +44,7 @@ const ActionReportDisplay: FC<{ report: ActionReport; operations: ActionOperatio
                           success: <TaskAltOutlined key={r.message} color="success" />,
                           skipped: <InfoOutlined key={r.message} color="info" />,
                           error: <ErrorOutline key={r.message} color="error" />
-                        }[r.outcome])
+                        })[r.outcome]
                     )}
                   </Stack>
                 </AccordionSummary>

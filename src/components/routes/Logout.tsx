@@ -1,14 +1,30 @@
-import { Box, Typography, useTheme } from '@mui/material';
-import useAppBanner from 'commons/components/app/hooks/useAppBanner';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
+import { Box, Container, Stack, Typography, styled } from '@mui/material';
+import { useAppBanner, useAppLayout } from 'commons/components/app/hooks';
 import PageCardCentered from 'commons/components/pages/PageCardCentered';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+
+const LogWrap = styled('div')(() => ({
+  marginTop: '2rem',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center'
+}));
+
+const InjectCss = styled(Stack)(({ theme }) => ({
+  '.login-stack': {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(-4)
+  },
+  '.MuiPaper-root': {
+    width: 'unset',
+    maxWidth: 'unset'
+  }
+}));
 
 const Logout: FC = () => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const banner = useAppBanner();
   const layout = useAppLayout();
   const localStorage = useMyLocalStorage();
@@ -23,14 +39,17 @@ const Logout: FC = () => {
   }, 2000);
 
   return (
-    <PageCardCentered>
-      <Box textAlign="center">
-        <Box color={theme.palette.primary.main} fontSize="30pt">
-          {banner}
-        </Box>
-        <Typography>{t('page.logout')}</Typography>
-      </Box>
-    </PageCardCentered>
+    <Container component="main" maxWidth="xs">
+      <InjectCss direction="column" alignItems="center">
+        <PageCardCentered>
+          <LogWrap>
+            {banner}
+            <Box m={2} />
+            <Typography>{t('page.logout')}</Typography>
+          </LogWrap>
+        </PageCardCentered>
+      </InjectCss>
+    </Container>
   );
 };
 

@@ -1,4 +1,4 @@
-import { HowlerResponse } from 'api';
+import type { HowlerResponse } from 'api';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import { useCallback, useMemo } from 'react';
 

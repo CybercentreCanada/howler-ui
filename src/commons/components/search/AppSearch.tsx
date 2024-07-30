@@ -16,43 +16,40 @@ import {
   useTheme
 } from '@mui/material';
 
+import { useAppSearchService } from 'commons/components/app/hooks/useAppSearchService';
+import AppSearchInput from 'commons/components/search/AppSearchInput';
+import AppSearchResult from 'commons/components/search/AppSearchResult';
 import { parseEvent } from 'commons/components/utils/keyboard';
-import { ChangeEvent, forwardRef, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import useAppSearchService from '../app/hooks/useAppSearchService';
-import AppSearchInput from './AppSearchInput';
-import AppSearchResult from './AppSearchResult';
 
 const MENU_LIST_SX = { maxHeight: 500, overflow: 'auto' };
 
-const AppSearchRoot = styled(Box, { shouldForwardProp: prop => prop !== 'menuOpen' })<{ menuOpen: boolean }>(
-  ({ theme, menuOpen }) => {
-    const backgroundColor = emphasize(theme.palette.background.default, 0.1);
-    return {
-      position: 'relative',
-      borderRadius: theme.shape.borderRadius,
-      borderBottomLeftRadius: menuOpen && 0,
-      borderBottomRightRadius: menuOpen && 0,
+const AppSearchRoot = styled(Box, { shouldForwardProp: prop => prop !== 'menuOpen' })<{ menuOpen: boolean }>(({
+  theme,
+  menuOpen
+}) => {
+  const backgroundColor = emphasize(theme.palette.background.default, 0.1);
+  return {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    borderBottomLeftRadius: menuOpen && 0,
+    borderBottomRightRadius: menuOpen && 0,
 
-      '.app-search-input': {
-        backgroundColor:
-          theme.palette.mode === 'dark'
-            ? backgroundColor
-            : menuOpen
-            ? theme.palette.background.default
-            : backgroundColor,
-        boxShadow: menuOpen && theme.shadows[4]
-      },
-      '.app-search-result': {
-        backgroundColor: theme.palette.mode === 'dark' ? backgroundColor : theme.palette.background.default,
-        borderBottomLeftRadius: theme.shape.borderRadius,
-        borderBottomRightRadius: theme.shape.borderRadius,
-        boxShadow: menuOpen && theme.shadows[4],
-        color: theme.palette.text.primary
-      }
-    };
-  }
-);
+    '.app-search-input': {
+      backgroundColor:
+        theme.palette.mode === 'dark' ? backgroundColor : menuOpen ? theme.palette.background.default : backgroundColor,
+      boxShadow: menuOpen && theme.shadows[4]
+    },
+    '.app-search-result': {
+      backgroundColor: theme.palette.mode === 'dark' ? backgroundColor : theme.palette.background.default,
+      borderBottomLeftRadius: theme.shape.borderRadius,
+      borderBottomRightRadius: theme.shape.borderRadius,
+      boxShadow: menuOpen && theme.shadows[4],
+      color: theme.palette.text.primary
+    }
+  };
+});
 
 const ModalTransition = forwardRef(function Transition(props: any, ref: any) {
   const { children, ..._props } = props;
@@ -87,7 +84,9 @@ export default function AppSearch() {
       if (isCtrl && key === 'k') {
         event.preventDefault();
         const inputRef = menuRef.current.querySelector('input');
-        if (provided && (state.menu || !inputRef)) {
+        if (provided && !inputRef) {
+          state.set({ ...state, menu: !state.menu, mode: 'fullscreen' });
+        } else if (provided && state.menu) {
           state.set({ ...state, mode: 'fullscreen' });
         } else {
           inputRef.focus();
@@ -162,7 +161,11 @@ export default function AppSearch() {
     <ClickAwayListener onClickAway={() => state.set({ ...state, menu: false })}>
       <AppSearchRoot ref={menuRef} sx={{ mr: !showSearchIcon && 1 }} menuOpen={state.menu}>
         {showSearchIcon ? (
-          <IconButton color="inherit" size="large" onClick={onToggleFullscreen}>
+          <IconButton
+            color="inherit"
+            size="large"
+            onClick={() => state.set({ ...state, menu: !state.menu, mode: 'fullscreen' })}
+          >
             <Tooltip
               title={
                 <Stack direction="column" textAlign="center">
@@ -245,6 +248,7 @@ export default function AppSearch() {
               <AppSearchResult />
             </DialogContent>
           )}
+          {provided && service.footerRenderer && service.footerRenderer(state)}
         </Dialog>
       </AppSearchRoot>
     </ClickAwayListener>

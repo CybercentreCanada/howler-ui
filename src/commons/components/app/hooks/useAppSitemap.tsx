@@ -1,8 +1,8 @@
+import type { AppSiteMapRoute } from 'commons/components/app/AppConfigs';
+import { useAppConfigs } from 'commons/components/app/hooks';
 import i18n from 'i18n';
 import { useMemo } from 'react';
-import { matchPath, PathMatch } from 'react-router-dom';
-import { AppSiteMapRoute } from '../AppConfigs';
-import useAppConfigs from './useAppConfigs';
+import { matchPath, type PathMatch } from 'react-router-dom';
 
 const TITLE_404 = i18n.t('breadcrumb.404');
 
@@ -70,7 +70,7 @@ const resolveTitle = (breadcrumb: BreadcrumbItem, siteMap: AppSiteMapRoute[]) =>
 const is404 = (breadcrumb: BreadcrumbItem) => breadcrumb.route.title === TITLE_404;
 
 //
-export default function useAppSitemap() {
+export function useAppSitemap() {
   const { sitemap } = useAppConfigs();
   return useMemo(
     () => ({

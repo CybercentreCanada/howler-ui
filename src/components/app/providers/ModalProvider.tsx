@@ -1,4 +1,5 @@
-import { createContext, FC, PropsWithChildren, ReactNode, useCallback, useEffect, useState } from 'react';
+import type { FC, PropsWithChildren, ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 
 export interface ModalOptions {
   disableClose?: boolean;

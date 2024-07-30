@@ -1,4 +1,4 @@
-import { AppUser } from 'commons/components/app/AppUserService';
+import type { AppUser } from 'commons/components/app/AppUserService';
 
 export interface HowlerUser extends AppUser {
   name: string;

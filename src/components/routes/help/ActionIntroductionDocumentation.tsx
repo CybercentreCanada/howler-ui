@@ -2,19 +2,17 @@ import { Close, Search } from '@mui/icons-material';
 import { IconButton, ListItemText, MenuItem, Select, Stack } from '@mui/material';
 import api from 'api';
 import { TuiPhrase } from 'commons/addons/controls';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import Markdown from 'components/elements/display/Markdown';
 import { difference } from 'lodash';
-import { ActionOperation } from 'models/ActionTypes';
-import { HowlerUser } from 'models/entities/HowlerUser';
-
-import { FC, useEffect, useMemo, useState } from 'react';
+import type { ActionOperation } from 'models/ActionTypes';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import { useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VALID_ACTION_TRIGGERS } from 'utils/constants';
 import ActionReportDisplay from '../action/shared/ActionReportDisplay';
 import OperationStep from '../action/shared/OperationStep';
 import QueryResultText from '../action/shared/QueryResultText';
-
 import ACTION_INTRO_EN from './markdown/en/actionIntroduction.md';
 import ACTION_INTRO_FR from './markdown/fr/actionIntroduction.md';
 
@@ -47,7 +45,7 @@ const ActionIntroductionDocumentation: FC = () => {
         action_list: (
           <ul>
             {operations.map(operation => (
-              <li>
+              <li key={operation.id}>
                 {t(`operations.${operation.id}`)} - {operation.description.short}
               </li>
             ))}

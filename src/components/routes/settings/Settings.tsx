@@ -1,9 +1,9 @@
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import UserPageWrapper from 'components/elements/display/UserPageWrapper';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
 import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useCallback, useMemo } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import { useCallback, useMemo, type FC } from 'react';
 import { StorageKey } from 'utils/constants';
 import LocalSection from './LocalSection';
 import ProfileSection from './ProfileSection';

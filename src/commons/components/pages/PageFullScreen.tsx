@@ -1,12 +1,9 @@
-import FullscreenIcon from '@mui/icons-material/Fullscreen';
-import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import { Fullscreen, FullscreenExit } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
-import useAppBar from 'commons/components/app/hooks/useAppBar';
-import useAppBarHeight from 'commons/components/app/hooks/useAppBarHeight';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
+import { useAppBar, useAppBarHeight, useAppLayout } from 'commons/components/app/hooks';
+import PageContent from 'commons/components/pages/PageContent';
 import useFullscreenStatus from 'commons/components/utils/hooks/useFullscreenStatus';
 import { memo, useCallback, useRef } from 'react';
-import PageContent from './PageContent';
 
 type PageFullscreenProps = {
   children: React.ReactNode;
@@ -59,11 +56,11 @@ const PageFullscreen = ({ children, margin = null, mb = 2, ml = 2, mr = 2, mt = 
       >
         {fullscreenSupported ? null : isFullscreen ? (
           <IconButton onClick={handleExitFullscreen} size="large">
-            <FullscreenExitIcon />
+            <FullscreenExit />
           </IconButton>
         ) : (
           <IconButton onClick={handleEnterFullscreen} size="large">
-            <FullscreenIcon />
+            <Fullscreen />
           </IconButton>
         )}
       </Box>

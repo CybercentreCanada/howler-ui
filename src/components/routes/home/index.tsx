@@ -1,34 +1,34 @@
 import {
-  closestCenter,
   DndContext,
-  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
+  closestCenter,
   useSensor,
-  useSensors
+  useSensors,
+  type DragEndEvent
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Cancel, Check, Close, Edit, OpenInNew } from '@mui/icons-material';
 import { Alert, AlertTitle, CircularProgress, Grid, IconButton, Stack, Typography } from '@mui/material';
 import api from 'api';
+import { AppBrand } from 'branding/AppBrand';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { ViewContext } from 'components/app/providers/ViewProvider';
-import HowlerLogo from 'components/elements/display/icons/HowlerLogo';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
 import _ from 'lodash';
-import { HowlerUser } from 'models/entities/HowlerUser';
+import type { HowlerUser } from 'models/entities/HowlerUser';
 import moment from 'moment';
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import AddNewCard from './AddNewCard';
-import AnalyticCard, { AnalyticSettings } from './AnalyticCard';
+import AnalyticCard, { type AnalyticSettings } from './AnalyticCard';
 import EntryWrapper from './EntryWrapper';
-import ViewCard, { ViewSettings } from './ViewCard';
+import ViewCard, { type ViewSettings } from './ViewCard';
 
 const LUCENE_DATE_FMT = 'YYYY-MM-DD[T]HH:mm:ss';
 
@@ -249,7 +249,10 @@ const Home: FC = () => {
                     })}
                   >
                     <Typography variant="h1" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <HowlerLogo fontSize="inherit" sx={{ pr: 2 }} /> <span>{t('route.home.title')}</span>
+                      <Stack direction="row" spacing={2.5}>
+                        <AppBrand application="howler" variant="logo" size="large" />
+                        <span>{t('route.home.title')}</span>
+                      </Stack>
                     </Typography>
                     <Typography variant="h4" sx={{ textAlign: 'center' }}>
                       {t('route.home.description')}

@@ -1,5 +1,5 @@
-import { RecievedDataType } from 'components/app/providers/SocketProvider';
-import { HitUpdate } from 'models/socket/HitUpdate';
+import type { RecievedDataType } from 'components/app/providers/SocketProvider';
+import type { HitUpdate } from 'models/socket/HitUpdate';
 
 /**
  * Checks to see if the data recieved from the socket is a hit update

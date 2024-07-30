@@ -152,11 +152,11 @@ il renvoie ce qui suit:
 
 ```json
 {
-    "api_response": {
-        "app_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIn0",
-        "provider": "keycloak",
-        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZWZyZXNoIn0"
-    }
+  "api_response": {
+    "app_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIn0",
+    "provider": "keycloak",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZWZyZXNoIn0"
+  }
 }
 ```
 
@@ -190,11 +190,11 @@ Et vous obtiendrez quelque chose comme ceci en retour:
 
 ```json
 {
-    "api_response": {
-        "app_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMiJ9",
-        "provider": "keycloak",
-        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZWZyZXNodG9rZW4yIn0"
-    }
+  "api_response": {
+    "app_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMiJ9",
+    "provider": "keycloak",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZWZyZXNodG9rZW4yIn0"
+  }
 }
 ```
 
@@ -237,15 +237,11 @@ Si la configuration est correcte, le résultat sera le suivant:
     "avatar": null,
     "classification": "TLP:W",
     "email": "user@howler.cyber.gc.ca",
-    "groups": [
-      "USERS"
-    ],
+    "groups": ["USERS"],
     "is_active": true,
     "is_admin": false,
     "name": "User",
-    "roles": [
-      "user"
-    ],
+    "roles": ["user"],
     "username": "user"
   },
   "api_server_version": "0.0.0.dev0",

@@ -1,4 +1,5 @@
 import { Delete } from '@mui/icons-material';
+import type { SelectChangeEvent } from '@mui/material';
 import {
   Box,
   Card,
@@ -9,13 +10,13 @@ import {
   ListItemText,
   MenuItem,
   Select,
-  SelectChangeEvent,
   Stack
 } from '@mui/material';
 import Markdown from 'components/elements/display/Markdown';
-import { ActionOperation } from 'models/ActionTypes';
-import { Operation } from 'models/entities/generated/Operation';
-import { FC, useCallback, useMemo } from 'react';
+import type { ActionOperation } from 'models/ActionTypes';
+import type { Operation } from 'models/entities/generated/Operation';
+import type { FC } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkArgsAreFilled, operationReady } from 'utils/actionUtils';
 import OperationStep from './OperationStep';
@@ -69,7 +70,12 @@ const OperationEntry: FC<{
                   ))}
               </Select>
               {operation.triggers.map(_trigger => (
-                <Chip size="small" label={t(`route.actions.trigger.${_trigger}`)} sx={{ alignSelf: 'start' }} />
+                <Chip
+                  key={_trigger}
+                  size="small"
+                  label={t(`route.actions.trigger.${_trigger}`)}
+                  sx={{ alignSelf: 'start' }}
+                />
               ))}
             </Stack>
             <Divider flexItem orientation="vertical" />

@@ -1,4 +1,5 @@
-import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
+import type { OptionsObject, SnackbarMessage } from 'notistack';
+import { useSnackbar } from 'notistack';
 import { useCallback, useMemo } from 'react';
 
 export default function useMySnackbar() {

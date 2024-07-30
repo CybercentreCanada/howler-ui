@@ -13,14 +13,15 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import { Chart, ChartDataset, ChartOptions } from 'chart.js';
+import type { Chart, ChartDataset, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-moment';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyChart from 'components/hooks/useMyChart';
 import { capitalize } from 'lodash';
 import moment from 'moment';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';

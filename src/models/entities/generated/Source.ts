@@ -1,5 +1,5 @@
-import { Geo } from './Geo';
-import { Nat } from './Nat';
+import type { Geo } from './Geo';
+import type { Nat } from './Nat';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

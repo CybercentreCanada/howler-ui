@@ -1,4 +1,4 @@
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 
 export interface HitUpdate {
   version: string;

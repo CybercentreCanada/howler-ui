@@ -1,7 +1,7 @@
-import { Avatar, AvatarProps } from '@mui/material';
+import { Avatar, type AvatarProps } from '@mui/material';
+import { useAppConfigs } from 'commons/components/app/hooks/useAppConfigs';
 import md5 from 'md5';
 import { useMemo } from 'react';
-import useAppConfigs from '../app/hooks/useAppConfigs';
 
 export type GravatarD = '404' | 'mp' | 'identicon' | 'monsterid' | 'wavatar' | 'retro' | 'robohash' | 'blank';
 

@@ -1,5 +1,5 @@
-import { Client } from './Client';
-import { TlsServer } from './TlsServer';
+import type { Client } from './Client';
+import type { TlsServer } from './TlsServer';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

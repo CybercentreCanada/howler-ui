@@ -1,13 +1,12 @@
-import { createContext, ReactNode, useMemo, useState } from 'react';
-import { AppSwitcherItem } from '../AppConfigs';
-import { AppSwitcherContextType } from '../AppContexts';
-import useAppConfigs from '../hooks/useAppConfigs';
+import type { AppSwitcherItem } from 'commons/components/app/AppConfigs';
+import { useMemo, useState, type ReactNode } from 'react';
+
+import { AppSwitcherContext } from 'commons/components/app/AppContexts';
+import { useAppConfigs } from 'commons/components/app/hooks';
 
 type AppSwitcherProviderProps = {
   children: ReactNode;
 };
-
-export const AppSwitcherContext = createContext<AppSwitcherContextType>(null);
 
 export default function AppSwitcherProvider({ children }: AppSwitcherProviderProps) {
   const { preferences } = useAppConfigs();

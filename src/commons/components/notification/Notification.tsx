@@ -1,14 +1,8 @@
-import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Feed, FeedItem, parseFeed } from '.';
-import { NotificationItem } from './elements/item/NotificationItem';
-import { NotificationContainer } from './elements/NotificationContainer';
-import { NotificationTopNavButton } from './elements/NotificationTopNavButton';
-
-/**
-/**
- * JSON Feed Version 1.1
- * https://www.jsonfeed.org/
- */
+import { parseFeed, type Feed, type FeedItem } from 'commons/components/notification';
+import { NotificationContainer } from 'commons/components/notification/elements/NotificationContainer';
+import { NotificationTopNavButton } from 'commons/components/notification/elements/NotificationTopNavButton';
+import { NotificationItem } from 'commons/components/notification/elements/item/NotificationItem';
+import { memo, useCallback, useEffect, useRef, useState, type FC } from 'react';
 
 type Props = {
   urls: string[];
@@ -59,7 +53,7 @@ export const Notification: FC<Props> = memo(
 
     const fetchFeed = useCallback(
       (url: string = ''): Promise<any> =>
-        new Promise(async (resolve, reject) => {
+        new Promise(async resolve => {
           const response: Response = (await fetch(url, { method: 'GET' }).catch(err =>
             // eslint-disable-next-line no-console
             console.error(`Notification Area: error caused by URL "${err}`)
@@ -84,7 +78,7 @@ export const Notification: FC<Props> = memo(
 
     const fetchFeeds = useCallback(
       (_urls: string[] = []): Promise<Feed[]> =>
-        new Promise(async (resolve, reject) => {
+        new Promise(async resolve => {
           if (!_urls || _urls.length === 0) {
             resolve([]);
             return [];

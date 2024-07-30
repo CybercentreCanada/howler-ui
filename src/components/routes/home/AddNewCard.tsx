@@ -19,9 +19,10 @@ import {
 import api from 'api';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { ViewContext } from 'components/app/providers/ViewProvider';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { FC } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const TYPES = {

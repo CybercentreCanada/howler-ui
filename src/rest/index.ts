@@ -1,4 +1,4 @@
-import { HowlerResponse } from 'api';
+import type { HowlerResponse } from 'api';
 
 export default interface RestClient {
   fetch<R>(

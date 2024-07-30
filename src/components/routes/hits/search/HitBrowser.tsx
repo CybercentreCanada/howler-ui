@@ -1,9 +1,10 @@
 import { ChevronLeft } from '@mui/icons-material';
 import { Box, Card, Drawer, Fab, Stack, useMediaQuery, useTheme } from '@mui/material';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import FlexPort from 'commons/addons/flexers/FlexPort';
-import { TuiListItemOnSelect, TuiListProvider } from 'commons/addons/lists';
+import type { TuiListItemOnSelect } from 'commons/addons/lists';
+import { TuiListProvider } from 'commons/addons/lists';
 import useTuiListItems from 'commons/addons/lists/hooks/useTuiListItems';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import PageCenter from 'commons/components/pages/PageCenter';
@@ -13,8 +14,9 @@ import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import i18n from 'i18n';
 import { isNull, isUndefined } from 'lodash';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, ReactNode, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC, ReactNode } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
@@ -22,21 +24,26 @@ import { convertLucenceToDate } from 'utils/utils';
 import InformationPane from './InformationPane';
 import SearchPane from './SearchPane';
 
-const Wrapper = memo<{ show: boolean; isMd: boolean; children: ReactNode; onClose: () => void }>(
-  ({ show, isMd, children, onClose }) =>
-    isMd ? (
-      <Drawer
-        onClose={onClose}
-        open={show}
-        anchor="right"
-        PaperProps={{ sx: { backgroundImage: 'none', overflow: 'hidden' } }}
-      >
-        {children}
-      </Drawer>
-    ) : (
-      <FlexPort disableOverflow>{children}</FlexPort>
-    )
-);
+// https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/display-name.md
+const Wrapper = memo<{ show: boolean; isMd: boolean; children: ReactNode; onClose: () => void }>(function Wrapper({
+  show,
+  isMd,
+  children,
+  onClose
+}) {
+  return isMd ? (
+    <Drawer
+      onClose={onClose}
+      open={show}
+      anchor="right"
+      PaperProps={{ sx: { backgroundImage: 'none', overflow: 'hidden' } }}
+    >
+      {children}
+    </Drawer>
+  ) : (
+    <FlexPort disableOverflow>{children}</FlexPort>
+  );
+});
 
 const HitBrowser: FC = () => {
   const theme = useTheme();
@@ -96,8 +103,13 @@ const HitBrowser: FC = () => {
 
       if (!isNull(_query) && !isUndefined(_query)) {
         setQuery(_query);
-        params.set('query', _query);
-        setParams(params, { replace: true });
+        setParams(
+          _currentParams => {
+            _currentParams.set('query', _query);
+            return _currentParams;
+          },
+          { replace: true }
+        );
       }
 
       setSearching(true);

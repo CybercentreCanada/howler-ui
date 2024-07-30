@@ -1,11 +1,11 @@
-import { Antivirus } from './Antivirus';
-import { Attribution } from './Attribution';
-import { Behaviour } from './Behaviour';
-import { Domain } from './Domain';
-import { Heuristic } from './Heuristic';
-import { Mitre } from './Mitre';
-import { Uri } from './Uri';
-import { Yara } from './Yara';
+import type { Antivirus } from './Antivirus';
+import type { Attribution } from './Attribution';
+import type { Behaviour } from './Behaviour';
+import type { Domain } from './Domain';
+import type { Heuristic } from './Heuristic';
+import type { Mitre } from './Mitre';
+import type { Uri } from './Uri';
+import type { Yara } from './Yara';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

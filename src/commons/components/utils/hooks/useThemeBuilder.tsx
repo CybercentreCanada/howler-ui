@@ -1,9 +1,9 @@
-import { Components, createTheme, CSSObject, PaletteOptions, Theme } from '@mui/material';
-import { AppThemeConfigs } from 'commons/components/app/AppConfigs';
+import { createTheme, type CSSObject, type Components, type PaletteOptions, type Theme } from '@mui/material';
+import type { AppThemeConfigs } from 'commons/components/app/AppConfigs';
 import { AppDefaultsThemeConfigs } from 'commons/components/app/AppDefaults';
 import { useMemo } from 'react';
 
-const create = (components: Components<Omit<Theme, 'components'>>, palette: PaletteOptions) =>
+export const createTuiTheme = (components: Components<Omit<Theme, 'components'>>, palette: PaletteOptions) =>
   createTheme({
     components: {
       ...components,
@@ -41,8 +41,14 @@ const create = (components: Components<Omit<Theme, 'components'>>, palette: Pale
 export default function useThemeBuilder(theme: AppThemeConfigs = AppDefaultsThemeConfigs) {
   return useMemo(
     () => ({
-      darkTheme: create(theme.components || {}, { mode: 'dark', ...(theme?.palette?.dark || {}) } as PaletteOptions),
-      lightTheme: create(theme.components || {}, { mode: 'light', ...(theme?.palette?.light || {}) } as PaletteOptions)
+      darkTheme: createTuiTheme(theme.components || {}, {
+        mode: 'dark',
+        ...(theme?.palette?.dark || {})
+      } as PaletteOptions),
+      lightTheme: createTuiTheme(theme.components || {}, {
+        mode: 'light',
+        ...(theme?.palette?.light || {})
+      } as PaletteOptions)
     }),
     [theme]
   );

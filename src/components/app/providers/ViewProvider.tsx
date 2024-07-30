@@ -1,10 +1,10 @@
 import api from 'api';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
-import { View } from 'models/entities/generated/View';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { createContext, FC, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { View } from 'models/entities/generated/View';
+import { createContext, useCallback, useEffect, useState, type FC, type PropsWithChildren } from 'react';
 import { StorageKey } from 'utils/constants';
 
 export interface ViewContextType {

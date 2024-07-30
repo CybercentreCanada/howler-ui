@@ -2,7 +2,7 @@ import { hget, hput, joinUri, uri as parentUri } from 'api';
 import * as avatar from 'api/user/avatar';
 import * as groups from 'api/user/groups';
 import * as whoami from 'api/user/whoami';
-import { HowlerUser } from 'models/entities/HowlerUser';
+import type { HowlerUser } from 'models/entities/HowlerUser';
 
 export function uri(username?: string) {
   const _uri = joinUri(parentUri(), 'user');
@@ -17,4 +17,4 @@ export function put(username: string, newData: Partial<HowlerUser> | { new_pass:
   return hput(uri(username), newData);
 }
 
-export { whoami, avatar, groups };
+export { avatar, groups, whoami };

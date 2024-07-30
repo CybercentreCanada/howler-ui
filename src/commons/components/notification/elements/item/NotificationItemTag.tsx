@@ -1,5 +1,5 @@
 import { Chip } from '@mui/material';
-import { FC, memo } from 'react';
+import { memo, type FC } from 'react';
 
 const TAG_COLOR = {
   new: 'info',

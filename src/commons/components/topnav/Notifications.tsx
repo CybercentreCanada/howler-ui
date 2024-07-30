@@ -1,6 +1,6 @@
+import { useAppNotification } from 'commons/components/app/hooks/useAppNotification';
 import { Notification } from 'commons/components/notification';
-import { FC } from 'react';
-import useAppNotification from '../app/hooks/useAppNotification';
+import { type FC } from 'react';
 
 export const Notifications: FC = () => {
   const { service, state } = useAppNotification();

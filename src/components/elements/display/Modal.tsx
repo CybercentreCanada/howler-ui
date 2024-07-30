@@ -1,6 +1,7 @@
 import { Box, Modal as MuiModal } from '@mui/material';
 import { ModalContext } from 'components/app/providers/ModalProvider';
-import { FC, useCallback, useContext } from 'react';
+import type { FC } from 'react';
+import { useCallback, useContext } from 'react';
 
 const Modal: FC = () => {
   const { content, setContent, options } = useContext(ModalContext);

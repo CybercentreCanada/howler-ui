@@ -19,15 +19,12 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import useAppBar from 'commons/components/app/hooks/useAppBar';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
-import { AppTocItem } from 'commons/components/display/AppToc';
+import { useAppBar, useAppLayout, useAppUser } from 'commons/components/app/hooks';
+import type { AppTocItem } from 'commons/components/display/AppToc';
 import PageCenter from 'commons/components/pages/PageCenter';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { HowlerUser } from 'models/entities/HowlerUser';
-
-import { FC, memo, ReactElement, useMemo } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import { memo, useMemo, type FC, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import HelpTabs from './components/HelpTabs';
@@ -109,7 +106,10 @@ const TOC_CONFIGS: AppTocItem[] = [
   { id: 'reserved' }
 ];
 
-const Paragraph: FC<{ id: string; children: ReactElement | ReactElement[] }> = memo(({ id, children }) => {
+const Paragraph: FC<{ id: string; children: ReactElement | ReactElement[] }> = memo(function Paragraph({
+  id,
+  children
+}) {
   const { autoHide: autoHideAppbar } = useAppBar();
   const { current: currentLayout } = useAppLayout();
   return (
@@ -146,6 +146,7 @@ const SearchDocumentation: FC = () => {
         <HelpTabs value={location.hash}>
           {TOC_CONFIGS.flatMap(value => [
             <Tab
+              key={value.id}
               href={`#${value.id}`}
               label={<Typography variant="caption">{t(value.id)}</Typography>}
               value={`#${value.id}`}
@@ -154,6 +155,7 @@ const SearchDocumentation: FC = () => {
               subItem =>
                 (!subItem.is_admin || user.is_admin) && (
                   <Tab
+                    key={subItem.id}
                     sx={{ '& > span': { pl: 1 } }}
                     href={`#${subItem.id}`}
                     label={<Typography variant="caption">{t(subItem.id)}</Typography>}
@@ -259,12 +261,12 @@ const SearchDocumentation: FC = () => {
           </Paragraph>
 
           {Object.keys(indexes).map(idx => (
-            <Accordion sx={{ mb: 2, backgroundColor: 'background.paper' }}>
+            <Accordion key={idx} sx={{ mb: 2, backgroundColor: 'background.paper' }}>
               <AccordionSummary expandIcon={<ExpandMore />}>
                 <Typography variant="h6">{t(`fields.idx_${idx}`)}</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ px: '0 !important', mt: -6 }}>
-                <Paragraph id={`fields.idx_${idx}`} key={idx}>
+                <Paragraph id={`fields.idx_${idx}`}>
                   <TableRoot>
                     <Table size="small">
                       <TableHead>

@@ -1,11 +1,3 @@
-/**
- * JSON Feed Version 1.1
- * https://www.jsonfeed.org/
- */
-
-/***********************************************************************************
- * System Message
- **********************************************************************************/
 export type SystemMessage = {
   user: string;
   title: string;
@@ -13,9 +5,40 @@ export type SystemMessage = {
   message: string;
 };
 
-/***********************************************************************************
- * Feed
- **********************************************************************************/
+export type FeedItem = {
+  id: string;
+  url?: string;
+  external_url?: string;
+  title?: string;
+  content_html?: string;
+  content_text?: string;
+  content_md?: string;
+  summary?: string;
+  image?: string;
+  banner_image?: string;
+  date_published?: Date;
+  date_modified?: Date;
+  authors?: Array<FeedAuthor>;
+  tags?: Array<'new' | 'current' | 'dev' | 'service' | 'blog'>;
+  language?: string;
+  attachments?: Array<FeedAttachment>;
+  _isNew: boolean;
+};
+
+export type FeedAuthor = {
+  name?: string;
+  url?: string;
+  avatar?: string;
+};
+
+export type FeedAttachment = {
+  url: string;
+  mime_type: string;
+  title?: string;
+  size_in_bytes?: number;
+  duration_in_seconds?: number;
+};
+
 export type Feed = {
   version: string;
   title: string;
@@ -50,40 +73,6 @@ export const DEFAULT_FEED: Feed = {
   items: []
 };
 
-export function parseFeed(feed: any): Feed {
-  return feed && typeof feed === 'object'
-    ? {
-        ...DEFAULT_FEED,
-        ...feed,
-        items: parseFeedItems(feed?.items),
-        authors: parseFeedAuthors(feed?.authors)
-      }
-    : null;
-}
-
-/***********************************************************************************
- * Feed Items
- **********************************************************************************/
-export type FeedItem = {
-  id: string;
-  url?: string;
-  external_url?: string;
-  title?: string;
-  content_html?: string;
-  content_text?: string;
-  content_md?: string;
-  summary?: string;
-  image?: string;
-  banner_image?: string;
-  date_published?: Date;
-  date_modified?: Date;
-  authors?: Array<FeedAuthor>;
-  tags?: Array<'new' | 'current' | 'dev' | 'service' | 'blog'>;
-  language?: string;
-  attachments?: Array<FeedAttachment>;
-  _isNew: boolean;
-};
-
 export const DEFAULT_FEED_ITEM: FeedItem = {
   id: null,
   url: null,
@@ -102,6 +91,45 @@ export const DEFAULT_FEED_ITEM: FeedItem = {
   attachments: [],
   _isNew: false
 };
+
+export const DEFAULT_FEED_ATTACHMENT: FeedAttachment = {
+  url: null,
+  mime_type: null,
+  title: null,
+  size_in_bytes: 0,
+  duration_in_seconds: 0
+};
+
+export const DEFAULT_FEED_AUTHOR: any = {
+  name: null,
+  url: null,
+  avatar: null
+};
+
+function decodeHTML(html: string) {
+  if (!html || typeof html !== 'string') return '';
+  var txt = document.createElement('textarea');
+  txt.innerHTML = html;
+  return txt.value;
+}
+
+export function parseFeedAttachments(attachments: any): FeedAttachment[] {
+  return attachments && Array.isArray(attachments)
+    ? attachments
+        .map(attachment =>
+          attachment && typeof attachment === 'object' ? { ...DEFAULT_FEED_ATTACHMENT, ...attachment } : null
+        )
+        .filter(attachment => attachment)
+    : [];
+}
+
+export function parseFeedAuthors(authors: any): FeedAuthor[] {
+  return authors && Array.isArray(authors)
+    ? authors
+        .map(author => (author && typeof author === 'object' ? { ...DEFAULT_FEED_AUTHOR, ...author } : null))
+        .filter(author => author)
+    : [];
+}
 
 export function parseFeedItems(items: any): FeedItem[] {
   return items && Array.isArray(items)
@@ -123,64 +151,13 @@ export function parseFeedItems(items: any): FeedItem[] {
     : [];
 }
 
-/***********************************************************************************
- * Feed Author
- **********************************************************************************/
-export type FeedAuthor = {
-  name?: string;
-  url?: string;
-  avatar?: string;
-};
-
-export const DEFAULT_FEED_AUTHOR: any = {
-  name: null,
-  url: null,
-  avatar: null
-};
-
-export function parseFeedAuthors(authors: any): FeedAuthor[] {
-  return authors && Array.isArray(authors)
-    ? authors
-        .map(author => (author && typeof author === 'object' ? { ...DEFAULT_FEED_AUTHOR, ...author } : null))
-        .filter(author => author)
-    : [];
-}
-
-/***********************************************************************************
- * Feed Attachments
- **********************************************************************************/
-export type FeedAttachment = {
-  url: string;
-  mime_type: string;
-  title?: string;
-  size_in_bytes?: number;
-  duration_in_seconds?: number;
-};
-
-export const DEFAULT_FEED_ATTACHMENT: FeedAttachment = {
-  url: null,
-  mime_type: null,
-  title: null,
-  size_in_bytes: 0,
-  duration_in_seconds: 0
-};
-
-export function parseFeedAttachments(attachments: any): FeedAttachment[] {
-  return attachments && Array.isArray(attachments)
-    ? attachments
-        .map(attachment =>
-          attachment && typeof attachment === 'object' ? { ...DEFAULT_FEED_ATTACHMENT, ...attachment } : null
-        )
-        .filter(attachment => attachment)
-    : [];
-}
-
-/***********************************************************************************
- * Feed Utils
- **********************************************************************************/
-function decodeHTML(html: string) {
-  if (!html || typeof html !== 'string') return '';
-  var txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
+export function parseFeed(feed: any): Feed {
+  return feed && typeof feed === 'object'
+    ? {
+        ...DEFAULT_FEED,
+        ...feed,
+        items: parseFeedItems(feed?.items),
+        authors: parseFeedAuthors(feed?.authors)
+      }
+    : null;
 }

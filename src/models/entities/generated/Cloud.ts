@@ -1,8 +1,8 @@
-import { CloudAccount } from './CloudAccount';
-import { Instance } from './Instance';
-import { Machine } from './Machine';
-import { Project } from './Project';
-import { Service } from './Service';
+import type { CloudAccount } from './CloudAccount';
+import type { Instance } from './Instance';
+import type { Machine } from './Machine';
+import type { Project } from './Project';
+import type { Service } from './Service';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

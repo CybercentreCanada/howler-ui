@@ -1,7 +1,8 @@
 import { Add, ArrowDownward, ArrowUpward, Cancel } from '@mui/icons-material';
 import { Autocomplete, Chip, Grid, IconButton, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FieldContext } from 'components/app/providers/FieldProvider';
-import { FC, memo, useContext, useEffect, useMemo, useState } from 'react';
+import type { FC } from 'react';
+import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const CustomSort: FC<{ customSort: string; setCustomSort: (newSort: string) => void }> = ({

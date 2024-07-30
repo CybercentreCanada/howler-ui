@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Delete } from '@mui/icons-material';
 import { Box, Grid, IconButton } from '@mui/material';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 const EntryWrapper: FC<PropsWithChildren<{ editing: boolean; id: string; onDelete?: () => void }>> = ({
   editing,

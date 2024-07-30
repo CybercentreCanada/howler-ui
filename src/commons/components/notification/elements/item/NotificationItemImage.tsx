@@ -1,4 +1,4 @@
-import { FC, memo } from 'react';
+import { memo, type FC } from 'react';
 
 export const NotificationItemImage: FC<{ image?: string }> = memo(
   ({ image = null }) =>

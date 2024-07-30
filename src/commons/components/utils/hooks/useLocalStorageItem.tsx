@@ -1,7 +1,5 @@
-import { isNull, isUndefined } from 'lodash';
+import useLocalStorage from 'commons/components/utils/hooks/useLocalStorage';
 import { useEffect, useMemo, useState } from 'react';
-import { MY_LOCAL_STORAGE_PREFIX } from 'utils/constants';
-import useLocalStorage from './useLocalStorage';
 
 /**
  * This hooks backs the typical 'useState' hook with local storage.
@@ -14,15 +12,10 @@ import useLocalStorage from './useLocalStorage';
  *
  * @param key - local storage key under which to store the state.
  * @param initialValue - local storage initialization value.
- * @param prefix - prefix for the local storage key.
  * @returns a stateful value, a function to update it, and a function to remove it.
  */
-export default function useLocalStorageItem<T>(
-  key: string,
-  initialValue?: T,
-  prefix?: string
-): [T, (value: T, save?: boolean) => void, () => void] {
-  const { get, set, has, remove } = useLocalStorage(prefix ?? MY_LOCAL_STORAGE_PREFIX);
+export default function useLocalStorageItem<T>(key: string, initialValue?: T): [T, (value: T) => void, () => void] {
+  const { get, set, has, remove } = useLocalStorage();
   const [value, setValue] = useState<T>(get(key) ?? initialValue);
 
   useEffect(() => {
@@ -36,7 +29,7 @@ export default function useLocalStorageItem<T>(
       value,
       (newValue, save = true) => {
         if (save) {
-          if (!isNull(newValue) && !isUndefined(newValue)) {
+          if (newValue !== undefined) {
             set(key, newValue);
           } else {
             remove(key);

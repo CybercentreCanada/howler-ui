@@ -1,7 +1,7 @@
 import { hdelete, hget, hpost, hput, joinAllUri, joinUri } from 'api';
 import { uri as parentUri } from 'api/analytic';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { Comment } from 'models/entities/generated/Comment';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import type { Comment } from 'models/entities/generated/Comment';
 import * as react from './react';
 
 export function uri(analytic: string, comment?: string) {

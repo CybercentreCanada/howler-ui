@@ -1,7 +1,7 @@
 import { hdelete, hget, hpost, hput, joinAllUri, joinUri } from 'api';
 import { uri as parentUri } from 'api/hit';
-import { Comment } from 'models/entities/generated/Comment';
-import { Hit } from 'models/entities/generated/Hit';
+import type { Comment } from 'models/entities/generated/Comment';
+import type { Hit } from 'models/entities/generated/Hit';
 import * as react from './react';
 
 export function uri(hit: string, comment?: string) {

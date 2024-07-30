@@ -1,11 +1,11 @@
-import { Attachment } from './Attachment';
-import { Bcc } from './Bcc';
-import { Cc } from './Cc';
-import { From } from './From';
-import { Parent } from './Parent';
-import { ReplyTo } from './ReplyTo';
-import { Sender } from './Sender';
-import { To } from './To';
+import type { Attachment } from './Attachment';
+import type { Bcc } from './Bcc';
+import type { Cc } from './Cc';
+import type { From } from './From';
+import type { Parent } from './Parent';
+import type { ReplyTo } from './ReplyTo';
+import type { Sender } from './Sender';
+import type { To } from './To';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

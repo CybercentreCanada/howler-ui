@@ -6,4 +6,4 @@ export function uri() {
   return joinUri(parentUri(), 'auth');
 }
 
-export { login, apikey };
+export { apikey, login };

@@ -1,4 +1,4 @@
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 
 export const getUserList = (hit: Hit): Set<string> => {
   const ids = new Set<string>();

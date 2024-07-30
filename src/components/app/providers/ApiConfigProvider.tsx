@@ -1,5 +1,6 @@
-import { ApiType } from 'models/entities/generated/ApiType';
-import { createContext, FC, PropsWithChildren, useMemo, useState } from 'react';
+import type { ApiType } from 'models/entities/generated/ApiType';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useMemo, useState } from 'react';
 
 export type ApiConfigContextType = {
   config: ApiType;

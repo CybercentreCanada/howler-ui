@@ -1,5 +1,5 @@
-import { FC, memo, RefObject, useEffect, useRef, useState } from 'react';
-import { NotificationSkeleton } from './NotificationSkeleton';
+import { NotificationSkeleton } from 'commons/components/notification/elements/NotificationSkeleton';
+import { memo, useEffect, useRef, useState, type FC, type RefObject } from 'react';
 
 function useOnScreen(ref: RefObject<Element>, rootMargin = '0px') {
   // State and setter for storing whether element is visible

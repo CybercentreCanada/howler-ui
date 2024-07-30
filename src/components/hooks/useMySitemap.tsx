@@ -20,7 +20,7 @@ import {
 } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { AppSiteMapConfigs } from 'commons/components/app/AppConfigs';
+import type { AppSiteMapConfigs } from 'commons/components/app/AppConfigs';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 

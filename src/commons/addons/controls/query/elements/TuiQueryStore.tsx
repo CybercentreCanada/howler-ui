@@ -15,7 +15,7 @@ import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
 import { ChangeEvent, FC, ReactNode, SyntheticEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { buildQuery, LS_KEY_QUERY_APPEND, LS_KEY_QUERY_GLOBAL, TuiQueryItem, TuiQueryStoreService } from '..';
+import { LS_KEY_QUERY_APPEND, LS_KEY_QUERY_GLOBAL, TuiQueryItem, TuiQueryStoreService, buildQuery } from '..';
 
 export type TuiQueryStoreOptionProps = {
   renderer?: (query: TuiQueryItem) => ReactNode;

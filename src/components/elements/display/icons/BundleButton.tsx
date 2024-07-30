@@ -1,7 +1,8 @@
 import { AccountTree } from '@mui/icons-material';
 import { ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
-import { FC, useCallback, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
@@ -33,8 +34,8 @@ const BundleButton: FC<{ ids: string[]; disabled?: boolean }> = ({ ids, disabled
         disabled={disabled}
         aria-disabled={disabled}
         aria-haspopup="true"
-        aria-controls={!!anchorEl ? 'bundle-action-menu' : undefined}
-        aria-expanded={!!anchorEl ? 'true' : undefined}
+        aria-controls={anchorEl ? 'bundle-action-menu' : undefined}
+        aria-expanded={anchorEl ? 'true' : undefined}
       >
         <AccountTree />
       </TuiIconButton>

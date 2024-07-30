@@ -1,6 +1,7 @@
 import { hpost, joinAllUri } from 'api';
-import { HitTransitionBody, uri as parentUri } from 'api/hit';
-import { Hit } from 'models/entities/generated/Hit';
+import type { HitTransitionBody } from 'api/hit';
+import { uri as parentUri } from 'api/hit';
+import type { Hit } from 'models/entities/generated/Hit';
 
 export function uri(id: string) {
   return joinAllUri(parentUri(), id, 'transition');

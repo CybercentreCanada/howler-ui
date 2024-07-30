@@ -1,8 +1,9 @@
 import { Add, Check, ChevronRight, Clear } from '@mui/icons-material';
 import { Chip, CircularProgress, Grid, TableCell, TableRow, Typography } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useCallback, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { FC } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { delay } from 'utils/utils';
 import EditRow from './EditRow';

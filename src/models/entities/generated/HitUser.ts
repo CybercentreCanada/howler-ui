@@ -1,4 +1,4 @@
-import { Group } from './Group';
+import type { Group } from './Group';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

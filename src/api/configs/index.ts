@@ -1,5 +1,5 @@
 import { hget, joinUri, uri as parentUri } from 'api';
-import { ApiType } from 'models/entities/generated/ApiType';
+import type { ApiType } from 'models/entities/generated/ApiType';
 
 export function uri() {
   return joinUri(parentUri(), 'configs');

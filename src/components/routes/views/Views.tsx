@@ -1,3 +1,4 @@
+import { Clear, Edit, SavedSearch, Star, StarBorder } from '@mui/icons-material';
 import {
   Autocomplete,
   Card,
@@ -11,24 +12,22 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
-import { Clear, Edit, SavedSearch, Star, StarBorder } from '@mui/icons-material';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import FlexOne from 'commons/addons/flexers/FlexOne';
-import { TuiListItemProps, TuiListProvider } from 'commons/addons/lists';
+import { TuiListProvider, type TuiListItemProps } from 'commons/addons/lists';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import ItemManager from 'components/elements/display/ItemManager';
 import { ViewTitle } from 'components/elements/view/ViewTitle';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { View } from 'models/entities/generated/View';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { View } from 'models/entities/generated/View';
+import React, { useCallback, useContext, useEffect, useState, type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';

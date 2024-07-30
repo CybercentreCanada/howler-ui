@@ -13,7 +13,8 @@ import {
   Typography
 } from '@mui/material';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { ChangeEvent, KeyboardEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent, KeyboardEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type EditRowTypes<T extends string | number | boolean> = {

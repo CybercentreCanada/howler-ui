@@ -1,14 +1,17 @@
 import { Skeleton, useTheme } from '@mui/material';
 import api from 'api';
-import { HowlerFacetSearchResponse } from 'api/search/facet';
+import type { HowlerFacetSearchResponse } from 'api/search/facet';
 import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { ESCALATION_COLORS } from 'utils/constants';
 
-const Escalation = forwardRef<any, { analytic: Analytic; maxWidth?: string }>(({ analytic, maxWidth = '45%' }, ref) => {
+const Escalation = forwardRef<any, { analytic: Analytic; maxWidth?: string }>(function Escalation(
+  { analytic, maxWidth = '45%' },
+  ref
+) {
   const theme = useTheme();
   const { doughnut } = useMyChart();
 

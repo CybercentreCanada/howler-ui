@@ -1,5 +1,5 @@
 import { Tabs, useMediaQuery, useTheme } from '@mui/material';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 interface TabProps {
   value: string;

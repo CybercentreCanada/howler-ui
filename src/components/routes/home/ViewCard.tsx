@@ -6,8 +6,9 @@ import { ViewContext } from 'components/app/providers/ViewProvider';
 import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyApi from 'components/hooks/useMyApi';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 

@@ -1,10 +1,10 @@
 import { Skeleton } from '@mui/material';
 import api from 'api';
-import { ChartDataset, ChartOptions } from 'chart.js';
+import type { ChartDataset, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
 import _ from 'lodash';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 
@@ -15,7 +15,7 @@ const Stacked = forwardRef<
     field: string;
     color?: (value: string) => string;
   }
->(({ analytic, field, color }, ref) => {
+>(function Stacked({ analytic, field, color }, ref) {
   const { line } = useMyChart();
 
   const [loading, setLoading] = useState(false);

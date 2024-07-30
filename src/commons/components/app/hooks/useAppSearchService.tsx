@@ -1,7 +1,7 @@
+import type { AppSearchServiceContextType } from 'commons/components/app/AppContexts';
+import { AppSearchServiceContext } from 'commons/components/app/AppContexts';
 import { useContext } from 'react';
-import { AppSearchServiceContextType } from '../AppContexts';
-import { AppSearchServiceContext } from '../providers/AppSearchServiceProvider';
 
-export default function useAppSearchService<T = any>(): AppSearchServiceContextType<T> {
+export function useAppSearchService<T = any>(): AppSearchServiceContextType<T> {
   return useContext(AppSearchServiceContext);
 }

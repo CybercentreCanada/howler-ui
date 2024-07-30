@@ -15,7 +15,8 @@ import {
 import api from 'api';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
-import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
+import type { RecievedDataType } from 'components/app/providers/SocketProvider';
+import { SocketContext } from 'components/app/providers/SocketProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import JSONViewer from 'components/elements/display/JSONViewer';
@@ -33,10 +34,11 @@ import RelatedLink from 'components/elements/hit/related/RelatedLink';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { Hit } from 'models/entities/generated/Hit';
-import { HitUpdate } from 'models/socket/HitUpdate';
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { HitUpdate } from 'models/socket/HitUpdate';
+import type { FC } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { StorageKey } from 'utils/constants';
@@ -82,7 +84,7 @@ const HitViewer: FC = () => {
 
   useEffect(() => {
     if (isUnderLg) {
-      setOrientation(Orientation.HORIZONTAL, false);
+      setOrientation(Orientation.HORIZONTAL);
     }
   }, [isUnderLg, setOrientation]);
 
@@ -163,7 +165,7 @@ const HitViewer: FC = () => {
               {(hit?.howler?.links?.length > 0) && (
                 <Stack direction="row" spacing={1}>
                   {hit?.howler?.links?.length > 0 &&
-                    hit.howler.links.slice(0, 3).map(l => <RelatedLink compact {...l} />)}
+                    hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href + l.title} compact {...l} />)}
                 </Stack>
               )}
             </CardContent>

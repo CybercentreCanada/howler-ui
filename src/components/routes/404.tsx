@@ -1,7 +1,7 @@
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { Box, Typography } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const NotFoundPage: FC = () => {

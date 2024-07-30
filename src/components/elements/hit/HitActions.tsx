@@ -19,15 +19,17 @@ import useHitActions from 'components/hooks/useHitActions';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import { useMyLocalStorageProvider } from 'components/hooks/useMyLocalStorage';
 import json2mq from 'json2mq';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Trans } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
 import { HitShortcuts } from './HitShortcuts';
 import ButtonActions from './actions/ButtonActions';
 import DropdownActions from './actions/DropdownActions';
-import { ASSESSMENT_KEYBINDS, Keybinds, TOP_ROW, VOTE_OPTIONS } from './actions/SharedComponents';
+import type { Keybinds } from './actions/SharedComponents';
+import { ASSESSMENT_KEYBINDS, TOP_ROW, VOTE_OPTIONS } from './actions/SharedComponents';
 
 const THROTTLER = new Throttler(250);
 const HitActions: FC<{

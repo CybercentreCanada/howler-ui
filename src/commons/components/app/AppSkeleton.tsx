@@ -1,13 +1,35 @@
-import AppsIcon from '@mui/icons-material/Apps';
+import { Apps } from '@mui/icons-material';
 import { Divider, List, Skeleton, Toolbar, styled, useMediaQuery, useTheme } from '@mui/material';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
-import { AppBarBase } from '../topnav/AppBar';
-import { AppUserAvatar } from '../topnav/UserProfile';
-import { AppLeftNavElement } from './AppConfigs';
-import useAppBreadcrumbs from './hooks/useAppBreadcrumbs';
-import useAppConfigs from './hooks/useAppConfigs';
-import useAppLeftNav from './hooks/useAppLeftNav';
-import useAppQuickSearch from './hooks/useAppQuickSearch';
+import { AppUserAvatar } from 'commons/components//topnav/UserProfile';
+import type { AppLeftNavElement } from 'commons/components/app/AppConfigs';
+import {
+  useAppBreadcrumbs,
+  useAppConfigs,
+  useAppLayout,
+  useAppLeftNav,
+  useAppQuickSearch
+} from 'commons/components/app/hooks';
+import { AppBarBase } from 'commons/components/topnav/AppBar';
+
+/**
+ * Utility component to render the  skeleton of the left navigation menu elements.
+ *
+ * The specified properties are simply passed down to each child [ButtonSkeleton] component.
+ *
+ * @param props
+ */
+interface LeftNavElementsSkeletonProps {
+  // eslint-disable-next-line react/require-default-props
+  withText?: boolean;
+  elements: AppLeftNavElement[];
+}
+
+interface ButtonSkeletonProps {
+  style: { [styleAttr: string]: any };
+  // eslint-disable-next-line react/require-default-props
+  withText?: boolean;
+  [propName: string]: any;
+}
 
 const StyledContainer = styled('div')(({ theme }) => ({
   position: 'fixed',
@@ -67,12 +89,49 @@ const StyledBreadcrumbsSkeleton = styled(Skeleton)(({ theme }) => ({
   }
 }));
 
-/**
- * Default Skeleton component that will render either [TopLayoutSkeleton] or [SideLayoutSkeleton] based on [useAppLayout::currentLayout].
- */
-const LayoutSkeleton = () => {
-  const layout = useAppLayout();
-  return layout.current === 'top' ? <TopLayoutSkeleton /> : <SideLayoutSkeleton />;
+const ButtonSkeleton = ({ style, withText, ...boxProps }: ButtonSkeletonProps) => {
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.only('xs'));
+
+  return (
+    <div style={{ ...style, height: 48, display: 'flex', flexDirection: 'row' }} {...boxProps}>
+      <Skeleton variant="text" animation="wave">
+        <Apps />
+      </Skeleton>
+      {withText && (
+        <Skeleton
+          variant="text"
+          animation="wave"
+          style={{ flexGrow: 1, marginLeft: isXs ? theme.spacing(2) : theme.spacing(4) }}
+        />
+      )}
+    </div>
+  );
+};
+
+const LeftNavElementsSkeleton = ({ elements, withText }: LeftNavElementsSkeletonProps) => {
+  const theme = useTheme();
+  return (
+    <>
+      {elements.map((element, i) => {
+        if (element.type === 'divider') {
+          return <Divider key={`leftnav-sklt-divider-${i}`} />;
+        }
+        return (
+          <ButtonSkeleton
+            withText={withText}
+            style={{
+              paddingTop: theme.spacing(1),
+              paddingBottom: theme.spacing(1),
+              paddingLeft: theme.spacing(2),
+              paddingRight: theme.spacing(2)
+            }}
+            key={`leftnav-sklt-${element.element.id}`}
+          />
+        );
+      })}
+    </>
+  );
 };
 
 /**
@@ -113,7 +172,7 @@ const SideLayoutSkeleton = () => {
             <Divider />
             <List disablePadding>
               <LeftNavElementsSkeleton elements={leftnav.elements} withText={leftnav.open} />
-              <Divider />
+              {leftnav.elements?.length > 0 && <Divider />}
               <ButtonSkeleton
                 withText={leftnav.open}
                 style={{ paddingTop: sp1, paddingBottom: sp1, paddingLeft: sp2, paddingRight: sp2 }}
@@ -236,7 +295,7 @@ const TopLayoutSkeleton = () => {
           <StyledContentLeft style={{ width: leftnav.open ? configs.preferences.leftnav.width : sp7 }}>
             <List disablePadding>
               <LeftNavElementsSkeleton elements={leftnav.elements} withText={leftnav.open} />
-              <Divider />
+              {leftnav.elements?.length > 0 && <Divider />}
               <ButtonSkeleton
                 withText={leftnav.open}
                 style={{ paddingTop: sp1, paddingBottom: sp1, paddingLeft: sp2, paddingRight: sp2 }}
@@ -251,66 +310,11 @@ const TopLayoutSkeleton = () => {
 };
 
 /**
- * Utility component to render the  skeleton of the left navigation menu elements.
- *
- * The specified properties are simply passed down to each child [ButtonSkeleton] component.
- *
- * @param props
+ * Default Skeleton component that will render either [TopLayoutSkeleton] or [SideLayoutSkeleton] based on [useAppLayout::currentLayout].
  */
-interface LeftNavElementsSkeletonProps {
-  // eslint-disable-next-line react/require-default-props
-  withText?: boolean;
-  elements: AppLeftNavElement[];
-}
-const LeftNavElementsSkeleton = ({ elements, withText }: LeftNavElementsSkeletonProps) => {
-  const theme = useTheme();
-  return (
-    <>
-      {elements.map((element, i) => {
-        if (element.type === 'divider') {
-          return <Divider key={`leftnav-sklt-divider-${i}`} />;
-        }
-        return (
-          <ButtonSkeleton
-            withText={withText}
-            style={{
-              paddingTop: theme.spacing(1),
-              paddingBottom: theme.spacing(1),
-              paddingLeft: theme.spacing(2),
-              paddingRight: theme.spacing(2)
-            }}
-            key={`leftnav-sklt-${element.element.id}`}
-          />
-        );
-      })}
-    </>
-  );
-};
-
-interface ButtonSkeletonProps {
-  style: { [styleAttr: string]: any };
-  // eslint-disable-next-line react/require-default-props
-  withText?: boolean;
-  [propName: string]: any;
-}
-const ButtonSkeleton = ({ style, withText, ...boxProps }: ButtonSkeletonProps) => {
-  const theme = useTheme();
-  const isXs = useMediaQuery(theme.breakpoints.only('xs'));
-
-  return (
-    <div style={{ ...style, height: 48, display: 'flex', flexDirection: 'row' }} {...boxProps}>
-      <Skeleton variant="text" animation="wave">
-        <AppsIcon />
-      </Skeleton>
-      {withText && (
-        <Skeleton
-          variant="text"
-          animation="wave"
-          style={{ flexGrow: 1, marginLeft: isXs ? theme.spacing(2) : theme.spacing(4) }}
-        />
-      )}
-    </div>
-  );
+const LayoutSkeleton = () => {
+  const layout = useAppLayout();
+  return layout.current === 'top' ? <TopLayoutSkeleton /> : <SideLayoutSkeleton />;
 };
 
 // Default exported component

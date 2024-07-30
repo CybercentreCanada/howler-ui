@@ -1,10 +1,10 @@
 import { Alert, Box, Paper, Table, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import useAppTheme from 'commons/components/app/hooks/useAppTheme';
-import { FC, ReactElement } from 'react';
+import { useAppTheme } from 'commons/components/app/hooks';
+import type { FC, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import DynamicTabs from './DynamicTabs';
@@ -40,7 +40,7 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
     <ReactMarkdown
       remarkPlugins={[remarkGfm, codeTabs]}
       components={{
-        code({ node, inline, className, children, ...props }) {
+        code({ node, className, children, ...props }) {
           if (node.children?.length === 1 && node.children[0].type === 'text') {
             if (node.children[0].value.startsWith('t(')) {
               return <span>{t(node.children[0].value.replace(/t\((.+)\)/, '$1'))}</span>;
@@ -55,8 +55,9 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
             return customComponents(match[1], children);
           }
 
-          return !inline && match ? (
+          return match ? (
             <SyntaxHighlighter
+              // eslint-disable-next-line react/no-children-prop
               children={String(children).replace(/\n$/, '')}
               style={isDark ? oneDark : oneLight}
               language={match[1]}
@@ -72,6 +73,7 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
         blockquote({ children }) {
           return <Box sx={theme => ({ pl: 1, borderLeft: `2px solid ${theme.palette.divider}` })}>{children}</Box>;
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         img({ node, ...props }) {
           // eslint-disable-next-line jsx-a11y/alt-text
           return <img {...props} style={{ ...props.style, maxWidth: '75%' }} />;
@@ -89,13 +91,13 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
         tr({ children }) {
           return <TableRow>{children}</TableRow>;
         },
-        th({ node, className, children, ...props }) {
+        th({ children, ...props }) {
           return <TableCell style={props.style}>{children}</TableCell>;
         },
-        td({ node, className, children, ...props }) {
+        td({ children, ...props }) {
           return <TableCell style={props.style}>{children}</TableCell>;
         },
-        a({ node, children, ...props }) {
+        a({ children, ...props }) {
           if (props.href?.startsWith('/')) {
             return (
               <Link to={props.href} {...props}>

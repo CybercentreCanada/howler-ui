@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
 import { HitLayout } from 'components/elements/hit/HitLayout';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
 import EditRow from './EditRow';

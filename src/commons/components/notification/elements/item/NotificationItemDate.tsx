@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
-import { FeedItem } from 'commons/components/notification';
+import { type FeedItem } from 'commons/components/notification';
 import moment from 'moment';
-import { FC, memo } from 'react';
+import { memo, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const NotificationItemDate: FC<FeedItem> = memo(({ date_published = null }) => {

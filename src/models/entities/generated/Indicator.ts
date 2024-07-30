@@ -1,4 +1,4 @@
-import { IndicatorEmail } from './IndicatorEmail';
+import type { IndicatorEmail } from './IndicatorEmail';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

@@ -1,13 +1,14 @@
 import { InfoOutlined } from '@mui/icons-material';
 import { Alert, AlertTitle, Box, Chip, Divider, Fade, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
@@ -52,28 +53,33 @@ const HitSummary: FC<{
         })
         // Take that array and reduce it to unique keys and the number of times we see it,
         // as well as the templates we sourced this key from
-        .reduce((acc, val) => {
-          if (acc[val.key]) {
-            acc[val.key].count++;
+        .reduce(
+          (acc, val) => {
+            if (acc[val.key]) {
+              acc[val.key].count++;
 
-            if (!acc[val.key].sources.includes(val.source)) {
-              acc[val.key].sources.push(val.source);
+              if (!acc[val.key].sources.includes(val.source)) {
+                acc[val.key].sources.push(val.source);
+              }
+            } else {
+              acc[val.key] = {
+                count: 1,
+                sources: [val.source]
+              };
             }
-          } else {
-            acc[val.key] = {
-              count: 1,
-              sources: [val.source]
-            };
-          }
 
-          return acc;
-        }, {} as { [index: string]: { count: number; sources: string[] } });
+            return acc;
+          },
+          {} as { [index: string]: { count: number; sources: string[] } }
+        );
 
       // We'll save this for later
       setKeyCounts(_keyCounts);
 
       // Sort the fields based on the number of occurrences
-      const sortedKeys = Object.keys(_keyCounts).sort((a, b) => (_keyCounts[b]?.count ?? 0) - (_keyCounts[a]?.count ?? 0));
+      const sortedKeys = Object.keys(_keyCounts).sort(
+        (a, b) => (_keyCounts[b]?.count ?? 0) - (_keyCounts[a]?.count ?? 0)
+      );
 
       // Facet each field
       for (const key of sortedKeys) {
@@ -137,58 +143,60 @@ const HitSummary: FC<{
             {t('hit.summary.aggregate.nokeys.description')}
           </Alert>
         )}
-        {Object.keys(aggregateResults).filter(key => !!keyCounts[key]).flatMap(key => [
-          <Fade in key={key + '-refs'}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography key={key + '-title'} variant="body1">
-                {key}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                ({keyCounts[key].count} {t('references')})
-              </Typography>
-              <Tooltip
-                title={
-                  <Stack>
-                    <Typography variant="caption">{t('hit.summary.aggregate.sources')}</Typography>
-                    {keyCounts[key].sources.map(source => (
-                      <Typography key={source} variant="caption">
-                        {source}
-                      </Typography>
+        {Object.keys(aggregateResults)
+          .filter(key => !!keyCounts[key])
+          .flatMap(key => [
+            <Fade in key={key + '-refs'}>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography key={key + '-title'} variant="body1">
+                  {key}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  ({keyCounts[key]?.count} {t('references')})
+                </Typography>
+                <Tooltip
+                  title={
+                    <Stack>
+                      <Typography variant="caption">{t('hit.summary.aggregate.sources')}</Typography>
+                      {keyCounts[key].sources.map(source => (
+                        <Typography key={source} variant="caption">
+                          {source}
+                        </Typography>
+                      ))}
+                    </Stack>
+                  }
+                >
+                  <InfoOutlined fontSize="inherit" />
+                </Tooltip>
+              </Stack>
+            </Fade>,
+            <Fade in key={key + '-results'}>
+              {hitFields.find(f => f.key === key)?.type !== 'date' ? (
+                <Box>
+                  <Grid container key={key + '-list'} style={{ marginTop: 0 }} sx={{ mr: 1 }} spacing={1}>
+                    {Object.keys(aggregateResults[key]).map(_key => (
+                      <Grid key={_key} item xs="auto">
+                        <Chip
+                          size="small"
+                          label={`${_key} (${aggregateResults[key][_key]})`}
+                          onClick={() => setSearch(key, `"${_key}"`)}
+                        />
+                      </Grid>
                     ))}
-                  </Stack>
-                }
-              >
-                <InfoOutlined fontSize="inherit" />
-              </Tooltip>
-            </Stack>
-          </Fade>,
-          <Fade in key={key + '-results'}>
-            {hitFields.find(f => f.key === key)?.type !== 'date' ? (
-              <Box>
-                <Grid container key={key + '-list'} style={{ marginTop: 0 }} sx={{ mr: 1 }} spacing={1}>
-                  {Object.keys(aggregateResults[key]).map(_key => (
-                    <Grid key={_key} item xs="auto">
-                      <Chip
-                        size="small"
-                        label={`${_key} (${aggregateResults[key][_key]})`}
-                        onClick={() => setSearch(key, `"${_key}"`)}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            ) : (
-              <Chip
-                size="small"
-                sx={theme => ({ ml: `${theme.spacing(1)} !important`, alignSelf: 'start' })}
-                label={getTimeRange(Object.keys(aggregateResults[key]))
-                  .map(d => new Date(d).toLocaleString())
-                  .join(' - ')}
-                onClick={() => setSearch(key, `[${getTimeRange(Object.keys(aggregateResults[key])).join(' TO ')}]`)}
-              />
-            )}
-          </Fade>
-        ])}
+                  </Grid>
+                </Box>
+              ) : (
+                <Chip
+                  size="small"
+                  sx={theme => ({ ml: `${theme.spacing(1)} !important`, alignSelf: 'start' })}
+                  label={getTimeRange(Object.keys(aggregateResults[key]))
+                    .map(d => new Date(d).toLocaleString())
+                    .join(' - ')}
+                  onClick={() => setSearch(key, `[${getTimeRange(Object.keys(aggregateResults[key])).join(' TO ')}]`)}
+                />
+              )}
+            </Fade>
+          ])}
       </Stack>
     </Stack>
   );

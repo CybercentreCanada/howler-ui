@@ -33,9 +33,10 @@ import {
 import { blue, orange, pink, red, yellow } from '@mui/material/colors';
 import api from 'api';
 import useMyApi from 'components/hooks/useMyApi';
-import { Hit } from 'models/entities/generated/Hit';
-import { Labels } from 'models/entities/generated/Labels';
-import { FC, memo, useCallback, useEffect, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { Labels } from 'models/entities/generated/Labels';
+import type { FC } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 type LabelState = {
@@ -52,6 +53,81 @@ const LABEL_TYPE = {
   operation: { icon: <Star fontSize="small" />, color: yellow[600] },
   generic: {},
   assignments: {}
+};
+
+const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> = ({ handleSubmit }) => {
+  const { t } = useTranslation();
+  const [label, setLabel] = useState<string>('');
+  const [category, setCategory] = useState<string>('generic');
+  const [error, setError] = useState<string>('');
+
+  const handleAdd = async () => {
+    if (!label) {
+      setError(t('hit.label.edit.add.error.empty'));
+    } else {
+      try {
+        await handleSubmit({ label: label, category: category as keyof Labels });
+        setLabel('');
+      } catch (e) {
+        setError(e.message);
+      }
+    }
+  };
+
+  return (
+    <Stack spacing={1} direction="column">
+      <FormControl>
+        <InputLabel id="type-label" htmlFor="label-category" size="small">
+          {t('hit.label.edit.add.category')}
+        </InputLabel>
+        <Select
+          size="small"
+          sx={{
+            '#label-category': { display: 'flex', flexDirection: 'row', alignItems: 'center' },
+            '.MuiListItemIcon-root': { minWidth: 36, marginLeft: '2px' }
+          }}
+          label={t('hit.label.edit.add.category')}
+          id="label-category"
+          labelId="type-label"
+          value={category}
+          onChange={e => setCategory(e.target.value)}
+        >
+          {Object.keys(LABEL_TYPE).map(key => (
+            <MenuItem key={key} value={key}>
+              <ListItemIcon>{LABEL_TYPE[key].icon ?? <Check sx={{ opacity: 0 }} />}</ListItemIcon>
+              <ListItemText sx={{ textTransform: 'capitalize' }}>{key}</ListItemText>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <FormControl fullWidth error={!!error}>
+          <TextField
+            label={t('hit.label.edit.add.label')}
+            value={label}
+            onChange={e => setLabel(e.currentTarget.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                handleAdd();
+              } else if (error) {
+                setError('');
+              }
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleAdd}>
+                    <Add />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+          <FormHelperText>{error}</FormHelperText>
+        </FormControl>
+      </Stack>
+    </Stack>
+  );
 };
 
 const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boolean }> = ({
@@ -195,81 +271,6 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
         </Button>
       )}
     </Box>
-  );
-};
-
-const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> = ({ handleSubmit }) => {
-  const { t } = useTranslation();
-  const [label, setLabel] = useState<string>('');
-  const [category, setCategory] = useState<string>('generic');
-  const [error, setError] = useState<string>('');
-
-  const handleAdd = async () => {
-    if (!label) {
-      setError(t('hit.label.edit.add.error.empty'));
-    } else {
-      try {
-        await handleSubmit({ label: label, category: category as keyof Labels });
-        setLabel('');
-      } catch (e) {
-        setError(e.message);
-      }
-    }
-  };
-
-  return (
-    <Stack spacing={1} direction="column">
-      <FormControl>
-        <InputLabel id="type-label" htmlFor="label-category" size="small">
-          {t('hit.label.edit.add.category')}
-        </InputLabel>
-        <Select
-          size="small"
-          sx={{
-            '#label-category': { display: 'flex', flexDirection: 'row', alignItems: 'center' },
-            '.MuiListItemIcon-root': { minWidth: 36, marginLeft: '2px' }
-          }}
-          label={t('hit.label.edit.add.category')}
-          id="label-category"
-          labelId="type-label"
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-        >
-          {Object.keys(LABEL_TYPE).map(key => (
-            <MenuItem value={key}>
-              <ListItemIcon>{LABEL_TYPE[key].icon ?? <Check sx={{ opacity: 0 }} />}</ListItemIcon>
-              <ListItemText sx={{ textTransform: 'capitalize' }}>{key}</ListItemText>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <Stack direction="row" spacing={1} alignItems="center">
-        <FormControl fullWidth error={!!error}>
-          <TextField
-            label={t('hit.label.edit.add.label')}
-            value={label}
-            onChange={e => setLabel(e.currentTarget.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                handleAdd();
-              } else if (error) {
-                setError('');
-              }
-            }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleAdd}>
-                    <Add />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-          />
-          <FormHelperText>{error}</FormHelperText>
-        </FormControl>
-      </Stack>
-    </Stack>
   );
 };
 

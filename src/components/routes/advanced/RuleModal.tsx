@@ -24,8 +24,9 @@ import Markdown from 'components/elements/display/Markdown';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyModal from 'components/hooks/useMyModal';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import type { FC } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import { RULE_INTERVALS } from 'utils/constants';
@@ -119,7 +120,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
           onChange={e => setName(e.target.value)}
           onKeyDown={handleKeydown}
         />
-        {/* TODO: allow custom crontabs ala spellbook */}
+        {/* TODO: allow custom crontabs */}
         <FormControl sx={{ minWidth: '250px' }}>
           <InputLabel>{t('rule.interval')}</InputLabel>
           <Select label={t('rule.interval')} onChange={event => setCrontab(event.target.value)} value={crontab}>

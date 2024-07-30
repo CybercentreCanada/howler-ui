@@ -1,5 +1,6 @@
 import * as api from 'api';
-import { indexed, SearchField, uri as parentUri } from 'api/search/fields';
+import type { SearchField } from 'api/search/fields';
+import { indexed, uri as parentUri } from 'api/search/fields';
 // import urlJoin from 'url-join';
 import { joinUri } from 'api';
 

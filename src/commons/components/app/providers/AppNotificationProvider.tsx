@@ -1,5 +1,10 @@
-import { createContext, ReactElement, useMemo, useState } from 'react';
-import { AppNotificationService, AppNotificationServiceContextType, AppNotificationServiceState } from '../AppContexts';
+import {
+  AppNotificationServiceContext,
+  type AppNotificationService,
+  type AppNotificationServiceContextType,
+  type AppNotificationServiceState
+} from 'commons/components/app/AppContexts';
+import { useMemo, useState, type ReactElement } from 'react';
 
 const DEFAULT_CONTEXT: AppNotificationServiceContextType = {
   provided: false,
@@ -9,8 +14,6 @@ const DEFAULT_CONTEXT: AppNotificationServiceContextType = {
   },
   state: { urls: [], set: () => null }
 };
-
-export const AppNotificationServiceContext = createContext<AppNotificationServiceContextType>(DEFAULT_CONTEXT);
 
 export default function AppNotificationServiceProvider({
   service,

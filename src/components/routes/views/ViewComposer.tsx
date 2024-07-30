@@ -1,4 +1,5 @@
-import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Save } from '@mui/icons-material';
@@ -14,7 +15,7 @@ import {
   Typography
 } from '@mui/material';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import FlexPort from 'commons/addons/flexers/FlexPort';
 import TuiListEmpty from 'commons/addons/lists/TuiListEmpty';
@@ -29,7 +30,7 @@ import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 import { useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
@@ -234,9 +235,7 @@ const ViewComposer: FC = () => {
           <VSBoxContent>
             <Stack spacing={1}>
               {!response?.total && <TuiListEmpty />}
-              {response?.items.map(hit => (
-                <HitCard key={hit.howler.id} hit={hit} layout={HitLayout.DENSE} />
-              ))}
+              {response?.items.map(hit => <HitCard key={hit.howler.id} hit={hit} layout={HitLayout.DENSE} />)}
             </Stack>
           </VSBoxContent>
         </VSBox>

@@ -2,7 +2,7 @@ import { hdelete, hpatch, hpost, hput, joinAllUri, joinUri, uri as parentUri } f
 import * as execute from 'api/action/execute';
 import * as operations from 'api/action/operations';
 import { action } from 'api/search';
-import { Action } from 'models/entities/generated/Action';
+import type { Action } from 'models/entities/generated/Action';
 
 export function uri(id?: string) {
   return id ? joinAllUri(parentUri(), 'action', id) : joinUri(parentUri(), 'action');

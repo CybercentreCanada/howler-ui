@@ -1,4 +1,3 @@
-import { OpenInNew } from '@mui/icons-material';
 import {
   avatarClasses,
   AvatarGroup,
@@ -10,17 +9,25 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
-import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
+import { SocketContext, type RecievedDataType } from 'components/app/providers/SocketProvider';
 import { uniqueId } from 'lodash';
-import { Hit } from 'models/entities/generated/Hit';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { HitUpdate } from 'models/socket/HitUpdate';
-import { FC, MouseEventHandler, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { HitUpdate } from 'models/socket/HitUpdate';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type FC,
+  type ReactElement,
+  type ReactNode
+} from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { Link } from 'react-router-dom';
 import { ESCALATION_COLORS, PROVIDER_COLORS } from 'utils/constants';
 import { stringToColor } from 'utils/utils';
@@ -372,34 +379,6 @@ const HitBanner: FC<HitBannerProps> = ({
             />
           )}
         </Stack>
-        {/* intenal: begin */}
-        {(hit.alfred?.retention_url || hit.alfred?.incident_urls?.length > 0) && (
-          <Chip
-            sx={{
-              width: 'fit-content',
-              display: 'inline-flex',
-              '& .MuiChip-icon': {
-                marginLeft: 0
-              }
-            }}
-            label={t(`alfred.${hit.alfred?.incident_urls?.length > 0 ? 'retained' : 'staged'}`)}
-            size={layout !== HitLayout.COMFY ? 'small' : 'medium'}
-            color={hit.alfred?.incident_urls?.length > 0 ? 'success' : 'primary'}
-            onClick={onAlfredClick}
-            onDelete={onAlfredClick}
-            icon={
-              hit.alfred.retained_by && (
-                <HowlerAvatar
-                  userId={hit.alfred.retained_by}
-                  sx={{ height: layout !== HitLayout.COMFY ? 24 : 32, width: layout !== HitLayout.COMFY ? 24 : 32 }}
-                />
-              )
-            }
-            deleteIcon={<OpenInNew />}
-            onMouseDown={event => event.button === 1 && onAlfredClick(event)}
-          />
-        )}
-        {/* intenal: end */}
       </Stack>
     </Box>
   );

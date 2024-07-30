@@ -1,19 +1,17 @@
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useAppSitemap, { BreadcrumbItem, getRoute } from 'commons/components/app/hooks/useAppSitemap';
+import { AppStorageKeys } from 'commons/components/app/AppConstants';
+import { getRoute, useAppSitemap, type BreadcrumbItem } from 'commons/components/app/hooks/useAppSitemap';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
-import { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
-import { AppStorageKeys } from '../AppConstants';
-import { AppBreadcrumbsContextType } from '../AppContexts';
-import useAppUser from '../hooks/useAppUser';
+
+import { AppBreadcrumbsContext } from 'commons/components/app/AppContexts';
+import { useAppConfigs, useAppUser } from 'commons/components/app/hooks';
 
 const { LS_KEY_BREADCRUMBS_ENABLED } = AppStorageKeys;
 
 type AppBreadcrumbsProviderProps = {
   children: ReactNode;
 };
-
-export const AppBreadcrumbsContext = createContext<AppBreadcrumbsContextType>(null);
 
 export default function AppBreadcrumbsProvider({ children }: AppBreadcrumbsProviderProps) {
   const { pathname } = useLocation();

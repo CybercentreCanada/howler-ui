@@ -1,4 +1,4 @@
-import { Sharepoint } from './Sharepoint';
+import type { Sharepoint } from './Sharepoint';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

@@ -1,4 +1,4 @@
-import { Data } from './Data';
+import type { Data } from './Data';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

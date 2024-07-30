@@ -1,10 +1,10 @@
+import { AppStorageKeys } from 'commons/components/app/AppConstants';
+import { AppQuickSearchContext } from 'commons/components/app/AppContexts';
+import { type AppSearchService } from 'commons/components/app/AppSearchService';
+import { useAppConfigs } from 'commons/components/app/hooks';
+import AppSearchServiceProvider from 'commons/components/app/providers/AppSearchServiceProvider';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
-import { createContext, ReactElement, useMemo } from 'react';
-import { AppStorageKeys } from '../AppConstants';
-import { AppQuickSearchContextType } from '../AppContexts';
-import { AppSearchService } from '../AppSearchService';
-import useAppConfigs from '../hooks/useAppConfigs';
-import AppSearchServiceProvider from './AppSearchServiceProvider';
+import { useMemo, type ReactElement } from 'react';
 
 const { LS_KEY_SHOW_QUICK_SEARCH } = AppStorageKeys;
 
@@ -12,8 +12,6 @@ type AppQuickSearchProviderProps = {
   search?: AppSearchService;
   children: ReactElement | ReactElement[];
 };
-
-export const AppQuickSearchContext = createContext<AppQuickSearchContextType>(null);
 
 export default function AppQuickSearchProvider({ search, children }: AppQuickSearchProviderProps) {
   const { preferences } = useAppConfigs();

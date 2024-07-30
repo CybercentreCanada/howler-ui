@@ -15,7 +15,7 @@ import {
   Typography
 } from '@mui/material';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
-import { AppLeftNavGroup } from 'commons/components/app/AppConfigs';
+import type { AppLeftNavGroup } from 'commons/components/app/AppConfigs';
 import PageCenter from 'commons/components/pages/PageCenter';
 import useMyPreferences from 'components/hooks/useMyPreferences';
 import { useMemo } from 'react';

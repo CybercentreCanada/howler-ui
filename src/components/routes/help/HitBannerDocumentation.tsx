@@ -3,8 +3,9 @@ import HowlerCard from 'components/elements/display/HowlerCard';
 import JSONViewer from 'components/elements/display/JSONViewer';
 import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useMemo } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const HitBannerDocumentation: FC = () => {

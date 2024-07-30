@@ -1,5 +1,6 @@
 import { Autocomplete, TextField } from '@mui/material';
-import { FC, memo, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
@@ -10,13 +11,14 @@ const DATE_RANGES = [
   'date.range.3.day',
   'date.range.1.week',
   'date.range.1.month',
-  'date.range.all'
+  'date.range.all',
+  'date.range.custom'
 ];
 
-const SearchSpan: FC<{ onChange: (span: string) => void; useDefault?: boolean }> = ({
-  onChange,
-  useDefault = true
-}) => {
+const SearchSpan: FC<{
+  onChange: (span: string) => void;
+  useDefault?: boolean;
+}> = ({ onChange, useDefault = true }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const [params, setParams] = useSearchParams();
@@ -30,13 +32,23 @@ const SearchSpan: FC<{ onChange: (span: string) => void; useDefault?: boolean }>
       onChange(`event.created:${convertDateToLucene(span)}`);
     }
 
-    if (!span && params.has(span)) {
-      params.delete('span');
-    } else if (params.get('span') !== span) {
-      params.set('span', span);
-    }
+    setParams(
+      _currentParams => {
+        if (!span && _currentParams.has(span)) {
+          _currentParams.delete('span');
+        } else if (_currentParams.get('span') !== span) {
+          _currentParams.set('span', span);
+        }
 
-    setParams(params, { replace: true });
+        if (!span?.endsWith('custom')) {
+          _currentParams.delete('startDate');
+          _currentParams.delete('endDate');
+        }
+
+        return _currentParams;
+      },
+      { replace: true }
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange, span]);
 
@@ -53,13 +65,15 @@ const SearchSpan: FC<{ onChange: (span: string) => void; useDefault?: boolean }>
     <Autocomplete
       freeSolo={!useDefault}
       fullWidth
-      sx={{ minWidth: '175px' }}
+      sx={{ minWidth: '150px' }}
       size="small"
       value={span}
       options={DATE_RANGES}
       renderInput={_params => <TextField {..._params} label={t('hit.search.span')} />}
       getOptionLabel={option => t(option)}
-      onChange={(_, value) => setSpan(value)}
+      onChange={(_, value) => {
+        setSpan(value);
+      }}
     />
   );
 };

@@ -1,6 +1,7 @@
 import api from 'api';
 import useMyApi from 'components/hooks/useMyApi';
-import { createContext, FC, PropsWithChildren, useCallback } from 'react';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useCallback } from 'react';
 
 interface AvatarContextType {
   getAvatar: (id: string) => Promise<string>;

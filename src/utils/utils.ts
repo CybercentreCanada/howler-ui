@@ -67,6 +67,7 @@ export function stringToColor(string: string) {
   const colorKeys = Object.keys(colors).filter(key => key !== 'common');
 
   const colorKey = colorKeys[number % colorKeys.length];
+  // eslint-disable-next-line import/namespace
   const color = colors[colorKey] as { [shade: string]: string };
 
   const shade = Math.max(Math.floor((number / 1000) % 10), 1) * 100;
@@ -76,7 +77,7 @@ export function stringToColor(string: string) {
 
 // Adapted from here: https://stackoverflow.com/a/48429492
 export function delay(ms: number, rejectOnCancel = false) {
-  let timerId: string | number | NodeJS.Timeout;
+  let timerId: number;
   let onCancel: () => void;
 
   class TimedPromise extends Promise<void> {
@@ -151,6 +152,10 @@ export const convertDateToLucene = (date: string) => {
   const [amount, type] = date.replace('date.range.', '').split('.');
 
   return `[now-${amount}${DATE_TO_LUCENE_MAP[type] ?? 'd'} TO now]`;
+};
+
+export const convertCustomDateRangeToLucene = (startDate: string, endDate: string) => {
+  return `[${startDate} TO ${endDate}]`;
 };
 
 export const convertLucenceToDate = (lucene: string) => {

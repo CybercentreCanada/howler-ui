@@ -1,10 +1,10 @@
 import api from 'api';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import ApiKeyDrawer from 'components/app/drawers/ApiKeyDrawer';
 import ViewGroupsDrawer from 'components/app/drawers/ViewGroupsDrawer';
 import useAppDrawer from 'components/app/hooks/useAppDrawer';
 import ConfirmDeleteModal from 'components/elements/display/modals/ConfirmDeleteModal';
-import { HowlerUser } from 'models/entities/HowlerUser';
+import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';

@@ -1,12 +1,12 @@
-import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
+import { FeedbackOutlined } from '@mui/icons-material';
 import { Drawer, useMediaQuery, useTheme } from '@mui/material';
-import { ItemComponentProps } from 'commons/components/app/AppNotificationService';
-import { FC, memo, useCallback, useState } from 'react';
+import { type ItemComponentProps } from 'commons/components/app/AppNotificationService';
+import { type FeedItem } from 'commons/components/notification';
+import { NotificationCloseButton } from 'commons/components/notification/elements/NotificationCloseButton';
+import { NotificationHeader } from 'commons/components/notification/elements/NotificationHeader';
+import { NotificationItems } from 'commons/components/notification/elements/NotificationItems';
+import { memo, useCallback, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FeedItem } from '..';
-import { NotificationCloseButton } from './NotificationCloseButton';
-import { NotificationHeader } from './NotificationHeader';
-import { NotificationItems } from './NotificationItems';
 
 export type NotificationProps = {
   notifications: FeedItem[];
@@ -63,7 +63,7 @@ export const NotificationContainer: FC<NotificationProps> = memo(props => {
           paddingTop: 0
         }}
       >
-        <NotificationHeader icon={<FeedbackOutlinedIcon />} title={t('notification.title')}>
+        <NotificationHeader icon={<FeedbackOutlined />} title={t('notification.title')}>
           <NotificationCloseButton {...props} />
         </NotificationHeader>
         <NotificationItems

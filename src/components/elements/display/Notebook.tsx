@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { IpynbRenderer } from 'react-ipynb-renderer';
 import 'react-ipynb-renderer/dist/styles/monokai.css';
 

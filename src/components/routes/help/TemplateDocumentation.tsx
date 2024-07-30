@@ -4,7 +4,8 @@ import Markdown from 'components/elements/display/Markdown';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import DefaultOutline from 'components/elements/hit/outlines/DefaultOutline';
 import moment from 'moment';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import TEMPLATES_EN from './markdown/en/templates.md';
@@ -51,10 +52,9 @@ const TemplateDocumentation: FC = () => {
       <Markdown md={md1} />
       <Stack spacing={1}>
         {ALERTS.map(alert => (
-          <Card variant="outlined">
+          <Card key={alert.howler.id} variant="outlined">
             <CardContent>
               <DefaultOutline
-                key={alert.howler.id}
                 hit={alert as any}
                 fields={Object.keys(alert).flatMap(key => Object.keys(alert[key]).map(key2 => [key, key2].join('.')))}
                 layout={HitLayout.NORMAL}

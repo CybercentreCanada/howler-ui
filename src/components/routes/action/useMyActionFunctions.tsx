@@ -1,11 +1,12 @@
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
-import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
+import type { HowlerSearchResponse } from 'api/search';
+import type { RecievedDataType } from 'components/app/providers/SocketProvider';
+import { SocketContext } from 'components/app/providers/SocketProvider';
 import useMyApi from 'components/hooks/useMyApi';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { ActionReport } from 'models/ActionTypes';
-import { Hit } from 'models/entities/generated/Hit';
-import { Operation } from 'models/entities/generated/Operation';
+import type { ActionReport } from 'models/ActionTypes';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { Operation } from 'models/entities/generated/Operation';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router';

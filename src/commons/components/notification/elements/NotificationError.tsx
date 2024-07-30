@@ -1,6 +1,6 @@
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { ErrorOutline } from '@mui/icons-material';
 import { Grid, Typography, useTheme } from '@mui/material';
-import { FC, memo } from 'react';
+import { memo, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const NotificationError: FC = memo(() => {
@@ -15,7 +15,7 @@ export const NotificationError: FC = memo(() => {
       alignItems="center"
       gap={1}
     >
-      <ErrorOutlineIcon color="error" sx={{ fontSize: 40 }} />
+      <ErrorOutline color="error" sx={{ fontSize: 40 }} />
       <Typography color="error" variant="h6">
         {t('details.notification.error')}
       </Typography>

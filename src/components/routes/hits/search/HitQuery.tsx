@@ -5,7 +5,8 @@ import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import QueryEditor from 'components/routes/advanced/QueryEditor';
 import type { IDisposable, editor } from 'monaco-editor';
 
-import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { FC } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { sanitizeMultilineLucene } from 'utils/stringUtils';

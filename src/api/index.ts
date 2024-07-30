@@ -9,7 +9,7 @@ import * as template from 'api/template';
 import * as user from 'api/user';
 import * as view from 'api/view';
 import AxiosClient from 'rest/AxiosClient';
-import { URLSearchParams } from 'url';
+import type { URLSearchParams } from 'url';
 import urlJoin from 'url-join';
 import { StorageKey } from 'utils/constants';
 import {
@@ -52,6 +52,27 @@ export type HowlerResponse<R> = {
   api_server_version: string;
   api_status_code: number;
 };
+
+/**
+ * The base section of the Howler API uri.
+ *
+ * `/api/v1/`
+ */
+export function uri() {
+  return '/api/v1';
+}
+
+/**
+ * Format/Adapt the specified URI to an Howler API uri.
+ *
+ * Ensure it starts with '/api/v1' and doesn't end with a '/'.
+ *
+ * @param _uri - the uri to format.
+ * @returns `string` - properly formatted howler uri.
+ */
+function format(_uri: string): string {
+  return _uri.startsWith(uri()) ? _uri : `${uri()}/${_uri.replace(/\/$/, '')}`;
+}
 
 /**
  * Append series of search parameters to the specified uri.
@@ -101,27 +122,6 @@ export function setHeaders(ifMatch?: string): HeadersInit {
     headers['If-Match'] = ifMatch;
   }
   return headers;
-}
-
-/**
- * The base section of the Howler API uri.
- *
- * `/api/v1/`
- */
-export function uri() {
-  return '/api/v1';
-}
-
-/**
- * Format/Adapt the specified URI to an Howler API uri.
- *
- * Ensure it starts with '/api/v1' and doesn't end with a '/'.
- *
- * @param _uri - the uri to format.
- * @returns `string` - properly formatted howler uri.
- */
-function format(_uri: string): string {
-  return _uri.startsWith(uri()) ? _uri : `${uri()}/${_uri.replace(/\/$/, '')}`;
 }
 
 function getEtagUrl(_uri: string): string {

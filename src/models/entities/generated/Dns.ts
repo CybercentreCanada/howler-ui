@@ -1,5 +1,5 @@
-import { Answer } from './Answer';
-import { Question } from './Question';
+import type { Answer } from './Answer';
+import type { Question } from './Question';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

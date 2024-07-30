@@ -1,8 +1,9 @@
 import { Chip, Stack, Tooltip } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 import moment from 'moment';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from 'utils/utils';
 import { HitLayout } from './HitLayout';

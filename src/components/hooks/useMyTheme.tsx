@@ -1,44 +1,26 @@
-import { AppThemeConfigs } from 'commons/components/app/AppConfigs';
-
-// const LEGACY_THEME = {
-//   palette: {
-//     // dark: {
-//     //   background: {
-//     //     default: '#303030',
-//     //     paper: '#303030'
-//     //   },
-//     //   secondary: {
-//     //     main: '#fd5d1c'
-//     //   }
-//     // },
-//     light: {
-//       background: {
-//         default: '#fafafa',
-//         paper: '#fff'
-//       }
-//     }
-//   }
-// };
-
-// const DARK_BLUE_THEME = {
-//   palette: {
-//     dark: {
-//       background: {
-//         default: 'rgb(0, 30, 60)',
-//         paper: 'rgb(0, 30, 60)'
-//       },
-//       secondary: {
-//         main: '#fd5d1c'
-//       }
-//     }
-//   }
-// };
+import type { AppThemeConfigs } from 'commons/components/app/AppConfigs';
 
 const DEFAULT_THEME = {
-  appbar: {
+  palette: {
+    dark: {
+      background: {
+        default: '#202020',
+        paper: '#202020'
+      },
+      primary: {
+        main: '#7DA1DB'
+      },
+      secondary: {
+        main: '#C0DEEC'
+      }
+    },
     light: {
-      color: 'black',
-      backgroundColor: 'white'
+      primary: {
+        main: '#0062BF'
+      },
+      secondary: {
+        main: '#619CB7'
+      }
     }
   }
 };

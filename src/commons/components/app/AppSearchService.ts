@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { AppSearchServiceState } from './AppContexts';
+import type { AppSearchServiceState } from 'commons/components/app/AppContexts';
+import type { ReactElement } from 'react';
 
 export type AppSearchMode = 'inline' | 'fullscreen';
 
@@ -26,4 +26,8 @@ export type AppSearchService<T = any> = {
   onItemSelect?: (item: AppSearchItem<T>, state?: AppSearchServiceState<T>) => void;
   // Search result item renderer.
   itemRenderer: (item: AppSearchItem<T>, options?: AppSearchItemRendererOption<T>) => ReactElement;
+  // Search result header renderer.
+  headerRenderer?: (state: AppSearchServiceState<T>) => ReactElement;
+  // Search result footer renderer.
+  footerRenderer?: (state: AppSearchServiceState<T>) => ReactElement;
 };

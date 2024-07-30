@@ -1,5 +1,5 @@
-import { Tactic } from './Tactic';
-import { Technique } from './Technique';
+import type { Tactic } from './Tactic';
+import type { Technique } from './Technique';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

@@ -1,5 +1,5 @@
-import * as colors from '@mui/material/colors';
-import useAppTheme from 'commons/components/app/hooks/useAppTheme';
+import { colors } from '@mui/material';
+import { useAppTheme } from 'commons/components/app/hooks';
 import { useMemo } from 'react';
 
 type MuiColorType = keyof typeof colors;
@@ -15,6 +15,7 @@ export default function useAppColor(
 ) {
   const { isDark } = useAppTheme();
   return useMemo(() => {
+    // eslint-disable-next-line import/namespace
     return (colors[color] as MuiColor)[isDark ? darkVariant : lightVariant];
   }, [isDark, color, lightVariant, darkVariant]);
 }

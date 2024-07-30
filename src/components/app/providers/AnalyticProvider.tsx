@@ -1,9 +1,9 @@
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { FC, PropsWithChildren, createContext, useCallback, useEffect, useState } from 'react';
+import type { HowlerSearchResponse } from 'api/search';
+import { useAppUser } from 'commons/components/app/hooks';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import { createContext, useCallback, useEffect, useState, type FC, type PropsWithChildren } from 'react';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 interface AnalyticContextType {
@@ -32,15 +32,15 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
   });
 
   const fetchAnalytics = useCallback(
-    async () => setAnalytics({ ready: true, analytics: (await api.analytic.get()) as Analytic[] }),
+    async () => setAnalytics({ ready: true, analytics: ((await api.analytic.get()) ?? []) as Analytic[] }),
     []
   );
 
   useEffect(() => {
-    if (!analytics.ready) {
+    if (!analytics.ready && appUser.isReady()) {
       fetchAnalytics();
     }
-  }, [analytics.ready, fetchAnalytics]);
+  }, [analytics.ready, appUser, fetchAnalytics]);
 
   const addFavourite = useCallback(
     async (analytic: Analytic) => {
@@ -68,7 +68,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const getAnalyticFromId = useCallback(
     async (id: string) => {
-      const candidate = analytics.analytics.find(_analytic => _analytic.analytic_id === id);
+      const candidate = analytics.analytics?.find(_analytic => _analytic.analytic_id === id);
       if (candidate) {
         return candidate;
       }
@@ -86,10 +86,13 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
         const analytic = result.items?.[0];
 
         if (analytic) {
-          setAnalytics({ ...analytics, analytics: [...analytics.analytics, analytic] });
+          setAnalytics({ ...analytics, analytics: [...(analytics.analytics ?? []), analytic] });
           return analytic;
         }
-      } catch (e) {}
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+      }
 
       return null;
     },
@@ -119,7 +122,10 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
           setAnalytics({ ...analytics, analytics: [...analytics.analytics, analytic] });
           return analytic;
         }
-      } catch (e) {}
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+      }
 
       return null;
     },

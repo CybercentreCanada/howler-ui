@@ -1,6 +1,6 @@
 import { Badge, styled } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export type ActionButton = {
   name: string;

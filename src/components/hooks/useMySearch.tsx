@@ -1,9 +1,9 @@
 import { Alert, Box, Typography } from '@mui/material';
 import api from 'api';
-import { AppSearchServiceState } from 'commons/components/app/AppContexts';
-import { AppSearchService } from 'commons/components/app/AppSearchService';
+import type { AppSearchServiceState } from 'commons/components/app/AppContexts';
+import type { AppSearchService } from 'commons/components/app/AppSearchService';
 import HitQuickSearch from 'components/elements/hit/HitQuickSearch';
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';

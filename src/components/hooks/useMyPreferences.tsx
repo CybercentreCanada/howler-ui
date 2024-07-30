@@ -18,40 +18,15 @@ import {
 } from '@mui/icons-material';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { Avatar, Box, Stack, Typography } from '@mui/material';
-import { AppLeftNavElement, AppPreferenceConfigs } from 'commons/components/app/AppConfigs';
+import { AppBrand } from 'branding/AppBrand';
+import type { AppLeftNavElement, AppPreferenceConfigs } from 'commons/components/app/AppConfigs';
 import Classification from 'components/elements/display/Classification';
-
 import DocumentationButton from 'components/elements/display/DocumentationButton';
-import HowlerLogo from 'components/elements/display/icons/HowlerLogo';
 import { useMemo } from 'react';
 
+
 // This is your App Name that will be displayed in the left drawer and the top navbar
-const APP_NAME = 'Howler';
-
-// This is your app logo, it should definitely be an svg logo but we will use an icon here instead
-const APP_LOGO = (
-  <Avatar
-    variant="rounded"
-    style={{
-      backgroundColor: 'transparent',
-      height: 44,
-      width: 44,
-      marginLeft: -10
-    }}
-  >
-    <HowlerLogo fontSize="inherit" style={{ width: 43, height: 43 }} />
-  </Avatar>
-);
-
-// Howler banner.
-const APP_BANNER = (
-  <Stack mt={2} mb={2} alignItems="center">
-    <HowlerLogo fontSize="inherit" style={{ fontSize: '3em' }} />
-    <Box m={1} />
-    <Typography variant="inherit">{APP_NAME}</Typography>
-  </Stack>
-);
+const APP_NAME = 'howler';
 
 export default function useMyPreferences(): AppPreferenceConfigs {
   // The following menu items will show up in the Left Navigation Drawer
@@ -234,13 +209,13 @@ export default function useMyPreferences(): AppPreferenceConfigs {
   // Return memoized config to prevent unnecessary re-renders.
   return useMemo(
     () => ({
-      appName: APP_NAME,
+      appName: '',
       allowGravatar: false,
-      appIconDark: APP_LOGO,
-      appIconLight: APP_LOGO,
-      bannerLight: APP_BANNER,
+      appIconDark: <AppBrand application={APP_NAME} variant="app" />,
+      appIconLight: <AppBrand application={APP_NAME} variant="app" />,
+      bannerLight: <AppBrand application={APP_NAME} variant="banner-vertical" size="large" />,
+      bannerDark: <AppBrand application={APP_NAME} variant="banner-vertical" size="large" />,
       defaultShowQuickSearch: true,
-      bannerDark: APP_BANNER,
       avatarD: 'retro',
       topnav: {
         apps: [],

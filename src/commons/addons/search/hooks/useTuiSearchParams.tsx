@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { TuiSearchRequest } from '..';
 import TuiSearchModel from '../models/TuiSearchModel';
-import { isMatcher, isSeparator, isSorter, TuiSearchOperator, TuiSearchTerm } from '../models/TuiSearchTerms';
+import { TuiSearchOperator, TuiSearchTerm, isMatcher, isSeparator, isSorter } from '../models/TuiSearchTerms';
 
 const SPLITER = '::';
 
@@ -17,7 +17,7 @@ const LIMIT_PARAM = 'limit';
 
 const PARAMETER_NAMES = [OFFSET_PARAM, LIMIT_PARAM, FILTER_PARAM, SORTER_PARAM];
 
-type TuiSearchParamType = typeof PARAMETER_NAMES[number];
+type TuiSearchParamType = (typeof PARAMETER_NAMES)[number];
 
 export default function useTuiSearchParams() {
   const reactNavigate = useNavigate();

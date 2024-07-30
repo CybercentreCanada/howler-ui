@@ -1,12 +1,13 @@
 import { useTheme } from '@mui/material';
-import { FC, memo } from 'react';
-import { FeedItem } from '../..';
-import { NotificationItemAuthor } from './NotificationItemAuthor';
-import { NotificationItemContent } from './NotificationItemContent';
-import { NotificationItemDate } from './NotificationItemDate';
-import { NotificationItemImage } from './NotificationItemImage';
-import { NotificationItemTag } from './NotificationItemTag';
-import { NotificationItemTitle } from './NotificationItemTitle';
+import { memo, type FC } from 'react';
+
+import { NotificationItemAuthor } from 'commons/components/notification/elements/item/NotificationItemAuthor';
+import { NotificationItemContent } from 'commons/components/notification/elements/item/NotificationItemContent';
+import { NotificationItemDate } from 'commons/components/notification/elements/item/NotificationItemDate';
+import { NotificationItemImage } from 'commons/components/notification/elements/item/NotificationItemImage';
+import { NotificationItemTag } from 'commons/components/notification/elements/item/NotificationItemTag';
+import { NotificationItemTitle } from 'commons/components/notification/elements/item/NotificationItemTitle';
+import type { FeedItem } from 'commons/components/notification/FeedModels';
 
 export const NotificationItem: FC<{ item?: FeedItem }> = memo(({ item = null }) => {
   const theme = useTheme();

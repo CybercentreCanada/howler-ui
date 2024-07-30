@@ -1,4 +1,4 @@
-import { LoginResponse } from 'api/auth/login';
+import type { LoginResponse } from 'api/auth/login';
 import { MY_LOCAL_STORAGE_PREFIX, StorageKey } from './constants';
 
 const buildName = (name: string) => `${MY_LOCAL_STORAGE_PREFIX}.${name}`;

@@ -1,5 +1,5 @@
-import { HowlerResponse } from 'api';
-import RestClient from 'rest';
+import type { HowlerResponse } from 'api';
+import type RestClient from 'rest';
 
 export default class FetchClient implements RestClient {
   public async fetch<R>(

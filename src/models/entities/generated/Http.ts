@@ -1,5 +1,5 @@
-import { Request } from './Request';
-import { Response } from './Response';
+import type { Request } from './Request';
+import type { Response } from './Response';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

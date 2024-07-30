@@ -1,7 +1,8 @@
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import { parseEvent } from 'commons/components/utils/keyboard';
 import useMyModal from 'components/hooks/useMyModal';
-import { FC, useCallback, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const RationaleModal: FC<{ onSubmit: (rationale: string) => void }> = ({ onSubmit }) => {

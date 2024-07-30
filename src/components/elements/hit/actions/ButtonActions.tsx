@@ -1,9 +1,11 @@
 import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HitShortcuts } from '../HitShortcuts';
-import { ASSESSMENT_KEYBINDS, ActionButton, StyledBadge, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
+import type { ActionButton } from './SharedComponents';
+import { ASSESSMENT_KEYBINDS, StyledBadge, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
 
 interface DesktopActionProps {
   availableTransitions: ActionButton[];

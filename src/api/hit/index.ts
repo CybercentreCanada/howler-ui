@@ -3,7 +3,7 @@ import * as assign from 'api/hit/assign';
 import * as comments from 'api/hit/comments';
 import * as labels from 'api/hit/labels';
 import * as transition from 'api/hit/transition';
-import { Hit } from 'models/entities/generated/Hit';
+import type { Hit } from 'models/entities/generated/Hit';
 
 export type HitActionBody = {
   value: string;

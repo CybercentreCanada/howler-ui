@@ -15,14 +15,15 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import { HelpResponse } from 'api/help';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import type { HelpResponse } from 'api/help';
+import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApi from 'components/hooks/useMyApi';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, Fragment, useEffect, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import { useEffect, useState, type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { Fragment } from 'react/jsx-runtime';
 
 const APIKEY_LABELS = {
   R: 'apikey.read',

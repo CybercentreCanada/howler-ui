@@ -1,7 +1,6 @@
-import { AppBreadcrumbsContext } from 'commons/components/app/providers/AppBreadcrumbsProvider';
+import { AppBreadcrumbsContext } from 'commons/components/app/AppContexts';
 import { useContext } from 'react';
 
-//
-export default function useAppBreadcrumbs() {
+export function useAppBreadcrumbs() {
   return useContext(AppBreadcrumbsContext);
 }

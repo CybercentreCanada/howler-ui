@@ -1,7 +1,8 @@
 import { Search } from '@mui/icons-material';
 import PageCenter from 'commons/components/pages/PageCenter';
 import Markdown from 'components/elements/display/Markdown';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import VIEWS_EN from './markdown/en/views.md';

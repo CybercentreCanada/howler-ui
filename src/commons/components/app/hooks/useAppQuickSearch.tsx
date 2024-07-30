@@ -1,7 +1,6 @@
+import { AppQuickSearchContext } from 'commons/components/app/AppContexts';
 import { useContext } from 'react';
-import { AppQuickSearchContext } from '../providers/AppQuickSearchProvider';
 
-//
-export default function useAppQuickSearch() {
+export function useAppQuickSearch() {
   return useContext(AppQuickSearchContext);
 }

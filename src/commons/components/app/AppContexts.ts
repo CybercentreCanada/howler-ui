@@ -1,9 +1,10 @@
-import { PaletteMode } from '@mui/material';
-import { ReactElement } from 'react';
-import { AppConfigs, AppLayoutMode, AppLeftNavElement, AppSwitcherItem } from './AppConfigs';
-import { ItemComponentProps } from './AppNotificationService';
-import { AppSearchItem, AppSearchMode, AppSearchService } from './AppSearchService';
-import { BreadcrumbItem } from './hooks/useAppSitemap';
+import type { PaletteMode } from '@mui/material';
+import type { AppConfigs, AppLayoutMode, AppLeftNavElement, AppSwitcherItem } from 'commons/components/app/AppConfigs';
+import type { ItemComponentProps } from 'commons/components/app/AppNotificationService';
+import type { AppSearchItem, AppSearchMode, AppSearchService } from 'commons/components/app/AppSearchService';
+import type { AppUser, AppUserService } from 'commons/components/app/AppUserService';
+import type { BreadcrumbItem } from 'commons/components/app/hooks/useAppSitemap';
+import { createContext, type ReactElement } from 'react';
 
 export type AppContextType = {
   // configs as provided by client application.
@@ -69,11 +70,24 @@ export type AppBreadcrumbsContextType = {
   first: () => BreadcrumbItem; // the last item in the breadcrumbs.
 };
 
-export type AppSearchServiceState<T = any> = {
+export type AppDrawerContextType = {
+  isOpen: boolean;
+  isFloatThreshold: boolean;
+  width: number | string;
+  maximized: boolean;
+  element: ReactElement;
+  open: (props: AppDrawerOpenProps) => void;
+  close: () => void;
+  setWidth: (width: number | string) => void;
+  setMaximized: (maximized: boolean) => void;
+};
+
+export type AppSearchServiceState<T = any, R = any> = {
   searching: boolean; // indicates if the app search should show the progress indicator.
   menu: boolean; // is the app search result menu opened?
   mode: AppSearchMode; // inline vs fullscreen.
   items: AppSearchItem<T>[]; // the app search result items to render.
+  result?: R; // any object, metadata related to the search result.
   set: (state: AppSearchServiceState<T>) => void; // update app search state.
 };
 
@@ -87,3 +101,44 @@ export type AppNotificationService = {
   feedUrls?: string[]; // Static urls can be provided at initialization or see state object (AppNotificationServiceState)
   notificationRenderer?: (item: ItemComponentProps) => ReactElement; // Cusotm component for notification rendering
 };
+
+// Specification interface of the AppDrawer's 'open' method arguments object.
+export type AppDrawerOpenProps = {
+  element: ReactElement;
+  width?: number | string;
+  floatThreshold?: number;
+  onClose?: (action: 'close' | 'hide') => void;
+};
+
+// React Context for the AppProvider (Root Context).
+export const AppContext = createContext<AppContextType>(null);
+
+// React Context for the AppLayoutProvider.
+export const AppLayoutContext = createContext<AppLayoutContextType>(null);
+
+// React Context for the AppBarProvider.
+export const AppBarContext = createContext<AppBarContextType>(null);
+
+// React Context for the AppBreadcrumbsProvider.
+export const AppBreadcrumbsContext = createContext<AppBreadcrumbsContextType>(null);
+
+// React Context for the AppDrawerProvider.
+export const AppDrawerContext = createContext<AppDrawerContextType>(null);
+
+// React Context for the AppLeftNavProvider.
+export const AppLeftNavContext = createContext<AppLeftNavContextType>(null);
+
+// React Context for the AppQuickSearchProvider.
+export const AppQuickSearchContext = createContext<AppQuickSearchContextType>(null);
+
+// React Context for the AppSearchServiceProvider.
+export const AppSearchServiceContext = createContext<AppSearchServiceContextType>(null);
+
+// React Context for the AppSwitcherProvider.
+export const AppSwitcherContext = createContext<AppSwitcherContextType>(null);
+
+// React Context for the AppUserProvider.
+export const AppUserContext = createContext<AppUserService<AppUser>>(null);
+
+// React Context for the AppNotificationServiceProvider.
+export const AppNotificationServiceContext = createContext<AppNotificationServiceContextType>(null);

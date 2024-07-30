@@ -1,12 +1,10 @@
 import { emphasize, styled } from '@mui/material';
-import useAppBar from 'commons/components/app/hooks/useAppBar';
-import useAppBarHeight from 'commons/components/app/hooks/useAppBarHeight';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
-import { memo, ReactNode, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { TuiListItem, TuiListItemOnSelect } from '.';
-import useTuiListItems from './hooks/useTuiListItems';
-import useTuiListKeyboard from './hooks/useTuiListKeyboard';
-import useTuiListMethods from './hooks/useTuiListMethods';
+import useTuiListItems from 'commons/addons/lists/hooks/useTuiListItems';
+import useTuiListKeyboard from 'commons/addons/lists/hooks/useTuiListKeyboard';
+import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
+import { useAppBar, useAppBarHeight, useAppLayout } from 'commons/components/app/hooks';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
+import type { TuiListItem, TuiListItemOnSelect } from '.';
 
 const TuiListBaseRoot = styled('div')(({ theme }) => ({
   outline: 'none',

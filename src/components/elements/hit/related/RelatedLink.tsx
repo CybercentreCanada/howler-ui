@@ -1,5 +1,5 @@
 import { Avatar, Stack } from '@mui/material';
-import useAppTheme from 'commons/components/app/hooks/useAppTheme';
+import { useAppTheme } from 'commons/components/app/hooks';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import React, { useMemo } from 'react';

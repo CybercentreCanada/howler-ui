@@ -1,6 +1,7 @@
 import { Link, Typography, useTheme } from '@mui/material';
-import { FeedAuthor } from 'commons/components/notification';
-import { FC, memo, useMemo } from 'react';
+import type { FeedAuthor } from 'commons/components/notification/FeedModels';
+
+import { memo, useMemo, type FC } from 'react';
 
 export const NotificationItemAuthor: FC<{ author: FeedAuthor }> = memo(({ author = null }) => {
   const theme = useTheme();
@@ -34,7 +35,6 @@ export const NotificationItemAuthor: FC<{ author: FeedAuthor }> = memo(({ author
         <Typography
           variant="caption"
           color="textSecondary"
-          children={author?.name}
           sx={
             author?.url &&
             author?.url !== '' && {
@@ -45,7 +45,9 @@ export const NotificationItemAuthor: FC<{ author: FeedAuthor }> = memo(({ author
               }
             }
           }
-        />
+        >
+          {author?.name}
+        </Typography>
       </>
     ),
     [author?.name, author?.url, avatar, theme]

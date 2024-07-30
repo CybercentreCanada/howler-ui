@@ -1,4 +1,4 @@
-import { Operation } from './entities/generated/Operation';
+import type { Operation } from './entities/generated/Operation';
 
 export interface ActionOperationStep {
   args: {

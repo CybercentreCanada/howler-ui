@@ -1,6 +1,7 @@
 import { Button, Stack, Typography } from '@mui/material';
 import useMyModal from 'components/hooks/useMyModal';
-import { FC, useCallback } from 'react';
+import type { FC } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ConfirmDeleteModal: FC<{ onConfirm: () => void }> = ({ onConfirm }) => {

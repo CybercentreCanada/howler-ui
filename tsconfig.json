@@ -3,6 +3,7 @@
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -19,23 +20,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
 
-    /* */
-    "paths": {
-      "commons/*": ["./src/commons/*"],
-      "i18n": ["./src/i18n"],
-      "index.css": ["./src/index.css"],
-      "components/*": ["./src/components/*"],
-      "locales/*": ["./src/locales/*"],
-      "models/*": ["./src/models/*"],
-      "api": ["./src/api"],
-      "api/*": ["./src/api/*"],
-      "rest": ["./src/rest"],
-      "rest/*": ["./src/rest/*"],
-      "utils": ["./src/utils"],
-      "utils/*": ["./src/utils/*"]
-    }
+    /* for imports. */
+    "baseUrl": "./src",
+    "paths": {}
   },
-  "include": ["src", "setupTests.ts", "setupProxy.js"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

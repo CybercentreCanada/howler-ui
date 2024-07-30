@@ -1,5 +1,6 @@
 import { Autocomplete, MenuItem, Select, Stack, TextField } from '@mui/material';
-import { FC, memo, useCallback, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import CustomSort from './CustomSort';

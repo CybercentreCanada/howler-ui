@@ -1,6 +1,6 @@
-import { Header } from './Header';
-import { Section } from './Section';
-import { Segment } from './Segment';
+import type { Header } from './Header';
+import type { Section } from './Section';
+import type { Segment } from './Segment';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

@@ -1,5 +1,6 @@
 import { hput, joinAllUri } from 'api';
-import { HitActionBody, HitActionResponse, uri as parentUri } from 'api/hit';
+import type { HitActionBody, HitActionResponse } from 'api/hit';
+import { uri as parentUri } from 'api/hit';
 
 export function uri(id: string) {
   return joinAllUri(parentUri(), id, 'assign');

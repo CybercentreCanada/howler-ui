@@ -1,7 +1,7 @@
+import { AppUserContext } from 'commons/components/app/AppContexts';
+import type { AppUser, AppUserService } from 'commons/components/app/AppUserService';
 import { useContext } from 'react';
-import { AppUser, AppUserService } from '../AppUserService';
-import { AppUserContext } from '../providers/AppUserProvider';
 
-export default function useAppUser<U extends AppUser>(): AppUserService<U> {
+export function useAppUser<U extends AppUser>(): AppUserService<U> {
   return useContext(AppUserContext) as AppUserService<U>;
 }

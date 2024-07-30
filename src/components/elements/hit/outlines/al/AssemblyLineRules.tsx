@@ -1,10 +1,11 @@
 import { Lock } from '@mui/icons-material';
 import { Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
-import { MuiColorType } from 'commons/addons';
+import type { MuiColorType } from 'commons/addons';
 import lodash from 'lodash';
-import { Antivirus } from 'models/entities/generated/Antivirus';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, memo } from 'react';
+import type { Antivirus } from 'models/entities/generated/Antivirus';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const TAGS = [
@@ -34,8 +35,8 @@ const sortByVerdict = (a: Antivirus, b: Antivirus): -1 | 0 | 1 => {
   return VERDICT_ORDER.indexOf(a.verdict) > VERDICT_ORDER.indexOf(b.verdict)
     ? 1
     : VERDICT_ORDER.indexOf(b.verdict) > VERDICT_ORDER.indexOf(a.verdict)
-    ? -1
-    : 0;
+      ? -1
+      : 0;
 };
 
 const AssemblyLineRules: FC<{ hit: Hit }> = ({ hit }) => {

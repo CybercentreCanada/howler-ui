@@ -10,17 +10,19 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import useAppBreadcrumbs from 'commons/components/app/hooks/useAppBreadcrumbs';
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useAppLanguage from 'commons/components/app/hooks/useAppLanguage';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
-import useAppQuickSearch from 'commons/components/app/hooks/useAppQuickSearch';
+import useLocalStorage from 'commons/components//utils/hooks/useLocalStorage';
+import { APP_STORAGE_PREFIX } from 'commons/components/app/AppConstants';
+import {
+  useAppBar,
+  useAppBreadcrumbs,
+  useAppConfigs,
+  useAppLanguage,
+  useAppLayout,
+  useAppQuickSearch,
+  useAppTheme
+} from 'commons/components/app/hooks';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { APP_STORAGE_PREFIX } from '../app/AppConstants';
-import useAppBar from '../app/hooks/useAppBar';
-import useAppTheme from '../app/hooks/useAppTheme';
-import useLocalStorage from '../utils/hooks/useLocalStorage';
 
 const ThemeSelection = () => {
   const theme = useTheme();

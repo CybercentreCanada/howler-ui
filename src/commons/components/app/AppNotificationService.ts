@@ -1,4 +1,4 @@
-import { FeedItem } from '../notification';
+import type { FeedItem } from 'commons/components/notification';
 
 export type ItemComponentProps = {
   item: FeedItem;

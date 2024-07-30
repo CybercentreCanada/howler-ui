@@ -1,6 +1,6 @@
-import { AppUserService, AppUserValidatedProp } from 'commons/components/app/AppUserService';
+import type { AppUserService, AppUserValidatedProp } from 'commons/components/app/AppUserService';
 import { difference } from 'lodash';
-import { HowlerUser } from 'models/entities/HowlerUser';
+import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useCallback, useMemo, useState } from 'react';
 
 // Application specific hook that will provide configuration to commons [useUser] hook.

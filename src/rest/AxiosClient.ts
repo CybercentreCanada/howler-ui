@@ -1,7 +1,8 @@
-import { HowlerResponse } from 'api';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import type { HowlerResponse } from 'api';
+import type { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import axios, { AxiosError } from 'axios';
 import axiosRetry, { exponentialDelay, isNetworkError } from 'axios-retry';
-import RestClient from 'rest';
+import type RestClient from 'rest';
 import { getAxiosCache, setAxiosCache } from 'utils/sessionStorage';
 
 class AxiosCache {

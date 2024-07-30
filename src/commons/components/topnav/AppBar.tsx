@@ -1,18 +1,20 @@
 import { Box, AppBar as MuiAppBar, Toolbar, useMediaQuery, useTheme } from '@mui/material';
+import {
+  useAppBar,
+  useAppBreadcrumbs,
+  useAppConfigs,
+  useAppLayout,
+  useAppQuickSearch
+} from 'commons/components/app/hooks';
 import { APPBAR_READY_EVENT } from 'commons/components/app/hooks/useAppBarHeight';
-import useAppBreadcrumbs from 'commons/components/app/hooks/useAppBreadcrumbs';
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
-import useAppQuickSearch from 'commons/components/app/hooks/useAppQuickSearch';
 import Breadcrumbs from 'commons/components/breadcrumbs/Breadcrumbs';
+import AppSearch from 'commons/components/search/AppSearch';
+import AppName from 'commons/components/topnav/AppName';
 import AppSwitcher from 'commons/components/topnav/AppSwitcher';
+import { Notifications } from 'commons/components/topnav/Notifications';
 import ThemeSelectionIcon from 'commons/components/topnav/ThemeSelectionIcon';
 import UserProfile from 'commons/components/topnav/UserProfile';
 import { memo, useCallback, useLayoutEffect, useMemo } from 'react';
-import useAppBar from '../app/hooks/useAppBar';
-import AppSearch from '../search/AppSearch';
-import AppName from './AppName';
-import { Notifications } from './Notifications';
 
 export const AppBarBase = ({ children }) => {
   const layout = useAppLayout();

@@ -1,5 +1,5 @@
-import { ActionOperation, ActionOperationStep } from 'models/ActionTypes';
-import { Operation } from 'models/entities/generated/Operation';
+import type { ActionOperation, ActionOperationStep } from 'models/ActionTypes';
+import type { Operation } from 'models/entities/generated/Operation';
 
 /**
  * A simple validation function to ensure we have all the necessary arguments filled out.

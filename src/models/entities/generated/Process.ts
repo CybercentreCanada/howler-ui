@@ -1,5 +1,5 @@
-import { ProcessParent } from './ProcessParent';
-import { User } from './User';
+import type { ProcessParent } from './ProcessParent';
+import type { User } from './User';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

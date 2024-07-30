@@ -1,10 +1,8 @@
-import MenuIcon from '@mui/icons-material/Menu';
+import { Menu } from '@mui/icons-material';
 import { IconButton, styled, useMediaQuery, useTheme } from '@mui/material';
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useAppLeftNav from 'commons/components/app/hooks/useAppLeftNav';
+import { useAppConfigs, useAppLeftNav, useAppLogo } from 'commons/components/app/hooks';
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import useAppLogo from '../app/hooks/useAppLogo';
 
 const StyledTitle = styled('div')({
   display: 'flex',
@@ -32,7 +30,7 @@ const AppName = ({ noName }: { noName?: boolean }) => {
       <StyledTitle style={{ paddingLeft: theme.spacing(2) }}>
         <StyledIcon>
           <IconButton aria-label="open drawer" edge="start" onClick={leftnav.toggle} size="large" color="inherit">
-            <MenuIcon />
+            <Menu />
           </IconButton>
         </StyledIcon>
         <div>{!noName && configs.preferences.appName}</div>

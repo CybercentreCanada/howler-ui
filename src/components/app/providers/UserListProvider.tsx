@@ -1,7 +1,8 @@
 import api from 'api';
 import useMyApi from 'components/hooks/useMyApi';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { createContext, FC, PropsWithChildren, useCallback, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useCallback, useState } from 'react';
 
 interface UserListContextType {
   users: { [id: string]: HowlerUser };

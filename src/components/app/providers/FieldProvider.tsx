@@ -1,7 +1,8 @@
 import api from 'api';
-import { SearchField } from 'api/search/fields';
+import type { SearchField } from 'api/search/fields';
 import useMyApi from 'components/hooks/useMyApi';
-import { createContext, FC, PropsWithChildren, useCallback, useState } from 'react';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useCallback, useState } from 'react';
 
 interface FieldProviderType {
   hitFields: SearchField[];

@@ -1,4 +1,4 @@
-import { Dashboard } from './Dashboard';
+import type { Dashboard } from './Dashboard';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

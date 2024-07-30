@@ -1,9 +1,11 @@
 import { CardContent } from '@mui/material';
-import { RecievedDataType, SocketContext } from 'components/app/providers/SocketProvider';
+import type { RecievedDataType } from 'components/app/providers/SocketProvider';
+import { SocketContext } from 'components/app/providers/SocketProvider';
 import { uniqueId } from 'lodash';
-import { Hit } from 'models/entities/generated/Hit';
-import { HitUpdate } from 'models/socket/HitUpdate';
-import { FC, memo, useCallback, useContext, useEffect, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { HitUpdate } from 'models/socket/HitUpdate';
+import type { FC } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import HowlerCard from '../display/HowlerCard';
 import HitBanner from './HitBanner';
 import HitDetails from './HitDetails';

@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
 import {
   Box,
   ClickAwayListener,
@@ -10,20 +9,18 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  styled,
   Toolbar,
   Tooltip,
+  styled,
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useAppLayout from 'commons/components/app/hooks/useAppLayout';
-import useAppLeftNav from 'commons/components/app/hooks/useAppLeftNav';
+import type { AppLeftNavGroup, AppLeftNavItem } from 'commons/components/app/AppConfigs';
+import { useAppConfigs, useAppLayout, useAppLeftNav } from 'commons/components/app/hooks';
 import LeftNavGroup from 'commons/components/leftnav/LeftNavGroup';
 import LeftNavItem from 'commons/components/leftnav/LeftNavItem';
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppLeftNavGroup, AppLeftNavItem } from '../app/AppConfigs';
 import AppName from '../topnav/AppName';
 
 const StyledDrawer = styled(Drawer, { shouldForwardProp: prop => prop !== 'open' && prop !== 'width' })<{
@@ -149,7 +146,7 @@ const LeftNavDrawer = () => {
             return null;
           })}
         </List>
-        <Divider />
+        {leftnav.elements?.length > 0 && <Divider />}
         {leftnav.open ? (
           hide
         ) : (

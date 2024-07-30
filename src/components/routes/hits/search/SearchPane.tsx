@@ -12,9 +12,10 @@ import {
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import api from 'api';
-import { HowlerSearchResponse } from 'api/search';
+import type { HowlerSearchResponse } from 'api/search';
 import FlexOne from 'commons/addons/flexers/FlexOne';
-import { TuiList, TuiListItemOnSelect, TuiListItemProps } from 'commons/addons/lists';
+import type { TuiListItemOnSelect, TuiListItemProps } from 'commons/addons/lists';
+import { TuiList } from 'commons/addons/lists';
 import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
 import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
 import VSBox from 'commons/addons/vsbox/VSBox';
@@ -27,14 +28,18 @@ import HitBanner from 'components/elements/hit/HitBanner';
 import HitCard from 'components/elements/hit/HitCard';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { Link, SetURLSearchParams, useSearchParams } from 'react-router-dom';
+import type { SetURLSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
+import { convertCustomDateRangeToLucene } from 'utils/utils';
 import BundleParentMenu from './BundleParentMenu';
+import CustomSpan from './CustomSpan';
 import HitContextMenu from './HitContextMenu';
 import HitFilter from './HitFilter';
 import HitQuery from './HitQuery';
@@ -130,6 +135,14 @@ const SearchPane: FC<{
     refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (searchParams.get('span')?.endsWith('custom') && searchParams.has('startDate') && searchParams.has('endDate')) {
+      onSpanChange(
+        `event.created:${convertCustomDateRangeToLucene(searchParams.get('startDate'), searchParams.get('endDate'))}`
+      );
+    }
+  }, [onSpanChange, searchParams]);
+
   // Search result list item renderer.
   const renderer = useCallback(
     ({ item }: TuiListItemProps<Hit>, classRenderer: () => string) => {
@@ -167,7 +180,12 @@ const SearchPane: FC<{
 
   const viewButton = (
     <Tooltip title={viewId ? t('route.views.edit') : t('route.views.create')}>
-      <IconButton size="small" component={Link} disabled={!viewId && !searchParams.has('query')} to={viewUrl}>
+      <IconButton
+        size="small"
+        component={Link}
+        disabled={(!viewId && !searchParams.has('query')) || searchParams.get('span')?.endsWith('custom')}
+        to={viewUrl}
+      >
         {viewId ? <Edit fontSize="small" /> : <SavedSearch />}
       </IconButton>
     </Tooltip>
@@ -279,6 +297,9 @@ const SearchPane: FC<{
             <HitFilter onChange={onLookupChange} />
             <SearchSpan onChange={onSpanChange} useDefault={!viewId} />
           </Stack>
+
+          <CustomSpan />
+
           {searching && (
             <LinearProgress sx={theme => ({ position: 'absolute', bottom: theme.spacing(0.5), left: 0, right: 0 })} />
           )}

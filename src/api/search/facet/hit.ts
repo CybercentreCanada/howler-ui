@@ -1,5 +1,6 @@
 import { hpost, joinAllUri } from 'api';
-import { HowlerFacetSearchRequest, HowlerFacetSearchResponse, uri as parentUri } from 'api/search/facet';
+import type { HowlerFacetSearchRequest, HowlerFacetSearchResponse } from 'api/search/facet';
+import { uri as parentUri } from 'api/search/facet';
 
 export function uri(field: string) {
   return joinAllUri(parentUri(), 'hit', field);

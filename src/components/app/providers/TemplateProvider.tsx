@@ -1,7 +1,8 @@
 import api from 'api';
-import { Hit } from 'models/entities/generated/Hit';
-import { Template } from 'models/entities/generated/Template';
-import { createContext, FC, PropsWithChildren, useCallback, useState } from 'react';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { Template } from 'models/entities/generated/Template';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useCallback, useState } from 'react';
 
 interface TemplateContextType {
   templates: Template[];

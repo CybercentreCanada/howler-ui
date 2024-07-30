@@ -5,8 +5,8 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TuiSearchColumn } from '.';
 import TuiIconButton from '../display/buttons/TuiIconButton';
-import TuiSearchTerms from './models/TuiSearchTerms';
 import { TuiSearchChangeAction } from './TuiSearch';
+import TuiSearchTerms from './models/TuiSearchTerms';
 
 type TuiQueryFilterProps = {
   zenMode: boolean;

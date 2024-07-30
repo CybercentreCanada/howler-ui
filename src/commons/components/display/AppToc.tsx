@@ -2,7 +2,7 @@ import { styled, useTheme } from '@mui/material';
 import useAppBar from 'commons/components/app/hooks/useAppBar';
 import useAppLayout from 'commons/components/app/hooks/useAppLayout';
 import useAppUser from 'commons/components/app/hooks/useAppUser';
-import React, { memo, ReactNode, useEffect } from 'react';
+import React, { memo, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 

@@ -1,6 +1,7 @@
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const Classification: FC = () => {

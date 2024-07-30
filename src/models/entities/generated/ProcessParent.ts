@@ -1,4 +1,4 @@
-import { User } from './User';
+import type { User } from './User';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

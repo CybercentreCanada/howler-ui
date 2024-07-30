@@ -5,9 +5,10 @@ import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import useMyApi from 'components/hooks/useMyApi';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import useMyUserList from 'components/hooks/useMyUserList';
-import { Howler } from 'models/entities/generated/Howler';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, useCallback, useMemo, useState } from 'react';
+import type { Howler } from 'models/entities/generated/Howler';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { FC } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 type AssignUserDrawerProps = {

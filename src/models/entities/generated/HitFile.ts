@@ -1,7 +1,7 @@
-import { CodeSignature } from './CodeSignature';
-import { Elf } from './Elf';
-import { FileHash } from './FileHash';
-import { Pe } from './Pe';
+import type { CodeSignature } from './CodeSignature';
+import type { Elf } from './Elf';
+import type { FileHash } from './FileHash';
+import type { Pe } from './Pe';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

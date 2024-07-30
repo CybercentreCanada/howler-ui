@@ -1,4 +1,4 @@
-import { Image } from './Image';
+import type { Image } from './Image';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

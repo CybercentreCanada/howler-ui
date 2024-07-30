@@ -16,14 +16,13 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import useAppConfigs from 'commons/components/app/hooks/useAppConfigs';
-import useUser from 'commons/components/app/hooks/useAppUser';
+import type { AppBarUserMenuElement } from 'commons/components//app/AppConfigs';
+import { useAppConfigs, useAppUser } from 'commons/components/app/hooks';
+import AppAvatar from 'commons/components/display/AppAvatar';
 import ThemeSelection from 'commons/components/topnav/ThemeSelection';
 import { memo, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { AppBarUserMenuElement } from '../app/AppConfigs';
-import AppAvatar from '../display/AppAvatar';
 
 export const AppUserAvatar = styled(AppAvatar)(({ theme }) => ({
   width: theme.spacing(5),
@@ -40,7 +39,7 @@ const UserProfile = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const configs = useAppConfigs();
-  const { user } = useUser();
+  const { user } = useAppUser();
   const anchorRef = useRef();
   const [open, setOpen] = useState<boolean>(false);
   const onProfileClick = useCallback(() => setOpen(_open => !_open), []);

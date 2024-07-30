@@ -24,7 +24,7 @@ export default function OAuthLogin({ providers }: OAuthLoginProps) {
 
   return (
     <Stack spacing={1}>
-      {providers.map((item, idx) => (
+      {providers.map(item => (
         <Button
           fullWidth
           key={item}

@@ -1,14 +1,13 @@
+import { AppStorageKeys } from 'commons/components/app/AppConstants';
+import { AppBarContext, type AppNotificationService } from 'commons/components/app/AppContexts';
+import type { AppSearchService } from 'commons/components/app/AppSearchService';
+import { useAppConfigs } from 'commons/components/app/hooks';
+import AppBreadcrumbsProvider from 'commons/components/app/providers/AppBreadcrumbsProvider';
+import AppNotificationServiceProvider from 'commons/components/app/providers/AppNotificationProvider';
+import AppQuickSearchProvider from 'commons/components/app/providers/AppQuickSearchProvider';
+import AppSwitcherProvider from 'commons/components/app/providers/AppSwitcherProvider';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
-import { createContext, ReactElement, useMemo, useState } from 'react';
-import { AppStorageKeys } from '../AppConstants';
-import { AppBarContextType, AppNotificationService } from '../AppContexts';
-
-import { AppSearchService } from '../AppSearchService';
-import useAppConfigs from '../hooks/useAppConfigs';
-import AppBreadcrumbsProvider from './AppBreadcrumbsProvider';
-import AppNotificationServiceProvider from './AppNotificationProvider';
-import AppQuickSearchProvider from './AppQuickSearchProvider';
-import AppSwitcherProvider from './AppSwitcherProvider';
+import { useMemo, useState, type ReactElement } from 'react';
 
 const { LS_KEY_AUTOHIDE_APPBAR } = AppStorageKeys;
 
@@ -17,8 +16,6 @@ type AppTopNavProviderProps = {
   notification?: AppNotificationService;
   children: ReactElement | ReactElement[];
 };
-
-export const AppBarContext = createContext<AppBarContextType>(null);
 
 export default function AppBarProvider({ search, notification, children }: AppTopNavProviderProps) {
   const configs = useAppConfigs();

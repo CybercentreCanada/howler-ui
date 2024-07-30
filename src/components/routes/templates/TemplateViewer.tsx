@@ -28,9 +28,9 @@ import HitDetails, { DEFAULT_FIELDS } from 'components/elements/hit/HitDetails';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyApi from 'components/hooks/useMyApi';
 import _ from 'lodash';
-import { Analytic } from 'models/entities/generated/Analytic';
-import { Hit } from 'models/entities/generated/Hit';
-import { Template } from 'models/entities/generated/Template';
+import type { Analytic } from 'models/entities/generated/Analytic';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { Template } from 'models/entities/generated/Template';
 import { useSearchParams } from 'react-router-dom';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
@@ -302,8 +302,8 @@ const TemplateViewer = () => {
               isCustomOutline && type === 'global'
                 ? 'button.readonly'
                 : !analyticOrDetectionMissing && !noFieldChange
-                ? 'button.save'
-                : 'button.saved'
+                  ? 'button.save'
+                  : 'button.saved'
             )}
           </Button>
         </Stack>

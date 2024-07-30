@@ -4,7 +4,7 @@ import { TuiPhrase } from 'commons/addons/controls';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import { default as _, default as lodash } from 'lodash';
-import { Hit } from 'models/entities/generated/Hit';
+import { type Hit } from 'models/entities/generated/Hit';
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -64,7 +64,7 @@ const TemplateEditor = ({
                 {_.isObject(data) ? JSON.stringify(data) : data ?? 'N/A'}
               </Typography>
               <Tooltip title={t('button.delete')}>
-                <IconButton size="medium" onClick={e => onRemove(field)} sx={{ marginLeft: 'auto' }}>
+                <IconButton size="medium" onClick={() => onRemove(field)} sx={{ marginLeft: 'auto' }}>
                   <Delete fontSize="medium" />
                 </IconButton>
               </Tooltip>

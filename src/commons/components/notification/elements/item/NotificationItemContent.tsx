@@ -1,14 +1,14 @@
 import { Box, Link, Typography } from '@mui/material';
-import { FeedItem } from 'commons/components/notification';
-import * as DOMPurify from 'dompurify';
-import React, { FC } from 'react';
+import { type FeedItem } from 'commons/components/notification';
+import DOMPurify from 'dompurify';
+import { memo, type FC } from 'react';
 import Markdown from 'react-markdown';
 
-export const NotificationItemContent: FC<FeedItem> = React.memo(
+export const NotificationItemContent: FC<FeedItem> = memo(
   ({ content_html = null, content_text = null, content_md = null }) =>
     content_md ? (
       <Box sx={{ '& *': { margin: 0, marginBottom: 0.5 }, overflow: 'hidden' }}>
-        <Markdown components={{ a: props => <Link href={props.href}>{props.children}</Link> }} children={content_md} />
+        <Markdown components={{ a: props => <Link href={props.href}>{props.children}</Link> }}>{content_md}</Markdown>
       </Box>
     ) : content_html ? (
       <Typography
@@ -22,7 +22,8 @@ export const NotificationItemContent: FC<FeedItem> = React.memo(
         sx={{ '& *': { margin: 0, marginBottom: 0.5 }, overflow: 'hidden' }}
         variant="body2"
         color="textPrimary"
-        children={content_text}
-      />
+      >
+        {content_text}
+      </Typography>
     ) : null
 );

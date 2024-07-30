@@ -1,7 +1,6 @@
+import { AppNotificationServiceContext } from 'commons/components/app/AppContexts';
 import { useContext } from 'react';
-import { AppNotificationServiceContext } from '../providers/AppNotificationProvider';
 
-//
-export default function useAppNotification() {
+export function useAppNotification() {
   return useContext(AppNotificationServiceContext);
 }

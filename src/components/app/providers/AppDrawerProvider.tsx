@@ -1,8 +1,9 @@
 import { Drawer, Typography } from '@mui/material';
 import PageContent from 'commons/components/pages/PageContent';
-import { createContext, FC, PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppDrawerProps } from '../drawers/AppDrawerType';
+import type { AppDrawerProps } from '../drawers/AppDrawerType';
 
 export type AppDrawerContextState = {
   close: () => void;

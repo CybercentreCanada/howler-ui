@@ -1,6 +1,7 @@
 import { Help } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
-import { FC, useMemo } from 'react';
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { Link } from 'react-router-dom';

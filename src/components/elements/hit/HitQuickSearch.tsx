@@ -1,7 +1,8 @@
 import { Box, Chip, Divider, Stack, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material';
-import { AppSearchItemRendererOption } from 'commons/components/app/AppSearchService';
-import { Hit } from 'models/entities/generated/Hit';
-import { FC, memo, useMemo } from 'react';
+import type { AppSearchItemRendererOption } from 'commons/components/app/AppSearchService';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { FC } from 'react';
+import { memo, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { ESCALATION_COLORS, PROVIDER_COLORS, STATUS_COLORS } from 'utils/constants';
 import { formatDate, stringToColor } from 'utils/utils';

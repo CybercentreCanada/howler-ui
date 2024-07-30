@@ -1,4 +1,4 @@
-import { File } from './File';
+import type { File } from './File';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

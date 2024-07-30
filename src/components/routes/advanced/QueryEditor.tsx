@@ -1,10 +1,12 @@
 import type { Monaco } from '@monaco-editor/react';
 import { Editor, useMonaco } from '@monaco-editor/react';
 import { useTheme } from '@mui/material';
+import type { AppThemeConfigs } from 'commons/components/app/AppConfigs';
 import useThemeBuilder from 'commons/components/utils/hooks/useThemeBuilder';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import { editor } from 'monaco-editor';
-import { FC, memo, useCallback, useEffect, useMemo } from 'react';
+import useMyTheme from 'components/hooks/useMyTheme';
+import type { editor } from 'monaco-editor';
+import { memo, useCallback, useEffect, useMemo, type FC } from 'react';
 import useEQLCompletionProvider from './eqlCompletionProvider';
 import EQL_TOKEN_PROVIDER from './eqlTokenProvider';
 import useLuceneCompletionProvider from './luceneCompletionProvider';
@@ -32,7 +34,8 @@ const QueryEditor: FC<QueryEditorProps> = ({
   width = '100%',
   editorOptions = {}
 }) => {
-  const themeBuilder = useThemeBuilder();
+  const myTheme: AppThemeConfigs = useMyTheme();
+  const themeBuilder = useThemeBuilder(myTheme);
   const theme = useTheme();
   const monaco = useMonaco();
   const { config } = useMyApiConfig();

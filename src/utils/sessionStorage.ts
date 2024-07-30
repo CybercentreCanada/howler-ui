@@ -48,12 +48,12 @@ const {
 
 export { getStored, removeStored, setStored };
 
+export const getAxiosCache = (): { [index: string]: any } => {
+  return getStored(StorageKey.AXIOS_CACHE) ?? {};
+};
+
 export const setAxiosCache = (etag: string, value: any) => {
   const cache = getAxiosCache();
   cache[etag] = value;
   setStored(StorageKey.AXIOS_CACHE, cache);
-};
-
-export const getAxiosCache = (): { [index: string]: any } => {
-  return getStored(StorageKey.AXIOS_CACHE) ?? {};
 };

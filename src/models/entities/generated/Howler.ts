@@ -1,9 +1,9 @@
-import { Comment } from './Comment';
-import { Labels } from './Labels';
-import { Link } from './Link';
-import { Log } from './Log';
-import { Outline } from './Outline';
-import { Votes } from './Votes';
+import type { Comment } from './Comment';
+import type { Labels } from './Labels';
+import type { Link } from './Link';
+import type { Log } from './Log';
+import type { Outline } from './Outline';
+import type { Votes } from './Votes';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.

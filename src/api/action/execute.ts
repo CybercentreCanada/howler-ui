@@ -1,6 +1,6 @@
 import { hpost, joinAllUri, joinUri } from 'api';
 import { uri as parentUri } from 'api/action';
-import { ActionReport, ActionRequest } from 'models/ActionTypes';
+import type { ActionReport, ActionRequest } from 'models/ActionTypes';
 
 export function uri(id?: string) {
   return id ? joinAllUri(parentUri(), id, 'execute') : joinUri(parentUri(), 'execute');

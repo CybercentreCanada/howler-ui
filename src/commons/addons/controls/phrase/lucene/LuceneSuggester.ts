@@ -3,7 +3,10 @@ import { TuiPhraseAnalysis, TuiPhraseSuggester, TuiPhraseSuggestorValue } from '
 export default class LuceneSuggester implements TuiPhraseSuggester {
   private hasValues = false;
 
-  constructor(private fields: string[], private values: TuiPhraseSuggestorValue[] = []) {
+  constructor(
+    private fields: string[],
+    private values: TuiPhraseSuggestorValue[] = []
+  ) {
     this.hasValues = values && values.length > 0;
   }
 

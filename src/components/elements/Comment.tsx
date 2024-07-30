@@ -27,17 +27,18 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Theme,
   Tooltip,
-  Typography
+  Typography,
+  type Theme
 } from '@mui/material';
 import FlexOne from 'commons/addons/flexers/FlexOne';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import useMyUtils from 'components/hooks/useMyUtils';
-import { AnalyticComment } from 'models/entities/generated/AnalyticComment';
-import { Comment as HowlerComment } from 'models/entities/generated/Comment';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { FC, KeyboardEventHandler, memo, ReactNode, useCallback, useMemo, useState } from 'react';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { AnalyticComment } from 'models/entities/generated/AnalyticComment';
+import type { Comment as HowlerComment } from 'models/entities/generated/Comment';
+import type { FC, KeyboardEventHandler, ReactNode } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { compareTimestamp, twitterShort } from 'utils/utils';
 import HowlerAvatar from './display/HowlerAvatar';
@@ -56,7 +57,6 @@ const REACTION_ICONS = {
 
 const Comment: FC<{
   comment: HowlerComment | AnalyticComment;
-  edited?: boolean;
   handleDelete?: () => Promise<void>;
   handleEdit?: (value: string) => Promise<void>;
   handleReact?: (type: string) => Promise<void>;
@@ -64,7 +64,7 @@ const Comment: FC<{
   onClick?: () => void;
   users: { [id: string]: HowlerUser };
   extra?: ReactNode;
-}> = ({ comment, edited = false, handleDelete, handleEdit, handleQuote, handleReact, users, extra, onClick }) => {
+}> = ({ comment, handleDelete, handleEdit, handleQuote, handleReact, users, extra, onClick }) => {
   const { t } = useTranslation();
   const { user } = useAppUser();
   const { shiftColor } = useMyUtils();
@@ -195,8 +195,8 @@ const Comment: FC<{
                   sx={[{ marginLeft: 'auto !important' }, editing && { display: 'none' }]}
                   id={`comment${comment.id}-button`}
                   aria-haspopup="true"
-                  aria-controls={!!anchorEl ? `comment${comment.id}-action-menu` : undefined}
-                  aria-expanded={!!anchorEl ? 'true' : undefined}
+                  aria-controls={anchorEl ? `comment${comment.id}-action-menu` : undefined}
+                  aria-expanded={anchorEl ? 'true' : undefined}
                   onClick={handleOpen}
                 >
                   <MoreHorizIcon fontSize="small" />

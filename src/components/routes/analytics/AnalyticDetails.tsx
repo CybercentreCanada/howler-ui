@@ -19,15 +19,15 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import useAppUser from 'commons/components/app/hooks/useAppUser';
+import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { UserListContext } from 'components/app/providers/UserListProvider';
 import UserList from 'components/elements/UserList';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import useMyApi from 'components/hooks/useMyApi';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import { HowlerUser } from 'models/entities/HowlerUser';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
@@ -37,6 +37,7 @@ import AnalyticComments from './AnalyticComments';
 import AnalyticHitComments from './AnalyticHitComments';
 import AnalyticOverview from './AnalyticOverview';
 import RuleView from './RuleView';
+
 
 const AnalyticDetails = () => {
   const { t } = useTranslation();

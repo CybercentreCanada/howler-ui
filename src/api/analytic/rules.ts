@@ -1,6 +1,6 @@
 import { hpost, joinUri } from 'api';
 import { uri as parentUri } from 'api/analytic';
-import { Analytic } from 'models/entities/generated/Analytic';
+import type { Analytic } from 'models/entities/generated/Analytic';
 
 export function uri() {
   return joinUri(parentUri(), 'rules');

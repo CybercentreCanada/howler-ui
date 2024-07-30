@@ -1,7 +1,7 @@
-import { Bcc } from './Bcc';
-import { Cc } from './Cc';
-import { From } from './From';
-import { To } from './To';
+import type { Bcc } from './Bcc';
+import type { Cc } from './Cc';
+import type { From } from './From';
+import type { To } from './To';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.
