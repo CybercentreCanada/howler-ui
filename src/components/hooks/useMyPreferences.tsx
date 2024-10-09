@@ -3,6 +3,7 @@ import {
   Code,
   Dashboard,
   Edit,
+  FormatListBulleted,
   Help,
   HelpCenter,
   Key,
@@ -23,7 +24,6 @@ import type { AppLeftNavElement, AppPreferenceConfigs } from 'commons/components
 import Classification from 'components/elements/display/Classification';
 import DocumentationButton from 'components/elements/display/DocumentationButton';
 import { useMemo } from 'react';
-
 
 // This is your App Name that will be displayed in the left drawer and the top navbar
 const APP_NAME = 'howler';
@@ -105,17 +105,25 @@ export default function useMyPreferences(): AppPreferenceConfigs {
             {
               id: 'manage.templates',
               i18nKey: 'route.templates',
-              icon: <Article />,
+              icon: <FormatListBulleted />,
               nested: true,
               route: '/templates'
+            },
+            {
+              id: 'manage.overviews',
+              i18nKey: 'route.overviews',
+              icon: <Article />,
+              nested: true,
+              route: '/overviews'
             },
             {
               id: 'manage.actions',
               i18nKey: 'route.actions',
               icon: <Terminal />,
               nested: true,
-              route: '/action'
-            },
+              route: '/action',
+              userPropValidators: [{ prop: 'roles', value: 'automation_basic' }]
+            }
           ].filter(entry => !!entry)
         }
       },

@@ -1,4 +1,3 @@
-import { Editor } from '@monaco-editor/react';
 import {
   Box,
   Button,
@@ -21,6 +20,7 @@ import api from 'api';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { parseEvent } from 'commons/components/utils/keyboard';
 import Markdown from 'components/elements/display/Markdown';
+import ThemedEditor from 'components/elements/ThemedEditor';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyModal from 'components/hooks/useMyModal';
 import useMySnackbar from 'components/hooks/useMySnackbar';
@@ -28,7 +28,7 @@ import type { Analytic } from 'models/entities/generated/Analytic';
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { RULE_INTERVALS } from 'utils/constants';
 
 const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'lucene' | 'yaml' }> = ({
@@ -120,7 +120,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
           onChange={e => setName(e.target.value)}
           onKeyDown={handleKeydown}
         />
-        {/* TODO: allow custom crontabs */}
+        {/* TODO: allow custom crontabs ala spellbook */}
         <FormControl sx={{ minWidth: '250px' }}>
           <InputLabel>{t('rule.interval')}</InputLabel>
           <Select label={t('rule.interval')} onChange={event => setCrontab(event.target.value)} value={crontab}>
@@ -146,7 +146,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
           <Card variant="outlined" sx={{ p: 1 }}>
             <CardHeader sx={{ py: 1, px: 0 }} title={t('modal.rule.description.title')} />
             <Divider />
-            <Editor
+            <ThemedEditor
               height="90%"
               width="100%"
               theme="howler"
@@ -173,7 +173,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
         <Card variant="outlined" sx={{ p: 1, overflow: 'auto', width: '100%', height: '100%' }}>
           <CardHeader sx={{ py: 1, px: 0 }} title={t('modal.rule.file.title')} />
           <Divider />
-          <Editor
+          <ThemedEditor
             height="90%"
             width="100%"
             theme="howler"

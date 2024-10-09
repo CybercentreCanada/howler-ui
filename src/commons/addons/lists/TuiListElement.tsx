@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef } from 'react';
-import { TuiListItem, TuiListItemOnSelect, TuiListItemRenderer } from '.';
+import { type TuiListItem, type TuiListItemOnSelect, type TuiListItemRenderer } from '.';
 import VSBoxElement from '../vsbox/VSBoxElement';
 
 type TuiListElementProps<T> = {

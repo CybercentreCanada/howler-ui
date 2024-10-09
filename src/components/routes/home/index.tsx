@@ -15,13 +15,12 @@ import { AppBrand } from 'branding/AppBrand';
 import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
-import { ViewContext } from 'components/app/providers/ViewProvider';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
 import _ from 'lodash';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import moment from 'moment';
-import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
@@ -35,7 +34,6 @@ const LUCENE_DATE_FMT = 'YYYY-MM-DD[T]HH:mm:ss';
 const Home: FC = () => {
   const { t } = useTranslation();
   const { user, setUser } = useAppUser<HowlerUser>();
-  const { fetchViews } = useContext(ViewContext);
   const { setDashboard } = useMyUserFunctions();
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -108,10 +106,6 @@ const Home: FC = () => {
     },
     [dashboard, getIdFromEntry, setLocalDashboard]
   );
-
-  useEffect(() => {
-    fetchViews();
-  }, [fetchViews]);
 
   useEffect(() => {
     api.search.hit

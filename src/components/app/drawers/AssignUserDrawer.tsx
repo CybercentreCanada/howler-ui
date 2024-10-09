@@ -75,7 +75,7 @@ const AssignUserDrawer: FC<AssignUserDrawerProps> = ({ howler, onAssigned, skipS
         isOptionEqualToValue={(u, u2) => u.username === u2.username}
         renderOption={(props, u) => {
           return (
-            <li {...props}>
+            <li key={u.email} {...props}>
               <Box
                 sx={{
                   display: 'grid',

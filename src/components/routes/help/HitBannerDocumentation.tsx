@@ -1,6 +1,6 @@
 import { CardContent, Divider, Typography } from '@mui/material';
 import HowlerCard from 'components/elements/display/HowlerCard';
-import JSONViewer from 'components/elements/display/JSONViewer';
+import JSONViewer from 'components/elements/display/json/JSONViewer';
 import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import type { Hit } from 'models/entities/generated/Hit';

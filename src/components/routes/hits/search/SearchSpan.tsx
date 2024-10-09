@@ -1,10 +1,10 @@
 import { Autocomplete, TextField } from '@mui/material';
+import { ViewContext } from 'components/app/providers/ViewProvider';
 import type { FC } from 'react';
-import { memo, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
-import { convertDateToLucene } from 'utils/utils';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { convertDateToLucene, convertLucenceToDate } from 'utils/utils';
 
 const DATE_RANGES = [
   'date.range.1.day',
@@ -21,9 +21,16 @@ const SearchSpan: FC<{
 }> = ({ onChange, useDefault = true }) => {
   const { t } = useTranslation();
   const location = useLocation();
+  const routeParams = useParams();
   const [params, setParams] = useSearchParams();
+  const viewContext = useContext(ViewContext);
 
   const [span, setSpan] = useState(params.get('span') || (useDefault ? DATE_RANGES[2] : ''));
+
+  const viewId = useMemo(
+    () => (location.pathname.startsWith('/views') ? routeParams.id : null),
+    [location.pathname, routeParams.id]
+  );
 
   useEffect(() => {
     if (!span || span.endsWith('all')) {
@@ -61,6 +68,19 @@ const SearchSpan: FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
+  useEffect(() => {
+    if (viewId) {
+      const selectedView = viewContext.views.find(_view => _view.view_id === viewId);
+
+      if (selectedView?.span) {
+        setSpan(convertLucenceToDate(selectedView.span));
+        params.set('span', convertLucenceToDate(selectedView.span));
+      }
+      setParams(params, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewContext.views, viewId]);
+
   return (
     <Autocomplete
       freeSolo={!useDefault}
@@ -74,6 +94,7 @@ const SearchSpan: FC<{
       onChange={(_, value) => {
         setSpan(value);
       }}
+      disableClearable
     />
   );
 };

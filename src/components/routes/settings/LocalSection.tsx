@@ -10,8 +10,8 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
 import { HitLayout } from 'components/elements/hit/HitLayout';
+import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
@@ -22,10 +22,10 @@ const CELL_SX = { borderBottom: 0, paddingBottom: 0.5 };
 
 const LocalSection: FC = () => {
   const { t } = useTranslation();
-  const [compactJson, setCompactJson] = useLocalStorageItem(StorageKey.COMPACT_JSON, false);
-  const [flattenJson, setFlattenJson] = useLocalStorageItem(StorageKey.FLATTEN_JSON, false);
-  const [hitLayout, setHitLayout] = useLocalStorageItem(StorageKey.HIT_LAYOUT, false);
-  const [pageCount, setPageCount] = useLocalStorageItem(StorageKey.PAGE_COUNT, 25);
+  const [compactJson, setCompactJson] = useMyLocalStorageItem(StorageKey.COMPACT_JSON, true);
+  const [flattenJson, setFlattenJson] = useMyLocalStorageItem(StorageKey.FLATTEN_JSON, false);
+  const [hitLayout, setHitLayout] = useMyLocalStorageItem(StorageKey.HIT_LAYOUT, false);
+  const [pageCount, setPageCount] = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25);
 
   return (
     <SettingsSection title={t('page.settings.local.title')} colSpan={3}>

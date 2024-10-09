@@ -4,7 +4,7 @@ import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import type { FC } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const BundleButton: FC<{ ids: string[]; disabled?: boolean }> = ({ ids, disabled = false }) => {
   const { t } = useTranslation();

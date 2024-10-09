@@ -63,7 +63,7 @@ const ViewsBase: FC = () => {
       }
       setSearchParams(searchParams, { replace: true });
 
-      fetchViews();
+      fetchViews(true);
 
       const phraseQuery = phrase ? `*:*${sanitizeLuceneQuery(phrase)}*` : '*:*';
       const typeQuery = `(type:global OR owner:(${user.username} OR none)) AND type:(${types.join(' OR ') || '*'}${
@@ -280,7 +280,7 @@ const ViewsBase: FC = () => {
             {((item.item.owner === user.username && item.item.type !== 'readonly') ||
               (item.item.type === 'global' && user.is_admin)) && (
               <Tooltip title={t('button.edit')}>
-                <IconButton component={Link} to={`/views/${item.item.view_id}/edit`}>
+                <IconButton component={Link} to={`/views/${item.item.view_id}/edit?query=${item.item.query}`}>
                   <Edit />
                 </IconButton>
               </Tooltip>

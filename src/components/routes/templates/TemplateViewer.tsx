@@ -1,15 +1,12 @@
 import {
-  Alert,
+  Autocomplete,
   Button,
   CircularProgress,
-  Collapse,
   Divider,
   FormControl,
-  InputLabel,
   LinearProgress,
-  MenuItem,
-  Select,
   Stack,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip
@@ -24,8 +21,8 @@ import { Check, Delete, Remove, SsidChart } from '@mui/icons-material';
 import hitsData from 'api/hit/:id/data/index.json';
 import AppInfoPanel from 'commons/components/display/AppInfoPanel';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
-import HitDetails, { DEFAULT_FIELDS } from 'components/elements/hit/HitDetails';
 import { HitLayout } from 'components/elements/hit/HitLayout';
+import HitOutline, { DEFAULT_FIELDS } from 'components/elements/hit/HitOutline';
 import useMyApi from 'components/hooks/useMyApi';
 import _ from 'lodash';
 import type { Analytic } from 'models/entities/generated/Analytic';
@@ -73,8 +70,9 @@ const TemplateViewer = () => {
         setAnalytics(_analytics);
       });
 
-    getTemplates().then(setTemplateList);
-  }, [analytic, dispatchApi, getTemplates]);
+    getTemplates(true).then(setTemplateList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analytic, dispatchApi]);
 
   useEffect(() => {
     if (analytic) {
@@ -172,7 +170,6 @@ const TemplateViewer = () => {
     if (analytic && detection) {
       try {
         setTemplateLoading(true);
-
         const result = await dispatchApi(
           selectedTemplate
             ? api.template.put(selectedTemplate.template_id, displayFields)
@@ -211,49 +208,32 @@ const TemplateViewer = () => {
       <Stack direction="column" spacing={2} divider={<Divider orientation="horizontal" flexItem />} height="100%">
         <Stack direction="row" spacing={2} mb={2} alignItems="stretch">
           <FormControl sx={{ minWidth: { sm: '200px' } }}>
-            <InputLabel id="analytic-label" htmlFor="analytic" size="small">
-              {t('route.templates.analytic')}
-            </InputLabel>
-            <Select
-              labelId="analytic-label"
+            <Autocomplete
               id="analytic"
-              size="small"
-              label={t('route.templates.analytic')}
-              value={analytics.length > 0 ? analytic : ''}
-              onChange={e => setAnalytic(e.target.value)}
-            >
-              {analytics
-                .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-                .map(s => (
-                  <MenuItem key={s.analytic_id} value={s.name}>
-                    {s.name}
-                  </MenuItem>
-                ))}
-            </Select>
+              options={analytics.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))}
+              getOptionLabel={option => option.name}
+              value={analytics.find(a => a.name === analytic) || null}
+              onChange={(event, newValue) => setAnalytic(newValue ? newValue.name : '')}
+              renderInput={autocompleteAnalyticParams => (
+                <TextField {...autocompleteAnalyticParams} label={t('route.templates.analytic')} size="small" />
+              )}
+            />
           </FormControl>
           {!(detections?.length < 2 && detections[0]?.toLowerCase() === 'rule') ? (
             <FormControl
               sx={{ minWidth: { sm: '200px' } }}
               disabled={!analytic || (isCustomOutline && type === 'global')}
             >
-              <InputLabel id="detection-label" htmlFor="detection" size="small">
-                {t('route.templates.detection')}
-              </InputLabel>
-              <Select
-                labelId="detection-label"
+              <Autocomplete
                 id="detection"
-                size="small"
-                label={t('route.templates.detection')}
-                value={isCustomOutline && type === 'global' ? 'ANY' : detection ?? ''}
-                onChange={e => setDetection(e.target.value)}
-              >
-                <MenuItem value="ANY">{t('any')}</MenuItem>
-                {detections.sort().map(s => (
-                  <MenuItem key={s} value={s}>
-                    {s}
-                  </MenuItem>
-                ))}
-              </Select>
+                options={['ANY', ...detections.sort()]}
+                getOptionLabel={option => option}
+                value={isCustomOutline && type === 'global' ? 'any' : (detection ?? '')}
+                onChange={(event, newValue) => setDetection(newValue)}
+                renderInput={autocompleteDetectionParams => (
+                  <TextField {...autocompleteDetectionParams} label={t('route.templates.detection')} size="small" />
+                )}
+              />
             </FormControl>
           ) : (
             <Tooltip title={t('route.templates.rule.explanation')}>
@@ -308,13 +288,14 @@ const TemplateViewer = () => {
           </Button>
         </Stack>
         {isCustomOutline && type === 'global' ? (
-          <HitDetails hit={exampleHit} layout={HitLayout.COMFY} type="global" />
+          <HitOutline hit={exampleHit} layout={HitLayout.COMFY} type="global" />
         ) : analyticOrDetectionMissing ? (
           <AppInfoPanel i18nKey="route.templates.select" sx={{ width: '100%', alignSelf: 'start' }} />
         ) : (
           <TemplateEditor
             hit={exampleHit}
             fields={displayFields}
+            setFields={setDisplayFields}
             onAdd={field => setDisplayFields([...displayFields, field])}
             onRemove={field => setDisplayFields(displayFields.filter(f => f !== field))}
           />

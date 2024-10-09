@@ -33,9 +33,8 @@ import type { FC } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router';
 import type { SetURLSearchParams } from 'react-router-dom';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { convertCustomDateRangeToLucene } from 'utils/utils';
 import BundleParentMenu from './BundleParentMenu';
@@ -95,7 +94,7 @@ const SearchPane: FC<{
   );
 
   const layout: HitLayout = useMemo(
-    () => (isMobile ? HitLayout.COMFY : get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL),
+    () => (isMobile ? HitLayout.COMFY : (get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL)),
     [get]
   );
 
@@ -293,9 +292,9 @@ const SearchPane: FC<{
                 }
             ]}
           >
-            <HitSort onChange={onSortChange} useDefault={!viewId} />
+            <HitSort onChange={onSortChange} useDefault={!selectedView?.sort} />
             <HitFilter onChange={onLookupChange} />
-            <SearchSpan onChange={onSpanChange} useDefault={!viewId} />
+            <SearchSpan onChange={onSpanChange} useDefault={!selectedView?.span} />
           </Stack>
 
           <CustomSpan />

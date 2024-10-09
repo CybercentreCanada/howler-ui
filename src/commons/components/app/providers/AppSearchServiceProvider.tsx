@@ -6,7 +6,7 @@ import {
 import type { AppSearchService } from 'commons/components/app/AppSearchService';
 import { useAppConfigs } from 'commons/components/app/hooks';
 import { useMemo, useState, type ReactElement } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const DEFAULT_CONTEXT: AppSearchServiceContextType = {
   provided: false,

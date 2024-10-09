@@ -20,6 +20,7 @@ import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
 import Markdown from 'components/elements/display/Markdown';
 import useMyApi from 'components/hooks/useMyApi';
+import { useScrollRestoration } from 'components/hooks/useScrollRestoration';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useEffect, useState, type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -37,6 +38,7 @@ const ApiDocumentation: FC = () => {
   const { user } = useAppUser<HowlerUser>();
   const { dispatchApi } = useMyApi();
   const theme = useTheme();
+  useScrollRestoration();
 
   const isLg = useMediaQuery(theme.breakpoints.down('lg'));
 

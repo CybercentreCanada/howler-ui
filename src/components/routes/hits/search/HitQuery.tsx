@@ -8,7 +8,7 @@ import type { IDisposable, editor } from 'monaco-editor';
 import type { FC } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { sanitizeMultilineLucene } from 'utils/stringUtils';
 
 const DEFAULT_MULTILINE_HEIGHT = 250;
@@ -155,12 +155,14 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
       ]}
       onKeyDown={e => e.stopPropagation()}
     >
-      <TuiIconButton disabled={searching || disabled} onClick={search} sx={{ mr: 1, alignSelf: 'start' }}>
-        <Tooltip title={t('route.search')}>
-          <Badge invisible={!isDirty} color="warning" variant="dot">
-            <Search sx={{ fontSize: '20px' }} />
-          </Badge>
-        </Tooltip>
+      <TuiIconButton
+        disabled={query.includes('\n#') || disabled}
+        sx={{ mr: 1, alignSelf: 'start' }}
+        onClick={() => setMultiline(!multiline)}
+        color={multiline ? 'primary' : theme.palette.text.primary}
+        transparent={!multiline}
+      >
+        <Height sx={{ fontSize: '20px' }} />
       </TuiIconButton>
       <QueryEditor
         query={preppedQuery}
@@ -171,13 +173,15 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
         editorOptions={options}
       />
       <TuiIconButton
-        disabled={query.includes('\n#') || disabled}
-        onClick={() => setMultiline(!multiline)}
+        disabled={searching || disabled}
+        onClick={search}
         sx={{ ml: 1, alignSelf: 'start', flexShrink: 0 }}
-        color={multiline ? 'primary' : theme.palette.text.primary}
-        transparent={!multiline}
       >
-        <Height sx={{ fontSize: '20px' }} />
+        <Tooltip title={t('route.search')}>
+          <Badge invisible={!isDirty} color="warning" variant="dot">
+            <Search sx={{ fontSize: '20px' }} />
+          </Badge>
+        </Tooltip>
       </TuiIconButton>
       {!loaded && (
         <Skeleton

@@ -23,7 +23,7 @@ import type { Hit } from 'models/entities/generated/Hit';
 import type { SocketEvent } from 'models/socket/HitUpdate';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type KeyboardEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { compareTimestamp, sortByTimestamp } from 'utils/utils';
 import Comment from '../Comment';
 import HowlerAvatar from '../display/HowlerAvatar';

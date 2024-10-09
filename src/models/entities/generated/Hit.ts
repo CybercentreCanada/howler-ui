@@ -16,18 +16,22 @@ import type { Gcp } from './Gcp';
 import type { Group } from './Group';
 import type { HitFile } from './HitFile';
 import type { HitOrganization } from './HitOrganization';
-import type { HitUser } from './HitUser';
 import type { Host } from './Host';
 import type { Howler } from './Howler';
 import type { Http } from './Http';
+import type { Interface } from './Interface';
+import type { Network } from './Network';
+import type { Observer } from './Observer';
 import type { Process } from './Process';
 import type { Registry } from './Registry';
 import type { Related } from './Related';
+import type { Rule } from './Rule';
 import type { Server } from './Server';
 import type { Source } from './Source';
 import type { Threat } from './Threat';
 import type { Tls } from './Tls';
 import type { Url } from './Url';
+import type { User } from './User';
 import type { UserAgent } from './UserAgent';
 import type { Vulnerability } from './Vulnerability';
 
@@ -55,11 +59,15 @@ export interface Hit {
   host?: Host;
   howler: Howler;
   http?: Http;
+  interface?: Interface;
   labels?: { [index: string]: string };
+  network?: Network;
+  observer?: Observer;
   organization?: HitOrganization;
   process?: Process;
   registry?: Registry;
   related?: Related;
+  rule?: Rule;
   server?: Server;
   source?: Source;
   tags?: string[];
@@ -67,7 +75,7 @@ export interface Hit {
   timestamp: string;
   tls?: Tls;
   url?: Url;
-  user?: HitUser;
+  user?: User;
   user_agent?: UserAgent;
   vulnerability?: Vulnerability;
 }

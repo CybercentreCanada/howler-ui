@@ -6,6 +6,9 @@ import { mock } from './setupMock';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+
+  const apiTarget = env.VITE_API_TARGET ?? `http://localhost:${env.VITE_REST_PORT ?? 5000}`;
+
   return {
     plugins: [
       react(),
@@ -21,8 +24,21 @@ export default defineConfig(({ mode }) => {
       },
       env.VITE_API !== 'REST' && mock()
     ],
+    worker: {
+      plugins: () => [tsconfigPaths()]
+    },
     build: {
-      sourcemap: false
+      sourcemap: false,
+      rollupOptions: {
+        plugins: [],
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              return 'node_modules';
+            }
+          }
+        }
+      }
     },
     define: {
       'process.env': {}
@@ -31,7 +47,16 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       proxy: env.VITE_API === 'REST' && {
         '/api': {
-          target: `http://localhost:${env.VITE_REST_PORT ?? 5000}`,
+          target: apiTarget,
+          changeOrigin: true
+        }
+      }
+    },
+    preview: {
+      port: 3000,
+      proxy: env.VITE_API === 'REST' && {
+        '/api': {
+          target: apiTarget,
           changeOrigin: true
         }
       }

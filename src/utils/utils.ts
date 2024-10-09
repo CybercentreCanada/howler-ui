@@ -125,15 +125,20 @@ export const removeEmpty = (obj: any, aggressive = false) => {
   );
 };
 
-export const searchObject = (o: any, query: string) => {
+export const searchObject = (o: any, query: string, returnFlat = false) => {
+  if (!query) {
+    return returnFlat ? flatten(o) : o;
+  }
+
   try {
     const regex = new RegExp(query, 'i');
 
-    return unflatten(
-      Object.fromEntries(Object.entries(flatten(o)).filter(([k, v]) => regex.test(k) || regex.test(v))) ?? {}
-    );
+    const filteredData =
+      Object.fromEntries(Object.entries(flatten(o)).filter(([k, v]) => regex.test(k) || regex.test(v))) ?? {};
+
+    return returnFlat ? filteredData : unflatten(filteredData);
   } catch (e) {
-    return o;
+    return returnFlat ? flatten(o) : o;
   }
 };
 

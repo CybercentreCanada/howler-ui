@@ -28,14 +28,12 @@ import type { Action } from 'models/entities/generated/Action';
 import type { Operation } from 'models/entities/generated/Operation';
 import { useCallback, useContext, useEffect, useMemo, useState, type ChangeEventHandler, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useParams } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { operationReady } from 'utils/actionUtils';
 import ActionReportDisplay from '../shared/ActionReportDisplay';
 import OperationEntry from '../shared/OperationEntry';
 import QueryResultText from '../shared/QueryResultText';
 import useMyActionFunctions from '../useMyActionFunctions';
-
 
 const ActionEditor: FC = () => {
   const { t } = useTranslation();
@@ -177,43 +175,49 @@ const ActionEditor: FC = () => {
           </Button>
         </Stack>
 
-        {user.roles.includes('automation_advanced') && (
-          <FormGroup>
-            <Stack direction="row" spacing={1} ml={-1} mr={-1}>
-              {_.uniq(operations.flatMap(op => op.triggers)).map(trigger => {
-                const disabled =
-                  userOperations.length < 1 ||
-                  !userOperations.every(userOperation =>
-                    operations
-                      .find(operation => operation.id === userOperation.operation_id)
-                      ?.triggers.includes(trigger)
-                  );
-
-                const component = (
-                  <FormControlLabel
-                    key={trigger}
-                    disabled={disabled}
-                    control={
-                      <Checkbox
-                        sx={{ mr: 0.5 }}
-                        name={trigger}
-                        onChange={onTriggerChange}
-                        checked={triggers?.includes(trigger) ?? false}
-                      />
-                    }
-                    label={t(`route.actions.trigger.${trigger}`)}
-                  />
+        <FormGroup>
+          <Stack direction="row" spacing={1} ml={-1} mr={-1}>
+            {_.uniq(operations.flatMap(op => op.triggers)).map(trigger => {
+              const disabled =
+                !user.roles.includes('automation_advanced') ||
+                userOperations.length < 1 ||
+                !userOperations.every(userOperation =>
+                  operations.find(operation => operation.id === userOperation.operation_id)?.triggers.includes(trigger)
                 );
 
-                return disabled && userOperations.length > 0 ? (
-                  <Tooltip title={t(`route.actions.trigger.disabled.explanation`)}>{component}</Tooltip>
-                ) : (
-                  component
-                );
-              })}
-            </Stack>
-          </FormGroup>
-        )}
+              const component = (
+                <FormControlLabel
+                  key={trigger}
+                  disabled={disabled}
+                  control={
+                    <Checkbox
+                      sx={{ mr: 0.5 }}
+                      name={trigger}
+                      onChange={onTriggerChange}
+                      checked={triggers?.includes(trigger) ?? false}
+                    />
+                  }
+                  label={t(`route.actions.trigger.${trigger}`)}
+                />
+              );
+
+              return (
+                <Tooltip
+                  key={trigger}
+                  title={
+                    !user.roles.includes('automation_advanced')
+                      ? t('route.actions.trigger.disabled.permissions')
+                      : disabled && userOperations.length > 0
+                        ? t('route.actions.trigger.disabled.explanation')
+                        : null
+                  }
+                >
+                  {component}
+                </Tooltip>
+              );
+            })}
+          </Stack>
+        </FormGroup>
         <Stack direction="row" justifyContent="space-between" alignItems="end" sx={{ mb: -1 }}>
           <Typography
             sx={theme => ({ color: theme.palette.text.disabled, fontStyle: 'italic', mb: 0.5 })}

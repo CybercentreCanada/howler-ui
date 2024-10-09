@@ -1,32 +1,43 @@
-import { Add, ArrowDownward, ArrowUpward, Cancel } from '@mui/icons-material';
-import { Autocomplete, Chip, Grid, IconButton, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { ArrowDownward, ArrowUpward, Cancel } from '@mui/icons-material';
+import { Autocomplete, Chip, Grid, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FieldContext } from 'components/app/providers/FieldProvider';
-import type { FC } from 'react';
+import { uniqBy } from 'lodash';
+import type { Dispatch, FC, SetStateAction } from 'react';
 import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const CustomSort: FC<{ customSort: string; setCustomSort: (newSort: string) => void }> = ({
-  customSort,
-  setCustomSort
-}) => {
+const CustomSort: FC<{
+  sortEntries: string[];
+  setSortEntries: Dispatch<SetStateAction<string[]>>;
+}> = ({ sortEntries, setSortEntries }) => {
   const { t } = useTranslation();
   const [field, setField] = useState('');
-  const [sort, setSort] = useState<'asc' | 'desc'>('desc');
+  const [sort, setSort] = useState<'asc' | 'desc' | ''>('');
   const { hitFields, getHitFields } = useContext(FieldContext);
 
   const sortFields = useMemo(
-    () =>
-      customSort
-        .trim()
-        .split(',')
-        .filter(entry => !!entry)
-        .map(entry => entry.split(' ').slice(0, 2) as [string, string]),
-    [customSort]
+    () => sortEntries.map(entry => entry.split(' ').slice(0, 2) as [string, string]),
+    [sortEntries]
   );
 
   useEffect(() => {
     getHitFields();
   }, [getHitFields]);
+
+  useEffect(() => {
+    if (!sort) {
+      setSort('desc');
+    }
+  }, [sort]);
+
+  useEffect(() => {
+    if (!field) {
+      return;
+    }
+
+    setSortEntries(_sortEntries => uniqBy([..._sortEntries, `${field} ${sort}`], entry => entry.replace(/ .+/, '')));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [field]);
 
   return (
     <Stack spacing={1} maxWidth="450px">
@@ -37,9 +48,10 @@ const CustomSort: FC<{ customSort: string; setCustomSort: (newSort: string) => v
           size="small"
           value={field}
           options={hitFields.map(_field => _field.key)}
-          getOptionDisabled={option => customSort.includes(option)}
+          getOptionDisabled={option => sortEntries.map(entry => entry.replace(/ .+/, '')).includes(option)}
           renderInput={_params => <TextField {..._params} label={t('hit.search.sort.fields')} />}
           onChange={(_, value) => setField(value)}
+          disableClearable
         />
         <Select
           size="small"
@@ -50,12 +62,6 @@ const CustomSort: FC<{ customSort: string; setCustomSort: (newSort: string) => v
           <MenuItem value="asc">{t('asc')}</MenuItem>
           <MenuItem value="desc">{t('desc')}</MenuItem>
         </Select>
-        <IconButton
-          disabled={!field || !sort || customSort.includes(field)}
-          onClick={() => setCustomSort(`${customSort}${customSort && ','}${field} ${sort}`)}
-        >
-          <Add />
-        </IconButton>
       </Stack>
       <Grid container spacing={1} sx={theme => ({ marginLeft: `${theme.spacing(-1)} !important` })}>
         {sortFields.map(([key, direction]) => (
@@ -66,17 +72,14 @@ const CustomSort: FC<{ customSort: string; setCustomSort: (newSort: string) => v
               icon={direction === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
               deleteIcon={<Cancel />}
               onClick={() =>
-                setCustomSort(
-                  customSort.replace(`${key} ${direction}`, `${key} ${direction === 'asc' ? 'desc' : 'asc'}`)
+                setSortEntries(_sortEntries =>
+                  _sortEntries.map(entry =>
+                    entry?.replace(`${key} ${direction}`, `${key} ${direction === 'asc' ? 'desc' : 'asc'}`)
+                  )
                 )
               }
               onDelete={() =>
-                setCustomSort(
-                  customSort
-                    .replace(`${key} ${direction}`, '')
-                    .trim()
-                    .replace(/^,?(.+),?$/, '$1')
-                )
+                setSortEntries(_sortEntries => _sortEntries.filter(entry => entry && entry.split(' ')[0] != key))
               }
             />
           </Grid>

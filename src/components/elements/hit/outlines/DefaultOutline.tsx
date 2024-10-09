@@ -7,7 +7,7 @@ import type { Template } from 'models/entities/generated/Template';
 import type { FC } from 'react';
 import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { HitLayout } from '../HitLayout';
 
 const DefaultOutline: FC<{
@@ -71,7 +71,21 @@ const DefaultOutline: FC<{
       {(fields ?? [])
         .map<[string, string]>(field => [field, lodash.get(hit, field)])
         .map(([field, data]) => {
-          const displayedData = (Array.isArray(data) ? data.join(', ') : data)?.toString();
+          let displayedData: React.ReactNode = (Array.isArray(data) ? data.join(', ') : data)?.toString();
+
+          if (!displayedData) {
+            return null;
+          }
+
+          displayedData = (
+            <Typography
+              variant={layout !== HitLayout.COMFY ? 'caption' : 'body1'}
+              whiteSpace="normal"
+              sx={{ width: '100%', wordBreak: 'break-all' }}
+            >
+              {displayedData}
+            </Typography>
+          );
 
           return (
             displayedData && (
@@ -81,13 +95,7 @@ const DefaultOutline: FC<{
                     {field}:
                   </Typography>
                 </Tooltip>
-                <Typography
-                  variant={layout !== HitLayout.COMFY ? 'caption' : 'body1'}
-                  whiteSpace="normal"
-                  sx={{ width: '100%', wordBreak: 'break-all' }}
-                >
-                  {displayedData}
-                </Typography>
+                {displayedData}
               </React.Fragment>
             )
           );

@@ -9,7 +9,7 @@ import type { Hit } from 'models/entities/generated/Hit';
 import type { Operation } from 'models/entities/generated/Operation';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 
 const useMyActionFunctions = () => {

@@ -60,7 +60,7 @@ const RowEntry: FC<{ field: string }> = memo(function RowEntry({ field }) {
       <TableCell width="75">
         <Typography>{config.indexes.hit[`${field}.key_a`] ? 'dict' : config.indexes.hit[field].type}</Typography>
       </TableCell>
-      <TableCell>
+      <TableCell sx={{ maxWidth: '500px' }}>
         <Markdown md={config.indexes.hit[field].description ?? t('help.hit.schema.description.missing')} />
         {config.indexes.hit[field].regex && (
           <a href={`https://regexr.com/?expression=${encodeURIComponent(config.indexes.hit[field].regex)}`}>
@@ -70,7 +70,7 @@ const RowEntry: FC<{ field: string }> = memo(function RowEntry({ field }) {
         {config.indexes.hit[field].values?.length > 0 && (
           <Stack spacing={1}>
             <Typography>{t('help.hit.schema.values')}:</Typography>
-            <Stack direction="row" spacing={0.5}>
+            <Stack direction="row" spacing={0.5} flexWrap="wrap">
               {config.indexes.hit[field].values.map(val => (
                 <code
                   style={{

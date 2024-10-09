@@ -1,5 +1,6 @@
 import { Box, Stack, Tab, Typography, useMediaQuery, useTheme } from '@mui/material';
 import PageCenter from 'commons/components/pages/PageCenter';
+import { useScrollRestoration } from 'components/hooks/useScrollRestoration';
 import type { FC } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +11,8 @@ import HelpTabs from './components/HelpTabs';
 const ActionDocumentation: FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
+  useScrollRestoration();
+
   const useHorizontal = useMediaQuery(theme.breakpoints.down(1700));
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,7 +39,7 @@ const ActionDocumentation: FC = () => {
         </HelpTabs>
         <Box>
           {{
-            introduction: () => <ActionIntroductionDocumentation />,
+            introduction: () => <ActionIntroductionDocumentation />
           }[tab]()}
         </Box>
       </Stack>

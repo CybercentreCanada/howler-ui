@@ -46,14 +46,14 @@ const OperationEntry: FC<{
     [onChange]
   );
 
-  return (
-    <Card variant="outlined" key={operation.id} sx={[!readonly && ready && { borderColor: 'success.main' }]}>
+  return operation?.id ? (
+    <Card variant="outlined" key={operation?.id} sx={[!readonly && ready && { borderColor: 'success.main' }]}>
       <CardContent>
         <Stack spacing={2}>
           <Stack direction="row" alignItems="start" spacing={1}>
             <Stack spacing={1}>
               <Select
-                value={operation.id}
+                value={operation?.id}
                 size="small"
                 disabled={readonly || operations.length < 2}
                 onChange={handleChange}
@@ -61,7 +61,7 @@ const OperationEntry: FC<{
                 {operations
                   .sort((a, b) => (b.priority ?? -1) - (a.priority ?? -1))
                   .map(_operation => (
-                    <MenuItem key={_operation.id} value={_operation.id}>
+                    <MenuItem key={_operation?.id} value={_operation?.id}>
                       <ListItemText
                         primary={t(_operation.i18nKey) ?? _operation.title}
                         secondary={_operation.description?.short}
@@ -105,7 +105,7 @@ const OperationEntry: FC<{
                   values={values}
                   setValues={_values =>
                     onChange({
-                      operation_id: operation.id,
+                      operation_id: operation?.id,
                       data_json: _values
                     })
                   }
@@ -115,7 +115,7 @@ const OperationEntry: FC<{
         </Stack>
       </CardContent>
     </Card>
-  );
+  ) : null;
 };
 
 export default OperationEntry;

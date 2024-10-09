@@ -4,12 +4,12 @@ import * as auth from 'api/auth';
 import * as configs from 'api/configs';
 import * as help from 'api/help';
 import * as hit from 'api/hit';
+import * as overview from 'api/overview';
 import * as search from 'api/search';
 import * as template from 'api/template';
 import * as user from 'api/user';
 import * as view from 'api/view';
 import AxiosClient from 'rest/AxiosClient';
-import type { URLSearchParams } from 'url';
 import urlJoin from 'url-join';
 import { StorageKey } from 'utils/constants';
 import {
@@ -40,6 +40,7 @@ const api = {
   help,
   template,
   analytic,
+  overview,
   view
 };
 

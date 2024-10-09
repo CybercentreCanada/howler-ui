@@ -20,8 +20,7 @@ import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { ChangeEvent, FC, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 

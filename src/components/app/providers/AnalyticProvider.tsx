@@ -26,21 +26,30 @@ const PROMISES: { [index: string]: Promise<HowlerSearchResponse<Analytic>> } = {
 
 const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
   const appUser = useAppUser<HowlerUser>();
-  const [analytics, setAnalytics] = useState<{ ready: boolean; analytics: Analytic[] }>({
-    ready: false,
-    analytics: []
-  });
+  const [fetching, setFetching] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [analytics, setAnalytics] = useState<Analytic[]>([]);
 
-  const fetchAnalytics = useCallback(
-    async () => setAnalytics({ ready: true, analytics: ((await api.analytic.get()) ?? []) as Analytic[] }),
-    []
-  );
+  const fetchAnalytics = useCallback(async () => {
+    if (ready || fetching) {
+      return;
+    }
+
+    try {
+      setFetching(true);
+
+      setAnalytics(((await api.analytic.get()) ?? []) as Analytic[]);
+      setReady(true);
+    } finally {
+      setFetching(false);
+    }
+  }, [ready, fetching]);
 
   useEffect(() => {
-    if (!analytics.ready && appUser.isReady()) {
+    if (!ready && appUser.isReady()) {
       fetchAnalytics();
     }
-  }, [analytics.ready, appUser, fetchAnalytics]);
+  }, [ready, appUser, fetchAnalytics]);
 
   const addFavourite = useCallback(
     async (analytic: Analytic) => {
@@ -68,7 +77,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const getAnalyticFromId = useCallback(
     async (id: string) => {
-      const candidate = analytics.analytics?.find(_analytic => _analytic.analytic_id === id);
+      const candidate = analytics?.find(_analytic => _analytic.analytic_id === id);
       if (candidate) {
         return candidate;
       }
@@ -86,7 +95,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
         const analytic = result.items?.[0];
 
         if (analytic) {
-          setAnalytics({ ...analytics, analytics: [...(analytics.analytics ?? []), analytic] });
+          setAnalytics([...(analytics ?? []), analytic]);
           return analytic;
         }
       } catch (e) {
@@ -101,7 +110,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const getAnalyticFromName = useCallback(
     async (name: string) => {
-      const candidate = analytics.analytics.find(_analytic => _analytic.name === name);
+      const candidate = analytics.find(_analytic => _analytic.name === name);
       if (candidate) {
         return candidate;
       }
@@ -119,7 +128,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
         const analytic = result.items?.[0];
 
         if (analytic) {
-          setAnalytics({ ...analytics, analytics: [...analytics.analytics, analytic] });
+          setAnalytics([...analytics, analytic]);
           return analytic;
         }
       } catch (e) {
@@ -141,7 +150,7 @@ const AnalyticProvider: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <AnalyticContext.Provider
-      value={{ ...analytics, addFavourite, removeFavourite, getAnalyticFromName, getAnalyticFromId, getIdFromName }}
+      value={{ analytics, ready, addFavourite, removeFavourite, getAnalyticFromName, getAnalyticFromId, getIdFromName }}
     >
       {children}
     </AnalyticContext.Provider>

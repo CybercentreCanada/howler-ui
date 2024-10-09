@@ -6,7 +6,7 @@ import { createContext, useCallback, useState } from 'react';
 
 interface TemplateContextType {
   templates: Template[];
-  getTemplates: () => Promise<Template[]>;
+  getTemplates: (force?: boolean) => Promise<Template[]>;
   getMatchingTemplate: (h: Hit) => Template;
   refresh: () => void;
   loaded: boolean;
@@ -55,24 +55,31 @@ const BUILTIN_TEMPLATES: Template[] = [
 export const TemplateContext = createContext<TemplateContextType>(null);
 
 const TemplateProvider: FC<PropsWithChildren> = ({ children }) => {
+  const [fetching, setFetching] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [templates, setTemplates] = useState<Template[]>(BUILTIN_TEMPLATES);
 
   const getTemplates = useCallback(
     async (force = false) => {
-      if (loaded && !force) {
+      if ((loaded && !force) || fetching) {
         return templates;
       } else {
-        const result = await api.template.get();
-        const fullList = [...BUILTIN_TEMPLATES, ...result];
+        try {
+          setFetching(true);
 
-        setTemplates(fullList);
-        setLoaded(true);
+          const result = await api.template.get();
+          const fullList = [...BUILTIN_TEMPLATES, ...result];
 
-        return fullList;
+          setTemplates(fullList);
+          setLoaded(true);
+
+          return fullList;
+        } finally {
+          setFetching(false);
+        }
       }
     },
-    [loaded, templates]
+    [fetching, loaded, templates]
   );
 
   /**

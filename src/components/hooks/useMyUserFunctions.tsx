@@ -7,7 +7,7 @@ import ConfirmDeleteModal from 'components/elements/display/modals/ConfirmDelete
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import useMyApi from './useMyApi';
 import useMyModal from './useMyModal';
 import useMySnackbar from './useMySnackbar';

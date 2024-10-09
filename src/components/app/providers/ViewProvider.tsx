@@ -14,7 +14,7 @@ export interface ViewContextType {
   views: View[];
   addFavourite: (id: string) => Promise<void>;
   removeFavourite: (id: string) => Promise<void>;
-  fetchViews: () => Promise<void>;
+  fetchViews: (force?: boolean) => Promise<void>;
   addView: (v: View) => Promise<View>;
   editView: (id: string, title: string, query: string, sort: string, span: string) => Promise<View>;
   removeView: (id: string) => Promise<void>;
@@ -37,7 +37,6 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
       }
 
       setLoading(true);
-
       try {
         setViews({ ready: true, views: await api.view.get() });
       } finally {
@@ -49,7 +48,7 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     if (!views.ready && !loading) {
-      setLoading(true);
+      fetchViews();
     }
   }, [fetchViews, views.ready, appUser, loading]);
 

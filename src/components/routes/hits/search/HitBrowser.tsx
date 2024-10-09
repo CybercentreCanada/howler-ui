@@ -12,15 +12,14 @@ import { ViewContext } from 'components/app/providers/ViewProvider';
 import HitSummary from 'components/elements/hit/HitSummary';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
+import ErrorBoundary from 'components/routes/ErrorBoundary';
 import i18n from 'i18n';
 import { isNull, isUndefined } from 'lodash';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC, ReactNode } from 'react';
 import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
-import { convertLucenceToDate } from 'utils/utils';
 import InformationPane from './InformationPane';
 import SearchPane from './SearchPane';
 
@@ -31,17 +30,21 @@ const Wrapper = memo<{ show: boolean; isMd: boolean; children: ReactNode; onClos
   children,
   onClose
 }) {
-  return isMd ? (
-    <Drawer
-      onClose={onClose}
-      open={show}
-      anchor="right"
-      PaperProps={{ sx: { backgroundImage: 'none', overflow: 'hidden' } }}
-    >
-      {children}
-    </Drawer>
-  ) : (
-    <FlexPort disableOverflow>{children}</FlexPort>
+  return (
+    <ErrorBoundary>
+      {isMd ? (
+        <Drawer
+          onClose={onClose}
+          open={show}
+          anchor="right"
+          PaperProps={{ sx: { backgroundImage: 'none', overflow: 'hidden' } }}
+        >
+          {children}
+        </Drawer>
+      ) : (
+        <FlexPort disableOverflow>{children}</FlexPort>
+      )}
+    </ErrorBoundary>
   );
 });
 
@@ -78,9 +81,9 @@ const HitBrowser: FC = () => {
   // State that makes up the request
   const [query, setQuery] = useState(params.get('query') || '');
   const [offset, setOffset] = useState(0);
-  const [sort, setSort] = useState('event.created desc');
-  const [span, setSpan] = useState('');
-  const [filter, setFilter] = useState<string>(null);
+  const [sort, setSort] = useState<string | null>(null);
+  const [span, setSpan] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
 
   const summaryQuery = useMemo(() => {
     const bundle = location.pathname.startsWith('/bundles') && routeParams.id;
@@ -99,6 +102,11 @@ const HitBrowser: FC = () => {
     async (_query?: string) => {
       if (_query === 'woof!') {
         i18n.changeLanguage('woof');
+        return;
+      }
+
+      if (isNull(sort) || isNull(span)) {
+        return;
       }
 
       if (!isNull(_query) && !isUndefined(_query)) {
@@ -149,6 +157,17 @@ const HitBrowser: FC = () => {
           { showError: false, throwError: true }
         );
 
+        if (_response.total < offset) {
+          setOffset(0);
+          setParams(
+            _currentParams => {
+              _currentParams.delete('offset');
+              return _currentParams;
+            },
+            { replace: true }
+          );
+        }
+
         setResponse(_response);
       } catch (e) {
         setError(e.message);
@@ -174,6 +193,11 @@ const HitBrowser: FC = () => {
 
   // We only run this when ancillary properties (i.e. filters, sorting) change
   useEffect(() => {
+    // We're being asked to present a view, but we don't currently have the views loaded
+    if (viewId && !viewContext.ready) {
+      return;
+    }
+
     if (viewId || bundleId) {
       search(params.get('query') || '');
     } else if (query || params.has('query')) {
@@ -183,26 +207,7 @@ const HitBrowser: FC = () => {
       load([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, offset, pageCount, sort, span, bundleId, location.pathname]);
-
-  useEffect(() => {
-    if (viewId) {
-      const selectedView = viewContext.views.find(_view => _view.view_id === viewId);
-
-      if (selectedView?.sort) {
-        setSort(selectedView.sort);
-        params.set('sort', selectedView.sort);
-      }
-
-      if (selectedView?.span) {
-        setSpan(convertLucenceToDate(selectedView.span));
-        params.set('span', convertLucenceToDate(selectedView.span));
-      }
-
-      setParams(params, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewContext.views, viewId]);
+  }, [filter, offset, pageCount, sort, span, bundleId, location.pathname, viewContext.ready]);
 
   // Load the items into list when response changes.
   // This hook should only trigger when the 'response' changes.
@@ -226,10 +231,11 @@ const HitBrowser: FC = () => {
   useEffect(() => setShow(items?.some(item => item.selected)), [items]);
 
   useEffect(() => {
-    if (location.pathname.startsWith('/views')) {
-      viewContext.fetchViews();
+    if (location.pathname.startsWith('/views') && !viewContext.ready) {
+      viewContext.fetchViews(true);
     }
-  }, [location.pathname, viewContext]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, viewContext.ready]);
 
   const onPageChange = useCallback(
     (_offset: number) => {
@@ -260,23 +266,24 @@ const HitBrowser: FC = () => {
   return (
     <Stack direction="row" flex={1} sx={{ overflow: 'hidden' }}>
       <FlexPort>
-        <PageCenter textAlign="left" mt={0} ml={0} mr={0}>
-          <SearchPane
-            triggerSearch={search}
-            error={error}
-            onSelection={onSelection}
-            onSortChange={setSort}
-            onLookupChange={setFilter}
-            onSpanChange={setSpan}
-            onPageChange={onPageChange}
-            params={params}
-            setParams={setParams}
-            response={response}
-            searching={searching}
-          />
-        </PageCenter>
+        <ErrorBoundary>
+          <PageCenter textAlign="left" mt={0} ml={0} mr={0}>
+            <SearchPane
+              triggerSearch={search}
+              error={error}
+              onSelection={onSelection}
+              onSortChange={setSort}
+              onLookupChange={setFilter}
+              onSpanChange={setSpan}
+              onPageChange={onPageChange}
+              params={params}
+              setParams={setParams}
+              response={response}
+              searching={searching}
+            />
+          </PageCenter>
+        </ErrorBoundary>
       </FlexPort>
-
       <Wrapper show={show} isMd={isMd} onClose={() => setShow(false)}>
         <HitSummary query={summaryQuery} response={response} execute={!!response && !error} />
         <Card

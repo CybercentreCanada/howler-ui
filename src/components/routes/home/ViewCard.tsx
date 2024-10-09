@@ -10,7 +10,7 @@ import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export interface ViewSettings {
   viewId: string;

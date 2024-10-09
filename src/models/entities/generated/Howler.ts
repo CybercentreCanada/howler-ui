@@ -12,6 +12,7 @@ export interface Howler {
   analytic: string;
   assessment?: string;
   assignment: string;
+  bundle_size?: number;
   bundles?: string[];
   comment?: Comment[];
   confidence?: number;

@@ -1,8 +1,7 @@
 import type { AvatarProps, SxProps, Theme } from '@mui/material';
 import { Avatar, Tooltip, useTheme } from '@mui/material';
 import { AvatarContext } from 'components/app/providers/AvatarProvider';
-import type { FC, ReactNode } from 'react';
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState, type FC, type ReactNode } from 'react';
 import { nameToInitials } from 'utils/stringUtils';
 import { stringToColor } from 'utils/utils';
 
@@ -34,7 +33,7 @@ const HowlerAvatar: FC<HowlerAvatarProps> = ({ userId, ...avatarProps }) => {
     } else {
       getAvatar(userId)
         .then(av =>
-          !av.startsWith('http') && !av.startsWith('data:') ? setProps(stringAvatar(av)) : setProps({ src: av })
+          av && !av.startsWith('http') && !av.startsWith('data:') ? setProps(stringAvatar(av)) : setProps({ src: av })
         )
         .catch(e => {
           // eslint-disable-next-line no-console
