@@ -1,3 +1,4 @@
+import { loader } from '@monaco-editor/react';
 import api from 'api';
 import type { AppPreferenceConfigs, AppSiteMapConfigs, AppThemeConfigs } from 'commons/components/app/AppConfigs';
 import AppProvider from 'commons/components/app/AppProvider';
