@@ -9,8 +9,8 @@ export interface APIIndex {
   deprecated: boolean;
   type: string;
   description: string;
-  regex?: string;
-  values?: string[];
+  regex: string;
+  values: string[];
   deprecated_description: string;
 }
 
@@ -21,6 +21,7 @@ export interface APIIndexes {
   hit: { [index: string]: APIIndex };
   user: { [index: string]: APIIndex };
   template: { [index: string]: APIIndex };
+  overview: { [index: string]: APIIndex };
   analytic: { [index: string]: APIIndex };
   action: { [index: string]: APIIndex };
   view: { [index: string]: APIIndex };
@@ -46,8 +47,8 @@ export interface APILookups {
     'mitigated'
   ];
   transitions: { [index: string]: string[] };
-  techniques: { [index: string]: { key: string; name: string; url: string } };
   tactics: { [index: string]: { key: string; name: string; url: string } };
+  techniques: { [index: string]: { key: string; name: string; url: string } };
   icons: string[];
   roles: ['admin', 'automation_advanced', 'automation_basic', 'user'];
 }
@@ -75,7 +76,7 @@ export interface APIConfiguration {
     };
   };
   ui: {
-    apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string }[];
+    apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string; }[];
     banner?: unknown;
     banner_level: string;
   };

@@ -7,17 +7,20 @@ import FlexOne from 'commons/addons/flexers/FlexOne';
 import FlexPort from 'commons/addons/flexers/FlexPort';
 import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { OverviewContext } from 'components/app/providers/OverviewProvider';
 import type { RecievedDataType } from 'components/app/providers/SocketProvider';
 import { SocketContext } from 'components/app/providers/SocketProvider';
-import JSONViewer from 'components/elements/display/JSONViewer';
 import BundleButton from 'components/elements/display/icons/BundleButton';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
+import JSONViewer from 'components/elements/display/json/JSONViewer';
 import HitActions from 'components/elements/hit/HitActions';
 import HitBanner from 'components/elements/hit/HitBanner';
 import HitComments from 'components/elements/hit/HitComments';
 import HitDetails from 'components/elements/hit/HitDetails';
 import HitLabels from 'components/elements/hit/HitLabels';
 import { HitLayout } from 'components/elements/hit/HitLayout';
+import HitOutline from 'components/elements/hit/HitOutline';
+import HitOverview from 'components/elements/hit/HitOverview';
 import HitRelated from 'components/elements/hit/HitRelated';
 import HitSummary from 'components/elements/hit/HitSummary';
 import HitWorklog from 'components/elements/hit/HitWorklog';
@@ -25,14 +28,14 @@ import RelatedLink from 'components/elements/hit/related/RelatedLink';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageProvider } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
+import ErrorBoundary from 'components/routes/ErrorBoundary';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { HitUpdate } from 'models/socket/HitUpdate';
 import type { FC } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { getUserList } from 'utils/hitFunctions';
 import { tryParse } from 'utils/utils';
@@ -48,10 +51,11 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
   const { replaceById } = useTuiListMethods<Hit>();
   const { addListener, removeListener, emit, isOpen } = useContext(SocketContext);
   const { getAnalyticFromName } = useContext(AnalyticContext);
+  const { getMatchingOverview, refresh } = useContext(OverviewContext);
 
   const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const [analytic, setAnalytic] = useState<Analytic>();
-  const [tab, setTab] = useState<string>('hit_comments');
+  const [tab, setTab] = useState<string>('overview');
   const [hit, _setHit] = useState<Hit>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -89,7 +93,7 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
         setUserIds(getUserList(_hit));
         setAnalytic(await getAnalyticFromName(_hit.howler.analytic));
         if (tab === 'hit_aggregate' && !_hit.howler.is_bundle) {
-          setTab('hit_comments');
+          setTab('overview');
         }
       } finally {
         setLoading(false);
@@ -108,6 +112,8 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
     },
     [hitId]
   );
+
+  const matchingOverview = useMemo(() => getMatchingOverview(hit), [getMatchingOverview, hit]);
 
   useEffect(() => {
     addListener<HitUpdate>('infoPane', handler);
@@ -155,6 +161,19 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
     }
   }, [tab, fetchHit, isOpen]);
 
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (matchingOverview && tab === 'details') {
+      setTab('overview');
+    } else if (!matchingOverview && tab === 'overview') {
+      setTab('details');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchingOverview]);
+
   // Memoized callback for HitAction to update 'hit.howler' schema.
   const setHit = useCallback(
     (newHit: Hit) => {
@@ -189,7 +208,7 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
         sx={[hit?.howler?.is_bundle && { position: 'absolute', top: 1, right: 0, zIndex: 10 }]}
       >
         <FlexOne />
-        {onClose && (
+        {onClose && !location.pathname.startsWith('/bundles') && (
           <TuiIconButton size="small" onClick={onClose} tooltip={t('hit.panel.details.exit')}>
             <Clear />
           </TuiIconButton>
@@ -231,7 +250,7 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
         <Collapse in={showDetails} sx={{ overflow: 'auto', maxHeight: '40vh', pr: 2 }} unmountOnExit>
           {!loading ? (
             <>
-              <HitDetails hit={hit} layout={HitLayout.DENSE} />
+              <HitOutline hit={hit} layout={HitLayout.DENSE} />
               <HitLabels hit={hit} setHit={setHit} />
             </>
           ) : (
@@ -239,7 +258,7 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
           )}
         </Collapse>
       )}
-      {(hit?.howler?.links?.length > 0) && (
+      {hit?.howler?.links?.length > 0 && (
         <Stack direction="row" spacing={1} pr={2}>
           {hit?.howler?.links?.length > 0 &&
             hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href} compact {...l} />)}
@@ -250,6 +269,10 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
           {hit?.howler?.is_bundle && (
             <Tab label={t('hit.viewer.aggregate')} value="hit_aggregate" onClick={() => setTab('hit_aggregate')} />
           )}
+          {matchingOverview && (
+            <Tab label={t('hit.viewer.overview')} value="overview" onClick={() => setTab('overview')} />
+          )}
+          <Tab label={t('hit.viewer.details')} value="details" onClick={() => setTab('details')} />
           <Tab
             label={
               t('hit.viewer.comments') +
@@ -269,20 +292,24 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
           <Tab label={t('hit.viewer.related')} value="hit_related" onClick={() => setTab('hit_related')} />
         </Tabs>
       </Stack>
-      <Stack flex={1} minHeight={'20%'}>
-        <FlexPort>
-          {{
-            hit_comments: () => <HitComments hit={hit} users={users} />,
-            hit_raw: () => <JSONViewer data={!loading && hit} />,
-            hit_data: () => (
-              <JSONViewer data={!loading && hit?.howler?.data?.map(entry => tryParse(entry))} collapse={false} />
-            ),
-            hit_worklog: () => <HitWorklog hit={!loading && hit} users={users} />,
-            hit_aggregate: () => <HitSummary query={`howler.bundles:(${hit?.howler?.id})`} />,
-            hit_related: () => <HitRelated hit={hit} />
-          }[tab]()}
-        </FlexPort>
-      </Stack>
+      <ErrorBoundary>
+        <Stack flex={1} minHeight="20%">
+          <FlexPort>
+            {{
+              overview: () => <HitOverview hit={hit} />,
+              details: () => <HitDetails hit={hit} />,
+              hit_comments: () => <HitComments hit={hit} users={users} />,
+              hit_raw: () => <JSONViewer data={!loading && hit} />,
+              hit_data: () => (
+                <JSONViewer data={!loading && hit?.howler?.data?.map(entry => tryParse(entry))} collapse={false} />
+              ),
+              hit_worklog: () => <HitWorklog hit={!loading && hit} users={users} />,
+              hit_aggregate: () => <HitSummary query={`howler.bundles:(${hit?.howler?.id})`} />,
+              hit_related: () => <HitRelated hit={hit} />
+            }[tab]()}
+          </FlexPort>
+        </Stack>
+      </ErrorBoundary>
 
       {!!hit && hit?.howler && (
         <Box pr={2}>

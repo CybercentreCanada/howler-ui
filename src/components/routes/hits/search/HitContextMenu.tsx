@@ -1,13 +1,11 @@
 import {
   Assignment,
   Check,
-  Delete,
   Edit,
   HowToVote,
   KeyboardArrowRight,
   OpenInNew,
   QueryStats,
-  Save,
   SettingsSuggest
 } from '@mui/icons-material';
 import { Box, Divider, Fade, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper } from '@mui/material';
@@ -25,7 +23,7 @@ import type { Action } from 'models/entities/generated/Action';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC, MouseEventHandler, PropsWithChildren } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 // TODO: Eventually make this more generic
 
@@ -51,15 +49,10 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
 
   const hitItem = useMemo(() => items.find(item => item.id === hitId), [hitId, items]);
 
-  const {
-    availableTransitions,
-    canVote,
-    canAssess,
-    manage,
-    assess,
-    vote,
-    selectedVote,
-  } = useHitActions(hitItem?.item, newHit => replaceById(hitItem, { ...hitItem, item: newHit }));
+  const { availableTransitions, canVote, canAssess, manage, assess, vote, selectedVote } = useHitActions(
+    hitItem?.item,
+    newHit => replaceById(hitItem, { ...hitItem, item: newHit })
+  );
 
   const onContextMenu: MouseEventHandler<HTMLDivElement> = useCallback(
     async event => {

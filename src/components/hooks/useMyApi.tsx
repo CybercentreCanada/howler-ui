@@ -30,6 +30,7 @@ export default function useMyApi() {
         if (error instanceof Error) {
           if (onConflict && [409, 412].includes((error.cause as HowlerResponse<any>)?.api_status_code)) {
             onConflict();
+            return null;
           }
 
           if (showError) {

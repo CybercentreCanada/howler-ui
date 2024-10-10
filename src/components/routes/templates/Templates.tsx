@@ -152,7 +152,7 @@ const TemplatesBase: FC = () => {
                 {t(item.analytic)} - {t(item.detection ?? 'all')}
               </Typography>
               {item.keys.map(key => (
-                <Typography key={key} variant="caption" sx={{ ml: 1 }}>
+                <Typography key={item.template_id + key} variant="caption" sx={{ ml: 1 }}>
                   <code>{key}</code>
                 </Typography>
               ))}

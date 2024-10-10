@@ -7,6 +7,7 @@ import * as fields from 'api/search/fields';
 import * as grouped from 'api/search/grouped';
 import * as histogram from 'api/search/histogram';
 import * as hit from 'api/search/hit';
+import * as overview from 'api/search/overview';
 import * as template from 'api/search/template';
 import * as user from 'api/search/user';
 import * as view from 'api/search/view';
@@ -57,4 +58,4 @@ export type HowlerSigmaSearchRequest = {
   filters?: string[];
 };
 
-export { action, analytic, count, facet, fields, grouped, histogram, hit, template, user, view };
+export { action, analytic, count, facet, fields, grouped, histogram, hit, overview, template, user, view };

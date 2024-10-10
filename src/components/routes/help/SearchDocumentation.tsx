@@ -23,10 +23,11 @@ import { useAppBar, useAppLayout, useAppUser } from 'commons/components/app/hook
 import type { AppTocItem } from 'commons/components/display/AppToc';
 import PageCenter from 'commons/components/pages/PageCenter';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { useScrollRestoration } from 'components/hooks/useScrollRestoration';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { memo, useMemo, type FC, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import HelpTabs from './components/HelpTabs';
 
 const TableRoot = styled('div')(({ theme }) => ({
@@ -135,6 +136,7 @@ const SearchDocumentation: FC = () => {
   const location = useLocation();
   const theme = useTheme();
   const useHorizontal = useMediaQuery(theme.breakpoints.down(1700));
+  useScrollRestoration();
 
   const indexes = useMemo(() => {
     return config?.indexes || [];

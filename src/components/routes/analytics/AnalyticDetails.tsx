@@ -30,14 +30,12 @@ import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { RULE_INTERVALS } from 'utils/constants';
 import AnalyticComments from './AnalyticComments';
 import AnalyticHitComments from './AnalyticHitComments';
 import AnalyticOverview from './AnalyticOverview';
 import RuleView from './RuleView';
-
 
 const AnalyticDetails = () => {
   const { t } = useTranslation();

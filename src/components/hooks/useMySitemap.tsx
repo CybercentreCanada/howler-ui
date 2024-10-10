@@ -2,9 +2,9 @@ import {
   Article,
   Code,
   Dashboard,
-  Description,
   Edit,
   EditNote,
+  FormatListBulleted,
   Help,
   Info,
   Key,
@@ -62,7 +62,8 @@ export default function useMySitemap(): AppSiteMapConfigs {
         { path: '/help/auth', title: t('route.help.auth'), isLeaf: true, icon: <Key /> },
         { path: '/help/actions', title: t('route.help.actions'), isLeaf: true, icon: <SettingsSuggest /> },
         { path: '/help/hit', title: t('route.help.hit'), isLeaf: true, icon: <Shield /> },
-        { path: '/help/templates', title: t('route.help.templates'), isLeaf: true, icon: <Article /> },
+        { path: '/help/templates', title: t('route.help.templates'), isLeaf: true, icon: <FormatListBulleted /> },
+        { path: '/help/overviews', title: t('route.help.overviews'), isLeaf: true, icon: <Article /> },
         { path: '/help/views', title: t('route.help.views'), isLeaf: true, icon: <SavedSearch /> },
         { path: '/hits', title: t('route.hits'), isRoot: true, icon: <Search /> },
         { path: '/search', title: t('route.search'), isRoot: true, icon: <Search /> },
@@ -99,6 +100,12 @@ export default function useMySitemap(): AppSiteMapConfigs {
           path: '/templates',
           title: t('route.templates'),
           isRoot: true,
+          icon: <FormatListBulleted />
+        },
+        {
+          path: '/overviews',
+          title: t('route.overviews'),
+          isRoot: true,
           icon: <Article />
         },
         {
@@ -106,7 +113,14 @@ export default function useMySitemap(): AppSiteMapConfigs {
           title: t('route.templates.view'),
           breadcrumbs: ['/templates'],
           isLeaf: true,
-          icon: <Description />
+          icon: <FormatListBulleted />
+        },
+        {
+          path: '/overviews/view',
+          title: t('route.overviews.view'),
+          breadcrumbs: ['/overviews'],
+          isLeaf: true,
+          icon: <Article />
         },
         {
           path: '/analytics',

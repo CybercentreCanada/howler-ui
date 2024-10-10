@@ -1,15 +1,34 @@
-import { Alert, Box, Paper, Table, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import {
+  Alert,
+  Box,
+  darken,
+  lighten,
+  Paper,
+  Table,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  useTheme
+} from '@mui/material';
 import { useAppTheme } from 'commons/components/app/hooks';
-import type { FC, ReactElement } from 'react';
+import mermaid from 'mermaid';
+import { memo, useEffect, type FC, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
-import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/prism-async-light';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import DynamicTabs from './DynamicTabs';
 import { Notebook } from './Notebook';
 import { codeTabs } from './markdownPlugins/tabs';
+
+export interface MarkdownProps {
+  md: string;
+  components?: { [index: string]: ReactElement };
+}
 
 const customComponents = (type: string, children: any) => {
   const child = children instanceof Array ? children[0] : children;
@@ -32,13 +51,38 @@ const customComponents = (type: string, children: any) => {
   }
 };
 
-const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } }> = ({ md, components = {} }) => {
+const Markdown: FC<MarkdownProps> = ({ md, components = {} }) => {
+  const theme = useTheme();
   const { isDark } = useAppTheme();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? 'dark' : 'base',
+      securityLevel: 'loose',
+      themeCSS: `
+      .relation {
+        stroke: ${theme.palette.divider};
+        stroke-width: 1;
+      }
+
+      .nodes rect {
+        fill: ${(isDark ? lighten : darken)(theme.palette.background.paper, 0.05)}
+      }
+      `
+    });
+  }, [isDark, theme]);
+
+  useEffect(() => {
+    mermaid.run();
+  });
 
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, codeTabs]}
+      rehypePlugins={[rehypeRaw]}
+      urlTransform={(value: string) => value}
       components={{
         code({ node, className, children, ...props }) {
           if (node.children?.length === 1 && node.children[0].type === 'text') {
@@ -53,6 +97,10 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
 
           if (match && ['alert', 'notebook', 'tabs'].includes(match[1])) {
             return customComponents(match[1], children);
+          }
+
+          if (match?.[1] === 'mermaid') {
+            return <pre className="mermaid">{(node.children[0] as any).value}</pre>;
           }
 
           return match ? (
@@ -71,7 +119,7 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
           );
         },
         blockquote({ children }) {
-          return <Box sx={theme => ({ pl: 1, borderLeft: `2px solid ${theme.palette.divider}` })}>{children}</Box>;
+          return <Box sx={{ pl: 1, borderLeft: `2px solid ${theme.palette.divider}` }}>{children}</Box>;
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         img({ node, ...props }) {
@@ -115,4 +163,4 @@ const Markdown: FC<{ md: string; components?: { [index: string]: ReactElement } 
   );
 };
 
-export default Markdown;
+export default memo(Markdown);

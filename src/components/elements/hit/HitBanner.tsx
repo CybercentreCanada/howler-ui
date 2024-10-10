@@ -1,32 +1,26 @@
 import {
-  avatarClasses,
   AvatarGroup,
   Box,
   Chip,
   Divider,
-  iconButtonClasses,
+  Grid,
   Stack,
   Tooltip,
-  Typography
+  Typography,
+  avatarClasses,
+  iconButtonClasses,
+  useTheme,
+  type TypographyProps
 } from '@mui/material';
-import { useAppUser } from 'commons/components/app/hooks';
+import { useAppUser } from 'commons/components/app/hooks/useAppUser';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { SocketContext, type RecievedDataType } from 'components/app/providers/SocketProvider';
-import { uniqueId } from 'lodash';
-import type { Hit } from 'models/entities/generated/Hit';
+import { uniq, uniqueId } from 'lodash';
 import type { HowlerUser } from 'models/entities/HowlerUser';
+import type { Hit } from 'models/entities/generated/Hit';
 import type { HitUpdate } from 'models/socket/HitUpdate';
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type FC,
-  type ReactElement,
-  type ReactNode
-} from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ESCALATION_COLORS, PROVIDER_COLORS } from 'utils/constants';
@@ -54,6 +48,7 @@ const HitBanner: FC<HitBannerProps> = ({
   const { config } = useContext(ApiConfigContext);
   const { addListener, removeListener } = useContext(SocketContext);
   const { getIdFromName } = useContext(AnalyticContext);
+  const theme = useTheme();
 
   const [analyticId, setAnalyticId] = useState<string>();
 
@@ -122,19 +117,19 @@ const HitBanner: FC<HitBannerProps> = ({
     if (hit.howler.is_bundle) {
       return (
         <Box
-          sx={theme => ({
+          sx={{
             alignSelf: 'stretch',
             backgroundColor: providerColor,
             borderRadius: theme.shape.borderRadius,
             minWidth: '15px'
-          })}
+          }}
         />
       );
     } else {
       return (
         <HitBannerTooltip hit={hit}>
           <Box
-            sx={theme => ({
+            sx={{
               gridColumn: { xs: 'span 3', sm: 'span 1' },
               minWidth: '90px',
               backgroundColor: providerColor,
@@ -144,7 +139,7 @@ const HitBanner: FC<HitBannerProps> = ({
               p: compressed ? 0.5 : 1,
               pt: 2,
               pl: 1
-            })}
+            }}
             display="flex"
             flexDirection="column"
           >
@@ -153,27 +148,83 @@ const HitBanner: FC<HitBannerProps> = ({
             </Typography>
             {iconUrl && (
               <Box
-                sx={theme => ({
+                sx={{
                   width: '40px',
                   height: '40px',
                   mask: `url("${iconUrl}")`,
                   maskSize: 'cover',
                   background: theme.palette.getContrastText(providerColor)
-                })}
+                }}
               />
             )}
           </Box>
         </HitBannerTooltip>
       );
     }
-  }, [compressed, hit, iconUrl, providerColor]);
+  }, [compressed, hit, iconUrl, providerColor, theme.palette, theme.shape.borderRadius]);
 
   /**
    * The tooltips are necessary only when in the most compressed format
    */
-  const Wrapper: FC<{ title: ReactNode; children: ReactElement }> = useCallback(
-    ({ title, children }) => (compressed ? <Tooltip title={title}>{children}</Tooltip> : children),
-    [compressed]
+  const Wrapper: FC<{ i18nKey: string; value: string | string[] } & TypographyProps> = useCallback(
+    ({ i18nKey, value, ...typographyProps }) => {
+      const _children = (
+        <Stack direction="row" spacing={1} flex={1}>
+          <Typography
+            variant={textVariant}
+            noWrap={compressed}
+            textOverflow={compressed ? 'ellipsis' : 'wrap'}
+            {...typographyProps}
+            sx={[
+              { display: 'flex', flexDirection: 'row' },
+              ...(Array.isArray(typographyProps?.sx) ? typographyProps?.sx : [typographyProps?.sx])
+            ]}
+          >
+            {t(i18nKey)}:
+          </Typography>
+          {(Array.isArray(value) ? value : [value]).map(val => {
+            return (
+              <Typography
+                key={val}
+                variant={textVariant}
+                noWrap={compressed}
+                textOverflow={compressed ? 'ellipsis' : 'wrap'}
+                {...typographyProps}
+                sx={[
+                  { display: 'flex', flexDirection: 'row' },
+                  ...(Array.isArray(typographyProps?.sx) ? typographyProps?.sx : [typographyProps?.sx])
+                ]}
+              >
+                {val}
+              </Typography>
+            );
+          })}
+        </Stack>
+      );
+
+      return compressed ? (
+        <Tooltip
+          title={
+            Array.isArray(value) ? (
+              <div>
+                {value.map(_indicator => (
+                  <p key={_indicator} style={{ margin: 0, padding: 0 }}>
+                    {_indicator}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              value
+            )
+          }
+        >
+          {_children}
+        </Tooltip>
+      ) : (
+        _children
+      );
+    },
+    [compressed, t, textVariant]
   );
 
   return (
@@ -185,18 +236,18 @@ const HitBanner: FC<HitBannerProps> = ({
     >
       {leftBox}
       <Stack
-        sx={theme => ({
+        sx={{
           height: '100%',
           padding: theme.spacing(1),
           gridColumn: { xs: 'span 3', sm: 'span 1', md: 'span 1' }
-        })}
+        }}
         spacing={layout !== HitLayout.COMFY ? 1 : 2}
         divider={
           <Divider
             orientation="horizontal"
             sx={[
               layout !== HitLayout.COMFY && { marginTop: '4px !important' },
-              theme => ({ mr: `${theme.spacing(-1)} !important` })
+              { mr: `${theme.spacing(-1)} !important` }
             ]}
           />
         }
@@ -220,73 +271,59 @@ const HitBanner: FC<HitBannerProps> = ({
           <Typography
             flex={1}
             variant={textVariant}
-            noWrap={compressed}
-            textOverflow={compressed ? 'ellipsis' : 'wrap'}
             color={ESCALATION_COLORS[hit.howler.escalation] + '.main'}
-            sx={{ wordBreak: 'break-all', fontWeight: 'bold' }}
+            sx={{ fontWeight: 'bold' }}
           >
             {t('hit.header.rationale')}: {hit.howler.rationale}
           </Typography>
         )}
         {hit.howler?.outline && (
           <>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={layout !== HitLayout.COMFY ? 1 : 2}>
-              <Wrapper title={hit.howler.outline.threat}>
-                <Typography
-                  flex={1}
-                  variant={textVariant}
-                  noWrap={compressed}
-                  textOverflow={compressed ? 'ellipsis' : 'wrap'}
-                  sx={{ wordBreak: 'break-all' }}
-                >
-                  {t('hit.header.threat')}: {hit.howler.outline.threat}
+            <Grid container spacing={layout !== HitLayout.COMFY ? 1 : 2} sx={{ ml: `${theme.spacing(-1)} !important` }}>
+              {hit.howler.outline.threat && (
+                <Grid item>
+                  <Wrapper i18nKey="hit.header.threat" value={hit.howler.outline.threat} />
+                </Grid>
+              )}
+              {hit.howler.outline.target && (
+                <Grid item>
+                  <Wrapper i18nKey="hit.header.target" value={hit.howler.outline.target} />
+                </Grid>
+              )}
+            </Grid>
+            {hit.howler.outline.indicators?.length > 0 && (
+              <Stack direction="row" spacing={1}>
+                <Typography component="span" variant={textVariant}>
+                  {t('hit.header.indicators')}:
                 </Typography>
-              </Wrapper>
-              <Wrapper title={hit.howler.outline.target}>
-                <Typography
-                  flex={1}
-                  variant={textVariant}
-                  noWrap={compressed}
-                  textOverflow={compressed ? 'ellipsis' : 'wrap'}
-                  sx={{ wordBreak: 'break-all' }}
+                <Grid
+                  container
+                  spacing={0.5}
+                  sx={{ mt: `${theme.spacing(-0.5)} !important`, ml: `${theme.spacing(0.25)} !important` }}
                 >
-                  <Trans i18nKey="hit.header.target" />: {hit.howler.outline.target}
-                </Typography>
-              </Wrapper>
-            </Stack>
-            <Wrapper
-              title={
-                <div>
-                  {hit.howler.outline.indicators.map(i => (
-                    <p key={i} style={{ margin: 0, padding: 0 }}>
-                      {i}
-                    </p>
-                  ))}
-                </div>
-              }
-            >
-              <Typography
+                  {uniq(hit.howler.outline.indicators).map((_indicator, index) => {
+                    return (
+                      <Grid key={_indicator} item>
+                        <Stack direction="row">
+                          {index < hit.howler.outline.indicators.length - 1 && (
+                            <Typography variant={textVariant}>{','}</Typography>
+                          )}
+                        </Stack>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Stack>
+            )}
+            {hit.howler.outline.summary && (
+              <Wrapper
+                i18nKey="hit.header.summary"
+                value={hit.howler.outline.summary}
                 paragraph
-                variant={textVariant}
-                noWrap={compressed}
-                textOverflow={compressed ? 'ellipsis' : 'wrap'}
-                sx={[compressed && { marginTop: `0 !important` }]}
-              >
-                {t('hit.header.indicators')}: {hit.howler.outline.indicators.map(i => i).join(', ')}
-              </Typography>
-            </Wrapper>
-            <Wrapper title={hit.howler.outline.summary}>
-              <Typography
-                paragraph
-                variant={textVariant}
-                noWrap={compressed}
                 textOverflow="wrap"
                 sx={[compressed && { marginTop: `0 !important` }]}
-              >
-                <Trans i18nKey="hit.header.summary" />
-                {hit.howler.outline.summary}
-              </Typography>
-            </Wrapper>
+              />
+            )}
           </>
         )}
       </Stack>
@@ -296,17 +333,16 @@ const HitBanner: FC<HitBannerProps> = ({
         alignSelf="stretch"
         sx={[
           { minWidth: 0, alignItems: { sm: 'end', md: 'start' }, flex: 1, pl: 1 },
-          compressed &&
-            (theme => ({
-              [`& .${avatarClasses.root}`]: {
-                height: theme.spacing(3),
-                width: theme.spacing(3)
-              },
-              [`& .${iconButtonClasses.root}`]: {
-                height: theme.spacing(3),
-                width: theme.spacing(3)
-              }
-            }))
+          compressed && {
+            [`& .${avatarClasses.root}`]: {
+              height: theme.spacing(3),
+              width: theme.spacing(3)
+            },
+            [`& .${iconButtonClasses.root}`]: {
+              height: theme.spacing(3),
+              width: theme.spacing(3)
+            }
+          }
         ]}
       >
         <HitTimestamp hit={hit} layout={layout} />

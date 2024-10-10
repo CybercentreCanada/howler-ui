@@ -19,7 +19,7 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const processViewElement = useCallback((): AppLeftNavElement => {
     const viewElement = leftNav.elements.find(el => el.element?.id === 'views');
-    const favourites = appUser.user?.favourite_views;
+    const favourites = appUser.user?.favourite_views || [];
 
     // There are no favourites and no nav elements - return
     if (favourites.length < 1 && !viewElement) {

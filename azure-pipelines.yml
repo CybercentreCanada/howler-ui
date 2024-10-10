@@ -23,7 +23,7 @@ variables:
   isPrBranch: $[eq(variables['Build.SourceBranchName'], 'merge')]
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: 'ubuntu-latest'
 
 stages:
   - stage: Build
@@ -37,5 +37,6 @@ stages:
               yarn install
               export VITE_BRANCH=$(branch)
               export VITE_COMMIT_HASH=$(Build.SourceVersion)
+              export NODE_OPTIONS=--max-old-space-size=16384
               yarn run build
             displayName: 'Vite build'

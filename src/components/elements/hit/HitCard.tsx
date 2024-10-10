@@ -8,9 +8,9 @@ import type { FC } from 'react';
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import HowlerCard from '../display/HowlerCard';
 import HitBanner from './HitBanner';
-import HitDetails from './HitDetails';
 import HitLabels from './HitLabels';
 import { HitLayout } from './HitLayout';
+import HitOutline from './HitOutline';
 
 const HitCard: FC<{ hit: Hit; layout: HitLayout; readOnly?: boolean; useListener?: boolean }> = ({
   hit: _hit,
@@ -53,7 +53,7 @@ const HitCard: FC<{ hit: Hit; layout: HitLayout; readOnly?: boolean; useListener
         <HitBanner hit={hit} layout={layout} />
         {layout !== HitLayout.DENSE && (
           <>
-            <HitDetails hit={hit} layout={layout} />
+            <HitOutline hit={hit} layout={layout} />
             <HitLabels hit={hit} setHit={setHit} readOnly={readOnly} />
           </>
         )}

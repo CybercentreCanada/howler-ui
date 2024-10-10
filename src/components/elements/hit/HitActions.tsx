@@ -40,16 +40,10 @@ const HitActions: FC<{
   const config = useMyApiConfig();
   const { values, set } = useMyLocalStorageProvider();
 
-  const {
-    availableTransitions,
-    canVote,
-    canAssess,
-    loading,
-    manage,
-    assess,
-    vote,
-    selectedVote,
-  } = useHitActions(hit, setHit);
+  const { availableTransitions, canVote, canAssess, loading, manage, assess, vote, selectedVote } = useHitActions(
+    hit,
+    setHit
+  );
 
   const [openSetting, setOpenSetting] = useState<null | HTMLElement>(null);
 
@@ -57,7 +51,7 @@ const HitActions: FC<{
     () =>
       isMobile
         ? HitShortcuts.NO_SHORTCUTS
-        : (values[StorageKey.HIT_SHORTCUTS] as HitShortcuts) ?? HitShortcuts.SHORTCUTS_HINT,
+        : ((values[StorageKey.HIT_SHORTCUTS] as HitShortcuts) ?? HitShortcuts.SHORTCUTS_HINT),
     [values]
   );
 

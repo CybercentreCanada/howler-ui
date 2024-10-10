@@ -2,22 +2,26 @@
   "adminmenu": "Menu d'administration",
   "adminmenu.config": "Configuration",
   "adminmenu.users": "Usagers",
+
   "api.user.apikey.updated": "Nouvelle clé API ajoutée avec succès.",
   "api.user.apikey.removed": "Clé API supprimée avec succès",
   "api.user.email.updated": "L'email de l'utilisateur a été actualisé avec succès.",
   "api.user.name.updated": "Le nom de l'utilisateur a été actualisé avec succès.",
   "api.user.quota.updated": "Le quota de l'API a été actualisé avec succès.",
   "api.user.role.updated": "Les rôles de l'utilisateur ont été actualisé avec succès.",
+
   "apikey.extended": "Étendu",
   "apikey.impersonate": "Imiter",
   "apikey.read": "Lire",
   "apikey.write": "Écrire",
+
   "add": "Ajouter",
   "all": "Tous",
   "any": "Tous",
   "asc": "Ascendant",
   "close": "Fermer",
   "desc": "Descendant",
+
   "app.drawer.hit.assignment.autocomplete.label": "Choisissez le destinataire",
   "app.drawer.hit.assignment.description": "Choisissez un utilisateur à qui assigner ce hit.",
   "app.drawer.hit.assignment.success": "L'utilisateur a été assigné au hit avec succès.",
@@ -39,14 +43,19 @@
   "app.drawer.user.apikey.limit.description": "En raison de la configuration de ce déploiement Howler, la date d'expiration autorisée pour les clés API créées maintenant est très proche.",
   "app.drawer.user.roles.title": "Ajouter un rôle",
   "app.drawer.user.groups.title": "Vos groupes",
+
   "app.language": "Langue",
+
   "app.search.fullscreen": "Maximiser la recherche",
   "app.search.shortcut": "Ouvrir la recherche",
   "app.search.starttyping": "Recherche par affectation, analyse, détection ou statut",
+
   "breadcrumb.404": "404",
+
   "button.add": "Ajouter",
   "button.cancel": "Annuler",
   "button.delete": "Supprimer",
+  "button.drag": "Glisser",
   "button.copy": "Copier",
   "button.create": "Créer",
   "button.edit": "Modifier",
@@ -57,8 +66,10 @@
   "button.search": "Rechercher",
   "button.readonly": "Lecture seule",
   "button.confirm": "Confirmer",
+
   "clipboard.failure": "n'a pas pu être copié dans le presse-papiers.",
   "clipboard.success": "a été copié dans le presse-papiers.",
+
   "comments.add": "Ajouter un commentaire",
   "comments.add.detection": "Ajouter un commentaire à cette détection",
   "comments.add.analytic": "Ajouter un commentaire à cette analyse",
@@ -70,10 +81,14 @@
   "comments.analytic": "Commentaires d'analyse ({{count}})",
   "comments.analytic.show": "Montrer les commentaires d'analyse",
   "comments.analytic.hide": "Cacher les commentaires d'analyse",
+
   "documentation.open.actions": "Les actions sont une fonctionnalité de Howler qui permet aux utilisateurs d'effectuer des tâches particulières sur un grand nombre de hits, en automatisant l'exécution d'une tâche sur chaque hit. Cliquez pour plus de documentation.",
   "documentation.open.search": "La recherche vous permet d'interroger Howler et d'afficher les résultats correspondants. Cliquez pour plus de documentation.",
   "documentation.open.views": "Les vues sont une fonctionnalité de Howler qui permet aux utilisateurs de créer des requêtes personnalisées par défaut à travers lesquelles ils peuvent organiser et trier les hits. Cliquez pour plus de documentation.",
   "documentation.open.templates": "Howler permet aux analystes et aux ingénieurs de détection de créer des modèles, qui permettent à diverses analyses et à leurs détections de présenter des champs et des données pertinents pour le triage des alertes générées par cette analyse/détection. Cliquez pour plus de documentation.",
+
+  "duplicates.omitted": "Certains doublons ont été omis.",
+
   "rule.interval": "Intervalle d'exécution de la règle",
   "rule.interval.edit": "Modifier intervalle",
   "rule.interval.save": "Sauvegarder intervalle",
@@ -83,25 +98,34 @@
   "rule.interval.three.hours": "Toutes les trois heures",
   "rule.interval.six.hours": "Toutes les six heures",
   "rule.interval.one.day": "Tous les jours",
+
   "date.range.1.day": "Dernier jour",
   "date.range.3.day": "Les trois derniers jours",
   "date.range.1.week": "La dernière semaine",
   "date.range.1.month": "Le dernier mois",
   "date.range.all": "Toutes les dates",
   "date.range.custom": "Date personnalisée",
+
   "date.select.start": "Sélectionner la date de début",
   "date.select.end": "Sélectionner la date de fin",
   "date.search.range": "Plage de dates de recherche",
+
   "deprecated": "Obsolète",
   "divider": "OU",
   "direction": "Direction",
+
   "deprecation.instructions": "Instructions de mise à niveau",
+
   "drawer.collapse": "Fermer le Menu",
   "drawer.expand": "Ouvrir le Menu",
+
   "drawer.apikey.copied": "Nouvelle clé API copiée dans le presse-papiers!",
+
   "edit": "Modifier",
+
   "hit.actions.conflict.assess": "Quelqu'un d'autre a déjà évalué ce hit.",
   "hit.actions.conflict.manage": "Quelqu'un d'autre a déjà interagi avec ce hit. Veuillez réessayer.",
+
   "hit.label": "Étiquettes",
   "hit.label.category.mitigation": "Catégorie : Atténuation - Cette étiquette indique les efforts entrepris pour atténuer la compromission.",
   "hit.label.category.insight": "Catégorie : Insight - Un analyste a acquis une connaissance utile dont il est certain qu'elle restera vraie pour les futures alertes si les circonstances environnantes restent les mêmes.",
@@ -117,9 +141,12 @@
   "hit.label.edit.add.error.duplicate": "Étiquette en double non-permise",
   "hit.label.edit.add.category": "Catégorie de l'étiquette",
   "hit.label.edit.add.label": "Valeur de l'étiquette",
+
   "hit.details.actions.assess": "Évaluer",
   "hit.details.actions.assess.noassessment": "Aucun Évaluation",
   "hit.details.actions.assign": "Assigner Hit",
+  "hit.details.actions.retain": "Conserver en Alfred",
+  "hit.details.actions.unretain": "Annuler Conservation",
   "hit.details.actions.transition": "Actions",
   "hit.details.actions.transition.release": "Libérer",
   "hit.details.actions.transition.assign_to_other": "Déléguer",
@@ -136,6 +163,7 @@
   "hit.details.forceDropdown": "Utiliser l'affichage de la liste déroulante",
   "hit.details.shortcuts": "Paramètres des raccourcis",
   "hit.details.title": "Détails",
+
   "hit.header.assignment": "Affectation: {{user}}",
   "hit.header.assignment.add": "Attribuer à un utilisateur",
   "hit.header.assignment.change": "Changer l'affectation",
@@ -145,10 +173,13 @@
   "hit.header.rationale": "Justification",
   "hit.header.scrutiny": "Examen minutieux: ",
   "hit.header.status": "Statut: ",
-  "hit.header.summary": "Résumé: ",
+  "hit.header.summary": "Résumé",
   "hit.header.target": "Cible",
   "hit.header.threat": "Menace",
   "hit.header.votes": "Votes: ",
+
+  "hit.overview.missing": "Aucune vue d'ensemble n'a été créée pour ce hit. Pour créer une vue d'ensemble, cliquez sur le bouton pour ajouter à droite.",
+
   "hit.panel.aggregation.run": "Créer un sommaire",
   "hit.panel.analytic.open": "Ouvrir l'analyse",
   "hit.panel.bundles.open": "Groupes parentaux",
@@ -159,6 +190,14 @@
   "hit.panel.open": "Ouvrir hit",
   "hit.panel.close": "Fermer",
   "hit.panel.hit.noselection": "Aucun résultat n'a été sélectionné",
+
+  "hit.panel.details.cluster": "Taille de la grappe",
+  "hit.panel.details.domains": "Domaines à bloquer",
+  "hit.panel.details.cluster.description": "Taille de la grappe",
+  "hit.panel.details.domains.description": "Domaines à bloquer",
+  "hit.panel.details.no.domains": "Aucun domaine trouvé",
+  "hit.panel.details.no.subjects": "Aucun sujet trouvé",
+
   "hit.summary.title": "Résumé des hits au fil du temps",
   "hit.summary.subtitle": "Limité à un maximum de 10 000 hits",
   "hit.summary.aggregate.sources": "Modèles associés:",
@@ -174,9 +213,14 @@
   "hit.summary.server.limit": "Impossible de résumer sur {{number}} Hits",
   "hit.summary.server.limit.description": "En raison de la complexité de la requête, les requêtes dont le nombre de résultats est supérieur à {{max}} ne peuvent pas être résumées. Affinez votre requête pour permettre le résumé.",
   "hit.summary.zoom.reset": "Réinitialiser le zoom",
+  "hit.summary.adhoc": "Ajouter une clé personnalisée",
+  "hit.summary.adhoc.custom": "Champ personnalisé",
+
   "hit.bundle.parents.show": "Afficher les paquets parents",
   "hit.bundle.close": "Fermer Paquet",
+
   "hit.fields": "Champs",
+
   "help.hit.bundle.title": "Groupes des hits",
   "help.hit.banner.title": "Remplissage de l'en-tête de hit",
   "help.hit.banner.description": "Voir l'exemple d'en-tête de résultat ci-dessous pour connaître les clés de résultat nécessaires pour le remplir correctement. Si vous avez d'autres questions, posez-les dans le réseau d'assistance HOWLER.",
@@ -185,7 +229,9 @@
   "help.hit.schema.title": "Schéma du hit",
   "help.hit.schema.regex": "Regex de validation",
   "help.hit.schema.values": "Valeurs acceptées",
+
   "help.actions.introduction": "Introduction aux actions",
+
   "help.hit.schema.description.missing": "Aucune description n'est fournie.",
   "help.hit.schema.search.prompt": "Filtrer les champs",
   "help.hit.schema.table.assemblyline": "Champs d'assemblyline",
@@ -194,6 +240,7 @@
   "help.hit.schema.table.name": "Champ",
   "help.hit.schema.table.type": "Type",
   "help.hit.schema.table.description": "Description",
+
   "hit.quicksearch": "Recherche par affectation, analytique, détection ou état",
   "hit.search.prompt": "Rechercher en fournissant une requête lucene. Activer l'autocomplétion en utilisant [ctrl + espace].",
   "hit.search.invalid": "Requête invalide",
@@ -216,10 +263,13 @@
   "hit.search.sort.button": "Trier les résultats",
   "hit.search.view.current": "Vue courante",
   "hit.search.view.default": "(Défaut)",
+
   "hit.viewer.aggregate": "Sommaire",
   "hit.viewer.comments": "Commentaires",
   "hit.viewer.data": "Données brutes",
+  "hit.viewer.details": "Détails",
   "hit.viewer.json": "JSON",
+  "hit.view.overview": "Vue d'ensemble",
   "hit.viewer.worklog": "Journal de Bord",
   "hit.viewer.related": "Liens connexes",
   "hit.viewer.reload": "Recharge",
@@ -228,23 +278,33 @@
   "hit.worklog.set": "révisé à",
   "hit.worklog.updated": "Actualisé",
   "hit.worklog.new": "Nouveaux développements",
+
   "home.title": "Mes Hits Assignés",
+
   "json.viewer.search.label": "Recherche de valeurs JSON",
   "json.viewer.search.prompt": "La requête doit être une expression rationnelle valide.",
+
   "link.open": "Ouvrir le lien",
+
   "list": "liste",
+
   "live.connecting": "Essayer de se reconnecter au serveur en direct.",
   "live.open": "Connecté au serveur en direct. Les mises à jour des alertes seront automatiquement appliquées.",
   "live.closing": "Fermeture de la connexion au serveur en direct.",
   "live.closed": "Non connecté au serveur en direct.",
+
   "loading": "Chargement...",
+
   "manage": "Gérer",
+
   "modal.action.title": "Enregistrer l'action",
   "modal.action.description": "Donnez un nom qui permette aux autres utilisateurs d'identifier l'objectif de cette action.",
   "modal.action.empty": "Le nom de l'action ne peut pas être vide.",
   "modal.action.label": "Nom de l'action",
+
   "modal.confirm.delete.title": "Confirmer la suppression",
   "modal.confirm.delete.description": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+
   "modal.rule.title": "Créer une nouvelle règle",
   "modal.rule.description": "Créer une nouvelle règle en lui donnant un nom, une description markdown et en la soumettant",
   "modal.rule.name": "Nom de la règle",
@@ -256,14 +316,21 @@
   "modal.rule.disabled.analytic": "Vous devez fournir un nom de règle",
   "modal.rule.disabled.description": "Vous devez fournir une description markdown utile pour votre règle.",
   "modal.rule.success": "règle créée!",
+
   "modal.rationale.title": "Ajouter une justification",
   "modal.rationale.description": "Fournissez une justification qui explique succinctement aux autres analystes les raisons pour lesquelles vous êtes confiant dans cette évaluation.",
   "modal.rationale.label": "Justification",
+
   "none": "Rien",
+
   "no.data": "Aucune donnée",
+
   "on": "sur",
+
   "open": "Ouvert",
+
   "owner": "Propriétaire",
+
   "operations.add_label": "Ajouter un label",
   "operations.add_to_bundle": "Ajouter à une groupe des hits",
   "operations.remove_label": "Supprimer un label",
@@ -273,13 +340,22 @@
   "operations.transition": "Exécuter la transition",
   "operations.promote": "Promouvoir un hit",
   "operations.demote": "Rétrograder un hit",
+
   "outline.assemblyline.beacons": "Balises",
   "outline.assemblyline.file_path": "Chemin d'accès au fichier",
   "outline.assemblyline.last_modified": "Dernière modification",
   "outline.assemblyline.tags": "Tags",
+
+  "overview.search": "Recherche dans les champs du Hit",
+
   "page.404.description": "La page que vous recherchez est introuvable ...",
   "page.404.title": "404: Introuvable",
+  "page.error.title": "L'application ne fonctionne plus",
+  "page.error.description": "L'application a cessé de fonctionner soudainement. Si le problème persiste, veuillez nous contacter sur teams.",
+  "page.error.support": "Cliquez ici pour obtenir du soutien sur teams",
+
   "page.dashboard.title": "Tableau de bord",
+
   "page.documentation.categories": "Catégories d'API",
   "page.documentation.categories.category": "Catégorie",
   "page.documentation.categories.description": "Description",
@@ -292,16 +368,20 @@
   "page.documentation.required_priv.explanation": "Les privilèges que la clé API que vous avez générée doit avoir pour interagir avec ce point de terminaison.",
   "page.documentation.description": "Description du point de terminaison",
   "page.documentation.description.explanation": "La documentation décrivant à quoi sert ce point de terminaison et comment vous devez interagir avec lui.",
+
   "page.help": "Aide",
   "page.help.title": "Tableau de bord de l'aide",
   "page.help.support.title": "Vous avez encore besoin d'aide ?",
   "page.help.support.description": "N'hésitez pas à utiliser le canal d'assistance de la plateforme analytique.",
   "page.help.support.open": "Ouvrir le canal",
+
   "page.login.button": "Se connecter",
   "page.login.error": "Tapez simplement n'importe quoi dans les champs du nom d'utilisateur et du mot de passe ...",
   "page.login.password": "Mot de passe",
   "page.login.username": "Nom d'utilisateur",
+
   "page.logout": "Déconnexion de l'utilisateur actuel ... ",
+
   "page.settings": "Paramètres de votre compte",
   "page.settings.profile.table.email": "Courriel",
   "page.settings.profile.table.groups": "Groupes",
@@ -329,16 +409,19 @@
   "page.settings.local.results.count": "Résultats par page",
   "page.settings.local.results.count.description": "Combien de résultats devons-nous afficher par page lors de l'affichage des résultats de recherche ?",
   "page.settings.admin.title": "Administration",
+
   "page.user.search": "Chercher des utilisateurs",
   "page.user.search.column.username": "Nom d'utilisateur",
   "page.user.search.column.fullname": "Nom complet",
   "page.user.search.column.email": "E-mail",
   "page.user.search.column.groups": "Groupes",
   "page.user.search.prompt": "Rechercher par nom d'utilisateur, nom complet, e-mail ou groupe",
+
   "password": "Nouveau mot de passe",
   "password.confirm": "Confirmer le mot de passe",
   "password.match": "Le mot de passe et le mot de passe de confirmation doivent correspondre",
   "password.success": "Votre nouveau mot de passe a été défini. Vous serez déconnecté dans cinq secondes.",
+
   "personalization": "Personnalisation",
   "personalization.autohideappbar": "Masquer la barre supérieure",
   "personalization.dark": "Mode Sombre",
@@ -347,16 +430,22 @@
   "personalization.reset_text": "Réinitialiser les paramètres",
   "personalization.showbreadcrumbs": "Afficher fils d'ariane",
   "personalization.sticky": "Barre supérieure collante",
+
   "query": "Requête",
+
   "quicksearch.aria": "recherche",
   "quicksearch.placeholder": "Recherche ...",
+
   "references": "références",
+
   "retention.imminent": "à quelques instants",
   "retention.safe": "Ce résultat est {{ duration }} de la suppression automatique.",
   "retention.warn": "Ce résultat est {{ duration }} de la suppression automatique. Envisagez de conserver le résultat positif si vous voulez éviter la perte de données.",
   "retention.error": "Ce résultat est {{ duration }} de la suppression automatique. Vous n'aurez bientôt plus accès à ce résultat dans Howler. Pensez à conserver ce résultat si vous voulez éviter toute perte de données.",
+
   "route.admin.user.details": "Détails d'utilisateur",
   "route.admin.user.search": "Recherche utilisateurs",
+
   "route.advanced": "Recherche avancée",
   "route.advanced.error": "Erreur de recherche",
   "route.advanced.fields": "Champs à montrer",
@@ -374,6 +463,7 @@
   "route.advanced.result.title": "Recherche avancée de howler",
   "route.advanced.result.description": "Excecutez une requête pour afficher les résultats ici.",
   "route.advanced.type": "Type de règle",
+
   "route.analytics": "Analyses",
   "route.analytics.deleted": "Règle supprimée!",
   "route.analytics.detections": "Détections:",
@@ -404,6 +494,7 @@
   "route.analytics.detection.title": "Hits ingérés au cours des trois derniers mois par détection",
   "route.analytics.updated": "Analytic mis a jour!",
   "route.analytics.set.owner": "Changement de propriétaire",
+
   "route.actions": "Actions",
   "route.actions.operation.add": "Ajouter une nouvelle opération",
   "route.actions.alert.error": "Il y a {{count}} hits dans votre requête pour lesquels cette opération peut échouer.",
@@ -427,6 +518,7 @@
   "route.actions.search.warning": "Avant d'ajouter des opérations, vous devez exécuter et valider une requête.",
   "route.actions.trigger.description": "Cette action a été automatisée. Elle s'exécutera automatiquement lorsque le(s) déclencheur(s) <bold>{{triggers}}</bold> sera (seront) atteint(s).",
   "route.actions.query.empty": "La requête ne peut pas être vide.",
+
   "route.actions.trigger": "Filtrer par déclencheur",
   "route.actions.trigger.create": "Exécution lors du création",
   "route.actions.trigger.promote": "Exécution lors du promotion",
@@ -436,19 +528,26 @@
   "route.actions.trigger.add_label": "Exécution sur l'ajout d'une étiquette",
   "route.actions.trigger.remove_label": "Exécuter la suppression de l'étiquette",
   "route.actions.trigger.disabled.explanation": "L'une des opérations sélectionnées ne prend pas en charge ce déclencheur.",
+  "route.actions.trigger.disabled.permissions": "Vous n'avez pas les rôles corrects pour exécuter ce déclencheur.",
+
   "route.integrations": "Intégrations",
+
   "route.help": "Aide",
   "route.help.main": "Tableau de bord",
   "route.help.api": "Documentation de l'API",
   "route.help.auth": "Authentification",
   "route.help.bundles": "Groupes des hits",
   "route.help.client": "Client Howler",
+  "route.help.hit": "Documentation sur les coups",
   "route.help.search": "Recherche",
   "route.help.templates": "Modèles",
+  "route.help.overviews": "Vues d'ensemble",
   "route.help.views": "Vues",
+
   "route.hits": "Alertes",
   "route.hits.bundle": "Voir groupe",
   "route.hits.view": "Afficher hit",
+
   "route.home.add.analytic.description": "Sélectionnez l'analyse pour laquelle les données doivent être affichées, et la visualisation à présenter",
   "route.home.add.analytic.title": "Ajouter des statistiques analytiques",
   "route.home.add.analytic": "Analytique",
@@ -478,16 +577,21 @@
   "route.home.description": "Bienvenue sur Howler. Vous pouvez ajouter des éléments à votre tableau de bord en utilisant les boutons ci-dessus.",
   "route.home.title": "Howler",
   "route.home": "Tableau de bord utilisateur",
+
   "route.help.hit.banner": "Documentation sur en-tête de hit",
+
   "route.login.button.oauth": "Se connecter avec",
+
   "route.templates": "Modèles",
   "route.templates.analytic": "Choisir une analyse",
   "route.templates.detection": "Choisir une détection",
   "route.templates.builtin": "Intégré",
   "route.templates.builtin.show": "Modèles intégrés",
+  "route.templates.builtin.hide": "Masquer les modèles intégrés",
   "route.templates.default": "Défaut",
   "route.templates.global": "Général",
   "route.templates.personal": "Personnel",
+  "route.templates.search.prompt": "Recherche par clé d'analyse, de détection ou de modèle.",
   "route.templates.select": "Choisir une analyse et une détection pour visualiser et modifier le modèle.",
   "route.templates.readonly.warning": "Il s'agit d'un modèle intégré qui ne peut pas être modifié. Pour le modifier, veuillez contacter",
   "route.templates.prompt": "Activer l'autocomplétion en utilisant [ctrl + espace].",
@@ -498,6 +602,21 @@
   "route.templates.manager.readonly": "Intégré",
   "route.templates.manager.search": "Rechercher les modèles",
   "route.templates.rule.explanation": "Il s'agit d'une analyse Howler. Il n'y a qu'une seule détection, qui a été présélectionnée.",
+
+  "route.overviews": "Vues d'ensemble",
+  "route.overviews.analytic": "Choisir une analyse",
+  "route.overviews.detection": "Choisir une détection",
+  "route.overviews.default": "Défaut",
+  "route.overviews.search.prompt": "Recherche par clé d'analyse ou de détection.",
+  "route.overviews.select": "Choisir une analyse et une détection pour visualiser et modifier la vue d'ensemble.",
+  "route.overviews.prompt": "Activer l'autocomplétion en utilisant [ctrl + espace].",
+  "route.overviews.view": "Voir la vue d'ensemble",
+  "route.overviews.create": "Nouvelle vue d'ensemble",
+  "route.overviews.manager.search": "Rechercher les vues d'ensemble",
+  "route.overviews.manager.delete": "Supprimer la vue d'ensemble",
+  "route.overviews.manager.delete.success": "Vue d'ensemble Supprimée.",
+  "route.overviews.rule.explanation": "Il s'agit d'une analyse Howler. Il n'y a qu'une seule détection, qui a été présélectionnée.",
+
   "route.views.create.success": "Vue crée!",
   "route.views.create": "Nouvelle vue",
   "route.views.edit": "Modifier vue",
@@ -513,31 +632,42 @@
   "route.views.saved": "Vues épinglées",
   "route.views.show": "Voir les vues",
   "route.views": "Vues",
+
   "search.open": "Ouvrir la recherche",
   "search.result.showing": "Affichage de {{offset}} à {{length}} sur {{total}} articles",
   "search.result.showing.single": "Aucun articles",
+
   "templates.edit.analytic": "Modifier modèle pour cette analyse",
   "templates.edit.detection": "Modifier modèle pour cette détection",
+
   "tooltip.breadcrumbs.max": "Maximiser fils d'ariane",
   "tooltip.breadcrumbs.min": "Minimiser fils d'ariane",
+
   "app.list.empty": "Aucun résultat",
+
   "save": "Sauvegarder",
+
   "unknown": "Inconnu",
   "using": "utilisant",
+
   "user.error.failed": "L'API a été incapable de retourner les informations d'utilisateur.",
   "user.error.modal.body": "Une erreur inconnue s'est produite lors de la connexion au serveur. Veuillez réessayer plus tard.",
   "user.error.modal.details": "Détails: ",
   "user.error.modal.header": "Une erreur s'est produite",
   "user.error.modal.reload": "Recharger la fenêtre",
   "user.login.failed": "Informations de connexion non valides. Veuillez vérifier votre nom d'utilisateur et votre mot de passe.",
+
   "usermenu": "Menu d'utilisateur",
   "usermenu.logout": "Déconnecter",
   "usermenu.settings": "Paramètres",
+
   "view.assigned_to_me": "Assigné à moi",
   "view.notfound": "Cette vue n'est pas disponible pour vous, ou n'existe pas.",
+
   "Unclassified//Official Use Only": "Non classé//Réservé à des fins officielles",
   "Protected B": "Protégé B",
   "query.invalid": "Requête invalide",
+
   "tui.query.save.alert": "Charger une vue enregistrée ou enregistrer la requête actuelle en tant que vue",
   "tui.query.load": "Charger une vue enregistrée",
   "tui.query.invalid": "Requête invalide",

@@ -15,19 +15,21 @@ import {
 import api from 'api';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { OverviewContext } from 'components/app/providers/OverviewProvider';
 import type { RecievedDataType } from 'components/app/providers/SocketProvider';
 import { SocketContext } from 'components/app/providers/SocketProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import HowlerCard from 'components/elements/display/HowlerCard';
-import JSONViewer from 'components/elements/display/JSONViewer';
 import BundleButton from 'components/elements/display/icons/BundleButton';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
+import JSONViewer from 'components/elements/display/json/JSONViewer';
 import HitActions from 'components/elements/hit/HitActions';
 import HitBanner from 'components/elements/hit/HitBanner';
 import HitComments from 'components/elements/hit/HitComments';
 import HitDetails from 'components/elements/hit/HitDetails';
 import HitLabels from 'components/elements/hit/HitLabels';
 import { HitLayout } from 'components/elements/hit/HitLayout';
+import HitOutline from 'components/elements/hit/HitOutline';
 import HitRelated from 'components/elements/hit/HitRelated';
 import HitWorklog from 'components/elements/hit/HitWorklog';
 import RelatedLink from 'components/elements/hit/related/RelatedLink';
@@ -40,7 +42,7 @@ import type { HitUpdate } from 'models/socket/HitUpdate';
 import type { FC } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { getUserList } from 'utils/hitFunctions';
 import { tryParse } from 'utils/utils';
@@ -59,13 +61,14 @@ const HitViewer: FC = () => {
   const [orientation, setOrientation] = useMyLocalStorageItem(StorageKey.VIEWER_ORIENTATION, Orientation.VERTICAL);
   const { dispatchApi } = useMyApi();
   const { addListener, removeListener } = useContext(SocketContext);
-  const { refresh } = useContext(TemplateContext);
+  const { refresh: refreshTemplates } = useContext(TemplateContext);
   const { getAnalyticFromName } = useContext(AnalyticContext);
+  const { getMatchingOverview, refresh: refreshOverviews } = useContext(OverviewContext);
 
   const [hit, setHit] = useState<Hit>(null);
   const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const users = useMyUserList(userIds);
-  const [tab, setTab] = useState<string>('hit_comments');
+  const [tab, setTab] = useState<string>('details');
   const [analytic, setAnalytic] = useState<Analytic>();
 
   const fetchData = useCallback(async () => {
@@ -107,6 +110,8 @@ const HitViewer: FC = () => {
     [params.id]
   );
 
+  const matchingOverview = useMemo(() => getMatchingOverview(hit), [getMatchingOverview, hit]);
+
   useEffect(() => {
     if (!hit) {
       return;
@@ -119,8 +124,18 @@ const HitViewer: FC = () => {
   }, [handler, hit]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    refreshTemplates();
+    refreshOverviews();
+  }, [refreshOverviews, refreshTemplates]);
+
+  useEffect(() => {
+    if (matchingOverview && tab === 'details') {
+      setTab('overview');
+    } else if (!matchingOverview && tab === 'overview') {
+      setTab('details');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchingOverview]);
 
   if (!hit) {
     return (
@@ -160,9 +175,9 @@ const HitViewer: FC = () => {
           <HowlerCard tabIndex={0} sx={{ position: 'relative' }}>
             <CardContent>
               <HitBanner hit={hit} layout={HitLayout.COMFY} useListener />
-              <HitDetails hit={hit} layout={HitLayout.COMFY} />
+              <HitOutline hit={hit} layout={HitLayout.COMFY} />
               <HitLabels hit={hit} setHit={setHit} />
-              {(hit?.howler?.links?.length > 0) && (
+              {hit?.howler?.links?.length > 0 && (
                 <Stack direction="row" spacing={1}>
                   {hit?.howler?.links?.length > 0 &&
                     hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href + l.title} compact {...l} />)}
@@ -205,6 +220,10 @@ const HitViewer: FC = () => {
         </HowlerCard>
         <Box sx={{ gridColumn: '1 / span 2', mb: 1 }}>
           <Tabs value={tab}>
+            {matchingOverview && (
+              <Tab label={t('hit.viewer.overview')} value="overview" onClick={() => setTab('overview')} />
+            )}
+            <Tab label={t('hit.viewer.details')} value="details" onClick={() => setTab('details')} />
             <Tab label={t('hit.viewer.comments')} value="hit_comments" onClick={() => setTab('hit_comments')} />
             <Tab label={t('hit.viewer.json')} value="hit_raw" onClick={() => setTab('hit_raw')} />
             <Tab
@@ -226,6 +245,8 @@ const HitViewer: FC = () => {
         >
           {
             {
+              overview: <HitOverview hit={hit} />,
+              details: <HitDetails hit={hit} />,
               hit_comments: <HitComments hit={hit} users={users} />,
               hit_raw: <JSONViewer data={hit} />,
               hit_data: <JSONViewer data={(hit?.howler?.data ?? []).map(entry => tryParse(entry))} />,

@@ -2,7 +2,7 @@ import type { Components, PaletteMode, PaletteOptions, Theme } from '@mui/materi
 import type { AppUserValidatedProp } from 'commons/components/app/AppUserService';
 import type { GravatarD } from 'commons/components/display/AppAvatar';
 import type { ReactElement, ReactNode } from 'react';
-import type { To } from 'react-router';
+import type { To } from 'react-router-dom';
 
 // Specification interface for the 'useAppConfigs' hook.
 export type AppConfigs = {

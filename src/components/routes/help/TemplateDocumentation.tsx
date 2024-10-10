@@ -3,6 +3,7 @@ import PageCenter from 'commons/components/pages/PageCenter';
 import Markdown from 'components/elements/display/Markdown';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import DefaultOutline from 'components/elements/hit/outlines/DefaultOutline';
+import { useScrollRestoration } from 'components/hooks/useScrollRestoration';
 import moment from 'moment';
 import type { FC } from 'react';
 import { useMemo } from 'react';
@@ -34,6 +35,7 @@ const ALERTS = [
 
 const TemplateDocumentation: FC = () => {
   const { i18n } = useTranslation();
+  useScrollRestoration();
 
   const [md1, md2] = useMemo(() => {
     let markdown = i18n.language === 'en' ? TEMPLATES_EN : TEMPLATES_FR;

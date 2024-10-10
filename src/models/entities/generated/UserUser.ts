@@ -8,6 +8,7 @@ export interface UserUser {
   classification?: string;
   dashboard?: Dashboard;
   email?: string;
+  favourite_analytics?: string[];
   favourite_views?: string[];
   groups?: string[];
   is_active?: boolean;

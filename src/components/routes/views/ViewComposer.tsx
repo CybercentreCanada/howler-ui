@@ -31,8 +31,7 @@ import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { Hit } from 'models/entities/generated/Hit';
-import { useParams } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import HitQuery from '../hits/search/HitQuery';
 import HitSort from '../hits/search/HitSort';
@@ -151,11 +150,15 @@ const ViewComposer: FC = () => {
         if (viewToEdit.sort) {
           setSort(viewToEdit.sort);
           searchParams.set('sort', viewToEdit.sort);
+        } else {
+          searchParams.delete('sort');
         }
 
         if (viewToEdit.span) {
           setSpan(viewToEdit.span);
           searchParams.set('span', viewToEdit.span);
+        } else {
+          searchParams.delete('span');
         }
 
         setSearchParams(searchParams, { replace: true });

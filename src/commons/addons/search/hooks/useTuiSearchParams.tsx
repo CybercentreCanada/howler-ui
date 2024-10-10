@@ -1,9 +1,8 @@
 import { useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router';
-import { useSearchParams } from 'react-router-dom';
-import { TuiSearchRequest } from '..';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { type TuiSearchRequest } from '..';
 import TuiSearchModel from '../models/TuiSearchModel';
-import { TuiSearchOperator, TuiSearchTerm, isMatcher, isSeparator, isSorter } from '../models/TuiSearchTerms';
+import { type TuiSearchOperator, type TuiSearchTerm, isMatcher, isSeparator, isSorter } from '../models/TuiSearchTerms';
 
 const SPLITER = '::';
 

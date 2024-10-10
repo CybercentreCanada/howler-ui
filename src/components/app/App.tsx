@@ -1,3 +1,4 @@
+import { loader } from '@monaco-editor/react';
 import api from 'api';
 import type { AppPreferenceConfigs, AppSiteMapConfigs, AppThemeConfigs } from 'commons/components/app/AppConfigs';
 import AppProvider from 'commons/components/app/AppProvider';
@@ -16,6 +17,7 @@ import useMyUser from 'components/hooks/useMyUser';
 import LoginScreen from 'components/logins/Login';
 import useLogin from 'components/logins/hooks/useLogin';
 import NotFoundPage from 'components/routes/404';
+import ErrorBoundary from 'components/routes/ErrorBoundary';
 import Logout from 'components/routes/Logout';
 import ActionEditor from 'components/routes/action/edit/ActionEditor';
 import ActionDetails from 'components/routes/action/view/ActionDetails';
@@ -37,6 +39,8 @@ import ViewDocumentation from 'components/routes/help/ViewDocumentation';
 import HitBrowser from 'components/routes/hits/search/HitBrowser';
 import HitViewer from 'components/routes/hits/view/HitViewer';
 import Home from 'components/routes/home';
+import OverviewViewer from 'components/routes/overviews/OverviewViewer';
+import Overviews from 'components/routes/overviews/Overviews';
 import Settings from 'components/routes/settings/Settings';
 import TemplateViewer from 'components/routes/templates/TemplateViewer';
 import Templates from 'components/routes/templates/Templates';
@@ -44,9 +48,9 @@ import ViewComposer from 'components/routes/views/ViewComposer';
 import Views from 'components/routes/views/Views';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
+import * as monaco from 'monaco-editor';
 import { useEffect, type FC, type PropsWithChildren } from 'react';
-import { Routes, useLocation, useNavigate } from 'react-router';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { createBrowserRouter, Outlet, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import useMySearch from '../hooks/useMySearch';
 import AppContainer from './AppContainer';
@@ -57,11 +61,22 @@ import FavouriteProvider from './providers/FavouritesProvider';
 import FieldProvider from './providers/FieldProvider';
 import LocalStorageProvider from './providers/LocalStorageProvider';
 import ModalProvider from './providers/ModalProvider';
+import OverviewProvider from './providers/OverviewProvider';
 import SocketProvider from './providers/SocketProvider';
 import TemplateProvider from './providers/TemplateProvider';
 import UserListProvider from './providers/UserListProvider';
 import ViewProvider from './providers/ViewProvider';
 
+loader.config({ monaco });
+
+const RoleRoute = ({ role }) => {
+  const appUser = useAppUser<HowlerUser>();
+
+  if (appUser.user?.roles?.includes(role)) {
+    return <Outlet />;
+  }
+  return <NotFoundPage />;
+};
 
 // Your application's initialization flow.
 const MyApp: FC = () => {
@@ -86,6 +101,7 @@ const MyApp: FC = () => {
         setItems(data.configuration.ui.apps);
       }
     });
+
     if (appUser.isReady() || (!get(StorageKey.APP_TOKEN) && !get(StorageKey.REFRESH_TOKEN))) {
       return;
     }
@@ -97,6 +113,7 @@ const MyApp: FC = () => {
   useEffect(() => {
     if (appUser.isReady()) {
       appLayout.setReady(true);
+
       // TODO: Remove in a little while
       remove(StorageKey.ETAG);
     } else if (!get(StorageKey.APP_TOKEN) && !get(StorageKey.REFRESH_TOKEN)) {
@@ -109,56 +126,13 @@ const MyApp: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appUser.isReady()]);
 
-  // Register the routes
-  return (
-    <Routes>
-      <Route path="/login" element={<LoginScreen />} />
-      <Route path="/logout" element={<Logout />} />
-      <Route
-        path="/"
-        element={
-          appUser.isReady() && appLayout.ready && apiConfig.config.indexes ? <AppContainer /> : <LayoutSkeleton />
-        }
-      >
-        <Route index element={<Home />} />
-        <Route path="hits" element={<HitBrowser />} />
-        <Route path="search" element={<HitBrowser />} />
-        <Route path="hits/:id" element={<HitViewer />} />
-        <Route path="bundles/:id" element={<HitBrowser />} />
-        <Route path="templates" element={<Templates />} />
-        <Route path="templates/view" element={<TemplateViewer />} />
-        <Route path="views" element={<Views />} />
-        <Route path="views/create" element={<ViewComposer />} />
-        <Route path="views/:id" element={<HitBrowser />} />
-        <Route path="views/:id/edit" element={<ViewComposer />} />
-        <Route path="admin/users" element={<UserSearchProvider />} />
-        <Route path="admin/users/:id" element={<UserEditor />} />
-        <Route path="analytics" element={<AnalyticSearch />} />
-        <Route path="analytics/:id" element={<AnalyticDetails />} />
-        <Route path="help" element={<HelpDashboard />} />
-        <Route path="help/search" element={<SearchDocumentation />} />
-        <Route path="help/api" element={<ApiDocumentation />} />
-        <Route path="help/auth" element={<AuthDocumentation />} />
-        <Route path="help/client" element={<ClientDocumentation />} />
-        <Route path="help/hit" element={<HitDocumentation />} />
-        <Route path="help/templates" element={<TemplateDocumentation />} />
-        <Route path="help/actions" element={<ActionDocumentation />} />
-        <Route path="help/views" element={<ViewDocumentation />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="advanced" element={<QueryBuilder />} />
-        {appUser.user?.roles?.includes('automation_basic') && (
-          <Route path="action">
-            <Route index element={<ActionSearchProvider />} />
-            <Route path="execute" element={<ActionEditor />} />
-            <Route path=":id">
-              <Route index element={<ActionDetails />} />
-              <Route path="edit" element={<ActionEditor />} />
-            </Route>
-          </Route>
-        )}
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+  // we don't display the skeleton for certain paths
+  return (appLayout.ready && apiConfig.config?.indexes) ||
+    location.pathname === '/login' ||
+    location.pathname === '/logout' ? (
+    <AppContainer />
+  ) : (
+    <LayoutSkeleton />
   );
 };
 
@@ -168,42 +142,215 @@ const MyAppProvider: FC<PropsWithChildren> = ({ children }) => {
   const mySitemap: AppSiteMapConfigs = useMySitemap();
   const myUser: AppUserService<HowlerUser> = useMyUser();
   const mySearch: AppSearchService<Hit> = useMySearch();
+
   return (
-    <AppProvider preferences={myPreferences} theme={myTheme} sitemap={mySitemap} user={myUser} search={mySearch}>
-      <ViewProvider>
-        <AvatarProvider>
-          <ModalProvider>
-            <FieldProvider>
-              <LocalStorageProvider>
-                <SocketProvider>
-                  <TemplateProvider>
-                    <AnalyticProvider>
-                      <FavouriteProvider>
-                        <UserListProvider>{children}</UserListProvider>
-                      </FavouriteProvider>
-                    </AnalyticProvider>
-                  </TemplateProvider>
-                </SocketProvider>
-              </LocalStorageProvider>
-            </FieldProvider>
-          </ModalProvider>
-        </AvatarProvider>
-      </ViewProvider>
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider preferences={myPreferences} theme={myTheme} sitemap={mySitemap} user={myUser} search={mySearch}>
+        <ErrorBoundary>
+          <ViewProvider>
+            <AvatarProvider>
+              <ModalProvider>
+                <FieldProvider>
+                  <LocalStorageProvider>
+                    <SocketProvider>
+                      <TemplateProvider>
+                        <OverviewProvider>
+                          <AnalyticProvider>
+                            <FavouriteProvider>
+                              <UserListProvider>{children}</UserListProvider>
+                            </FavouriteProvider>
+                          </AnalyticProvider>
+                        </OverviewProvider>
+                      </TemplateProvider>
+                    </SocketProvider>
+                  </LocalStorageProvider>
+                </FieldProvider>
+              </ModalProvider>
+            </AvatarProvider>
+          </ViewProvider>
+        </ErrorBoundary>
+      </AppProvider>
+    </ErrorBoundary>
   );
 };
 
-const App: FC = () => {
+const AppProviderWrapper = () => {
   return (
-    <BrowserRouter>
-      <ApiConfigProvider>
-        <MyAppProvider>
-          <MyApp />
-          <Modal />
-        </MyAppProvider>
-      </ApiConfigProvider>
-    </BrowserRouter>
+    <ApiConfigProvider>
+      <MyAppProvider>
+        <MyApp />
+        <Modal />
+      </MyAppProvider>
+    </ApiConfigProvider>
   );
+};
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <AppProviderWrapper />,
+    children: [
+      {
+        path: 'login',
+        element: <LoginScreen />
+      },
+      {
+        path: 'logout',
+        element: <Logout />
+      },
+      {
+        index: true,
+        element: <Home />
+      },
+      {
+        path: 'hits',
+        element: <HitBrowser />
+      },
+      {
+        path: 'search',
+        element: <HitBrowser />
+      },
+      {
+        path: 'hits/:id',
+        element: <HitViewer />
+      },
+      {
+        path: 'bundles/:id',
+        element: <HitBrowser />
+      },
+      {
+        path: 'templates',
+        element: <Templates />
+      },
+      {
+        path: 'templates/view',
+        element: <TemplateViewer />
+      },
+      {
+        path: 'overviews',
+        element: <Overviews />
+      },
+      {
+        path: 'overviews/view',
+        element: <OverviewViewer />
+      },
+      {
+        path: 'views',
+        element: <Views />
+      },
+      {
+        path: 'views/create',
+        element: <ViewComposer />
+      },
+      {
+        path: 'views/:id',
+        element: <HitBrowser />
+      },
+      {
+        path: 'views/:id/edit',
+        element: <ViewComposer />
+      },
+      {
+        path: 'admin/users',
+        element: <UserSearchProvider />
+      },
+      {
+        path: 'admin/users/:id',
+        element: <UserEditor />
+      },
+      {
+        path: 'analytics',
+        element: <AnalyticSearch />
+      },
+      {
+        path: 'analytics/:id',
+        element: <AnalyticDetails />
+      },
+      {
+        path: 'help',
+        element: <HelpDashboard />
+      },
+      {
+        path: 'help/search',
+        element: <SearchDocumentation />
+      },
+      {
+        path: 'help/api',
+        element: <ApiDocumentation />
+      },
+      {
+        path: 'help/auth',
+        element: <AuthDocumentation />
+      },
+      {
+        path: 'help/client',
+        element: <ClientDocumentation />
+      },
+      {
+        path: 'help/hit',
+        element: <HitDocumentation />
+      },
+      {
+        path: 'help/templates',
+        element: <TemplateDocumentation />
+      },
+      {
+        path: 'help/actions',
+        element: <ActionDocumentation />
+      },
+      {
+        path: 'help/views',
+        element: <ViewDocumentation />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
+      },
+      {
+        path: 'advanced',
+        element: <QueryBuilder />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
+      },
+      {
+        path: 'action',
+        element: <RoleRoute role="automation_basic" />,
+        children: [
+          {
+            index: true,
+            element: <ActionSearchProvider />
+          },
+          {
+            path: 'execute',
+            element: <ActionEditor />
+          },
+          {
+            path: ':id',
+            children: [
+              {
+                index: true,
+                element: <ActionDetails />
+              },
+              {
+                path: 'edit',
+                element: <ActionEditor />
+              }
+            ]
+          }
+        ]
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />
+      }
+    ]
+  }
+]);
+
+const App: FC = () => {
+  return <RouterProvider router={router} />;
 };
 
 export default App;

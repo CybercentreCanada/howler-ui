@@ -8,7 +8,7 @@ import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const BundleParentMenu: FC<{ bundle: Hit }> = ({ bundle }) => {
   const { t } = useTranslation();
