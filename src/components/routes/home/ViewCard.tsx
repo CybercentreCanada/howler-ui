@@ -26,7 +26,7 @@ const ViewCard: FC<ViewSettings> = ({ viewId, limit }) => {
   const [hits, setHits] = useState<Hit[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const view = useMemo(() => views.find(_view => _view.view_id === viewId), [viewId, views]);
+  const view = useMemo(() => views?.find(_view => _view.view_id === viewId), [viewId, views]);
 
   useEffect(() => {
     if (!view?.query) {

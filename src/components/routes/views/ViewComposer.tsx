@@ -133,7 +133,7 @@ const ViewComposer: FC = () => {
 
   useEffect(() => {
     if (routeParams.id) {
-      const viewToEdit = viewContext.views.find(_view => _view.view_id === routeParams.id);
+      const viewToEdit = viewContext.views?.find(_view => _view.view_id === routeParams.id);
 
       if (!viewToEdit && viewContext.views?.length > 0) {
         setError('route.views.missing');

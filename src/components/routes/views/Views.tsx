@@ -240,7 +240,7 @@ const ViewsBase: FC = () => {
             }
             getOptionLabel={(v: View) => t(v.title)}
             isOptionEqualToValue={(view, value) => view.view_id === value.view_id}
-            value={views.find(v => v.view_id === defaultView) ?? null}
+            value={views?.find(v => v.view_id === defaultView) ?? null}
             onChange={(_, option: View) => setDefaultView(option?.view_id)}
           />
         ) : (
