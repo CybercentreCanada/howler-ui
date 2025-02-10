@@ -1,19 +1,21 @@
 import { ArrowDownward, ArrowUpward, Cancel } from '@mui/icons-material';
 import { Autocomplete, Chip, Grid, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FieldContext } from 'components/app/providers/FieldProvider';
-import { uniqBy } from 'lodash';
-import type { Dispatch, FC, SetStateAction } from 'react';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
+import { uniqBy } from 'lodash-es';
+import type { FC } from 'react';
 import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useContextSelector } from 'use-context-selector';
 
-const CustomSort: FC<{
-  sortEntries: string[];
-  setSortEntries: Dispatch<SetStateAction<string[]>>;
-}> = ({ sortEntries, setSortEntries }) => {
+const CustomSort: FC = () => {
   const { t } = useTranslation();
   const [field, setField] = useState('');
   const [sort, setSort] = useState<'asc' | 'desc' | ''>('');
   const { hitFields, getHitFields } = useContext(FieldContext);
+
+  const sortEntries = useContextSelector(ParameterContext, ctx => ctx.sort?.split(','));
+  const setSavedSort = useContextSelector(ParameterContext, ctx => ctx.setSort);
 
   const sortFields = useMemo(
     () => sortEntries.map(entry => entry.split(' ').slice(0, 2) as [string, string]),
@@ -35,7 +37,7 @@ const CustomSort: FC<{
       return;
     }
 
-    setSortEntries(_sortEntries => uniqBy([..._sortEntries, `${field} ${sort}`], entry => entry.replace(/ .+/, '')));
+    setSavedSort(uniqBy([...sortEntries, `${field} ${sort}`], entry => entry.replace(/ .+/, '')).join(','));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [field]);
 
@@ -72,15 +74,15 @@ const CustomSort: FC<{
               icon={direction === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
               deleteIcon={<Cancel />}
               onClick={() =>
-                setSortEntries(_sortEntries =>
-                  _sortEntries.map(entry =>
-                    entry?.replace(`${key} ${direction}`, `${key} ${direction === 'asc' ? 'desc' : 'asc'}`)
-                  )
+                setSavedSort(
+                  sortEntries
+                    .map(entry =>
+                      entry?.replace(`${key} ${direction}`, `${key} ${direction === 'asc' ? 'desc' : 'asc'}`)
+                    )
+                    .join(',')
                 )
               }
-              onDelete={() =>
-                setSortEntries(_sortEntries => _sortEntries.filter(entry => entry && entry.split(' ')[0] != key))
-              }
+              onDelete={() => setSavedSort(sortEntries.filter(entry => entry && entry.split(' ')[0] != key).join(','))}
             />
           </Grid>
         ))}

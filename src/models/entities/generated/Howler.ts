@@ -1,4 +1,5 @@
 import type { Comment } from './Comment';
+import type { Dossier } from './Dossier';
 import type { Labels } from './Labels';
 import type { Link } from './Link';
 import type { Log } from './Log';
@@ -18,7 +19,7 @@ export interface Howler {
   confidence?: number;
   data?: string[];
   detection?: string;
-  dossier?: { [index: string]: string };
+  dossier?: Dossier[];
   escalation?: string;
   hash: string;
   hits?: string[];

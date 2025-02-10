@@ -8,11 +8,12 @@ import {
   LinearProgress,
   Stack,
   TextField,
-  Tooltip
+  Tooltip,
+  useTheme
 } from '@mui/material';
 import api from 'api';
 import PageCenter from 'commons/components/pages/PageCenter';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Check, Delete, SsidChart } from '@mui/icons-material';
@@ -28,7 +29,7 @@ import { useSearchParams } from 'react-router-dom';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 import OverviewEditor from './OverviewEditor';
 
-const STARTING_TEMPLATE = `
+export const STARTING_TEMPLATE = `
 # Creating an Overview
 
 Overviews can be used to modify the way data is presented on alerts that match the overview's settings. Overviews are, by design, easy to create and quite flexible.
@@ -193,7 +194,9 @@ You can also make basic fetch requests for, and parse, JSON data from external s
 
 {{fetch "/api/v1/configs" "api_response.c12nDef.UNRESTRICTED"}}
 `;
+
 const OverviewViewer = () => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const { getOverviews } = useContext(OverviewContext);
@@ -211,6 +214,9 @@ const OverviewViewer = () => {
   const [loading, setLoading] = useState(false);
   const [overviewLoading, setOverviewLoading] = useState(false);
   const [exampleHit, setExampleHit] = useState<Hit>(null);
+  const [x, setX] = useState(0);
+
+  const wrapper = useRef<HTMLDivElement>();
 
   useEffect(() => {
     (async () => {
@@ -374,15 +380,33 @@ const OverviewViewer = () => {
     }
   }, [analytic, detection, dispatchApi, selectedOverview, content, overviewList]);
 
+  const onMouseMove = useCallback((event: MouseEvent) => {
+    const wrapperRect = wrapper.current?.getBoundingClientRect();
+
+    const offset = event.clientX - (wrapperRect.left + wrapperRect.width / 2);
+
+    setX(offset);
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+  }, [onMouseMove]);
+
+  const onMouseDown = useCallback(() => {
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }, [onMouseMove, onMouseUp]);
+
   const analyticOrDetectionMissing = useMemo(() => !analytic || !detection, [analytic, detection]);
   const noChange = useMemo(() => selectedOverview?.content === content, [content, selectedOverview?.content]);
 
   return (
-    <PageCenter maxWidth="1800px" textAlign="left" height="100%">
+    <PageCenter maxWidth="100%" width="100%" textAlign="left" height="100%">
       <LinearProgress sx={{ mb: 1, opacity: +loading }} />
       <Stack direction="column" spacing={2} divider={<Divider orientation="horizontal" flexItem />} height="100%">
         <Stack direction="row" spacing={2} mb={2} alignItems="stretch">
-          <FormControl sx={{ minWidth: { sm: '200px' } }}>
+          <FormControl sx={{ maxWidth: { sm: '300px', lg: '450px' }, width: '100%' }}>
             <Autocomplete
               id="analytic"
               options={analytics.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))}
@@ -430,6 +454,7 @@ const OverviewViewer = () => {
           <AppInfoPanel i18nKey="route.overviews.select" sx={{ width: '100%', alignSelf: 'start' }} />
         ) : (
           <Stack
+            ref={wrapper}
             direction="row"
             divider={<Divider flexItem orientation="vertical" />}
             spacing={1}
@@ -442,13 +467,57 @@ const OverviewViewer = () => {
                 e.preventDefault();
               }
             }}
+            sx={{ position: 'relative' }}
           >
             <Box flex={1} position="relative" height="100%">
-              <Box flex={1} sx={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+              <Box
+                flex={1}
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  right: `calc(50% + 7px - ${x}px)`,
+                  mr: -2.4
+                }}
+              >
                 <OverviewEditor height="100%" content={content} setContent={setContent} />
               </Box>
             </Box>
-            <Box flex={1} px={2} sx={{ '& > div > :first-child': { mt: 0 } }}>
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 'calc(50% - 5px)',
+                width: '10px',
+                backgroundColor: theme.palette.divider,
+                cursor: 'col-resize',
+                transform: `translateX(${x}px)`,
+                zIndex: 1000,
+                borderRadius: theme.shape.borderRadius
+              }}
+              onMouseDown={onMouseDown}
+            />
+            <Box
+              flex={1}
+              px={2}
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: `calc(50% + 7px + ${x}px)`,
+                bottom: 0,
+                right: 0,
+                display: 'flex',
+                alignItems: 'stretch',
+                justifyContent: 'stretch',
+                px: 1,
+                pt: 1,
+                mt: -1,
+                '& > *': { width: '100%' },
+                '& > div > :first-child': { mt: 0 }
+              }}
+            >
               <HitOverview content={content || STARTING_TEMPLATE} hit={exampleHit} />
             </Box>
           </Stack>

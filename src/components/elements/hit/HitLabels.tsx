@@ -1,14 +1,4 @@
-import {
-  Add,
-  Check,
-  Edit,
-  LocalPolice,
-  MoodBad,
-  NewReleases,
-  PsychologyAlt,
-  Star,
-  Timeline
-} from '@mui/icons-material';
+import { Add, Check, Edit } from '@mui/icons-material';
 import {
   Backdrop,
   Box,
@@ -30,29 +20,20 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { blue, orange, pink, red, yellow } from '@mui/material/colors';
 import api from 'api';
+import { HitContext } from 'components/app/providers/HitProvider';
 import useMyApi from 'components/hooks/useMyApi';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { Labels } from 'models/entities/generated/Labels';
 import type { FC } from 'react';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { useContextSelector } from 'use-context-selector';
+import { LABEL_TYPES } from 'utils/constants';
 
 type LabelState = {
   category: keyof Labels;
   label: string;
-};
-
-const LABEL_TYPE = {
-  insight: { icon: <PsychologyAlt fontSize="small" />, color: '#FFFFFF' }, //brain icon
-  mitigation: { icon: <LocalPolice fontSize="small" />, color: blue[600] }, //police badge
-  victim: { icon: <MoodBad fontSize="small" />, color: pink[400] }, //crime outline
-  campaign: { icon: <Timeline fontSize="small" />, color: orange[900] }, //net graph?
-  threat: { icon: <NewReleases fontSize="small" />, color: red[400] },
-  operation: { icon: <Star fontSize="small" />, color: yellow[600] },
-  generic: {},
-  assignments: {}
 };
 
 const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> = ({ handleSubmit }) => {
@@ -92,9 +73,9 @@ const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> =
           value={category}
           onChange={e => setCategory(e.target.value)}
         >
-          {Object.keys(LABEL_TYPE).map(key => (
+          {Object.keys(LABEL_TYPES).map(key => (
             <MenuItem key={key} value={key}>
-              <ListItemIcon>{LABEL_TYPE[key].icon ?? <Check sx={{ opacity: 0 }} />}</ListItemIcon>
+              <ListItemIcon>{LABEL_TYPES[key].icon ?? <Check sx={{ opacity: 0 }} />}</ListItemIcon>
               <ListItemText sx={{ textTransform: 'capitalize' }}>{key}</ListItemText>
             </MenuItem>
           ))}
@@ -130,19 +111,22 @@ const NewLabelForm: FC<{ handleSubmit: (label: LabelState) => Promise<void> }> =
   );
 };
 
-const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boolean }> = ({
-  hit,
-  setHit,
-  readOnly = false
-}) => {
+const HitLabels: FC<{ hit: Hit; readOnly?: boolean }> = ({ hit, readOnly = false }) => {
   const { dispatchApi } = useMyApi();
   const { t } = useTranslation();
+
+  const updateHit = useContextSelector(HitContext, ctx => ctx.updateHit);
+
   const [openDrawer, setOpenDrawer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [labels, setLabels] = useState<LabelState[]>(
-    Object.entries(hit.howler.labels)
-      .map(([key, category]) => category.map(label => ({ category: key, label: label })))
-      .reduce((prev, curr) => [...prev, ...curr])
+    Object.entries(hit.howler.labels).flatMap(([key, category]) => {
+      if (typeof category === 'string') {
+        category = [category];
+      }
+
+      return (category ?? []).map?.(label => ({ category: key, label: label })) ?? [];
+    })
   );
 
   const submitLabel = useCallback(
@@ -158,13 +142,13 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
           api.hit.labels.put(hit.howler.id, label.category, { value: [label.label] })
         );
 
-        setHit?.(updatedHit);
+        updateHit(updatedHit);
       } finally {
         setLoading(false);
       }
       setLabels([...labels, label]);
     },
-    [dispatchApi, hit.howler.id, labels, setHit, t]
+    [dispatchApi, hit.howler.id, labels, updateHit, t]
   );
 
   const deleteLabel = useCallback(
@@ -174,21 +158,25 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
         const updatedHit = await dispatchApi(
           api.hit.labels.del(hit.howler.id, label.category, { value: [label.label] })
         );
-        setHit?.(updatedHit);
+        updateHit(updatedHit);
       } finally {
         setLoading(false);
       }
       setLabels(labels.filter(x => !(label.category === x.category && label.label === x.label)));
     },
-    [dispatchApi, hit.howler.id, labels, setHit]
+    [dispatchApi, hit.howler.id, labels, updateHit]
   );
 
   useEffect(() => {
     if (hit.howler.labels) {
       setLabels(
-        Object.entries(hit.howler.labels)
-          .map(([key, category]) => category.map(label => ({ category: key, label: label })))
-          .reduce((prev, curr) => [...prev, ...curr])
+        Object.entries(hit.howler.labels).flatMap(([key, category]) => {
+          if (typeof category === 'string') {
+            category = [category];
+          }
+
+          return (category ?? []).map?.(label => ({ category: key, label: label })) ?? [];
+        })
       );
     }
   }, [hit]);
@@ -213,7 +201,7 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
               return (
                 <Tooltip title={t(`hit.label.category.${category}`)} key={label.label + hit.howler.id}>
                   <Chip
-                    icon={LABEL_TYPE[category]?.icon ?? undefined}
+                    icon={LABEL_TYPES[category]?.icon ?? undefined}
                     variant="filled"
                     key={label.label + hit.howler.id}
                     size="small"
@@ -224,11 +212,11 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
                         mr: 1,
                         mb: 1
                       },
-                      LABEL_TYPE[category]?.color && {
+                      LABEL_TYPES[category]?.color && {
                         '&, & svg': {
-                          color: theme => theme.palette.getContrastText(LABEL_TYPE[category].color) + ' !important'
+                          color: theme => theme.palette.getContrastText(LABEL_TYPES[category].color) + ' !important'
                         },
-                        backgroundColor: LABEL_TYPE[category].color
+                        backgroundColor: LABEL_TYPES[category].color
                       }
                     ]}
                   />
@@ -244,7 +232,7 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
         return (
           <Tooltip title={t(`hit.label.category.${category}`)} key={label.label + hit.howler.id}>
             <Chip
-              icon={LABEL_TYPE[category]?.icon ?? undefined}
+              icon={LABEL_TYPES[category]?.icon ?? undefined}
               key={label.label + hit.howler.id}
               variant="outlined"
               size="small"
@@ -253,11 +241,11 @@ const HitLabels: FC<{ hit: Hit; setHit?: (newHit: Hit) => void; readOnly?: boole
                 {
                   mr: 1
                 },
-                LABEL_TYPE[category]?.color && {
+                LABEL_TYPES[category]?.color && {
                   '&, & svg': {
-                    color: theme => theme.palette.getContrastText(LABEL_TYPE[category].color) + ' !important'
+                    color: theme => theme.palette.getContrastText(LABEL_TYPES[category].color) + ' !important'
                   },
-                  backgroundColor: LABEL_TYPE[category].color
+                  backgroundColor: LABEL_TYPES[category].color
                 }
               ]}
             />

@@ -1,5 +1,5 @@
 import type { AppUserService, AppUserValidatedProp } from 'commons/components/app/AppUserService';
-import { difference } from 'lodash';
+import { difference } from 'lodash-es';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useCallback, useMemo, useState } from 'react';
 

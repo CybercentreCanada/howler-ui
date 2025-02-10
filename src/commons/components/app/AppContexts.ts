@@ -65,6 +65,7 @@ export type AppBarContextType = {
 export type AppBreadcrumbsContextType = {
   show: boolean; // are the breadcrumbs shown?
   items: BreadcrumbItem[]; // the items to render in the breadcrumbs.
+  setItems: (newItems: BreadcrumbItem[]) => void; // Set the list of breadcrumbs manually
   toggle: () => void; // show/hide the breadcrumbs.
   last: () => BreadcrumbItem; // the first item in the breacrumbs.
   first: () => BreadcrumbItem; // the last item in the breadcrumbs.

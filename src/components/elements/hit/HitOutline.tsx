@@ -2,8 +2,9 @@ import { Box, Divider, Skeleton, Typography } from '@mui/material';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
-import { createElement, memo, useContext, useMemo } from 'react';
+import { createElement, memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useContextSelector } from 'use-context-selector';
 import { HitLayout } from './HitLayout';
 import DefaultOutline from './outlines/DefaultOutline';
 import AssemblyLineRules from './outlines/al/AssemblyLineRules';
@@ -13,7 +14,8 @@ export const DEFAULT_FIELDS = ['howler.hash'];
 const HitOutline: FC<{ hit: Hit; layout: HitLayout; type?: 'global' | 'personal' }> = ({ hit, layout, type }) => {
   const { t } = useTranslation();
 
-  const { loaded, getMatchingTemplate } = useContext(TemplateContext);
+  const loaded = useContextSelector(TemplateContext, ctx => ctx.loaded);
+  const getMatchingTemplate = useContextSelector(TemplateContext, ctx => ctx.getMatchingTemplate);
 
   const template = useMemo(() => getMatchingTemplate(hit), [getMatchingTemplate, hit]);
 

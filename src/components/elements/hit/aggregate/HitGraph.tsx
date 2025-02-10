@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   IconButton,
   Stack,
   TextField,
@@ -15,16 +16,18 @@ import {
 import api from 'api';
 import type { Chart, ChartDataset, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-moment';
+import { HitContext } from 'components/app/providers/HitProvider';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyChart from 'components/hooks/useMyChart';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import moment from 'moment';
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { stringToColor } from 'utils/utils';
 
 const MAX_ROWS = 2500;
@@ -44,7 +47,13 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
   const { dispatchApi } = useMyApi();
   const { scatter } = useMyChart();
   const { config } = useMyApiConfig();
-  const [searchParams, setSearchParams] = useSearchParams();
+
+  const setSelected = useContextSelector(ParameterContext, ctx => ctx.setSelected);
+  const setQuery = useContextSelector(ParameterContext, ctx => ctx.setQuery);
+
+  const selectedHits = useContextSelector(HitContext, ctx => ctx.selectedHits);
+  const addHitToSelection = useContextSelector(HitContext, ctx => ctx.addHitToSelection);
+  const removeHitFromSelection = useContextSelector(HitContext, ctx => ctx.removeHitFromSelection);
 
   const chartRef = useRef<Chart<'scatter'>>();
 
@@ -115,12 +124,10 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
             return {
               x: createdMoment.clone().hour(0).minute(0).second(0).toISOString(),
               y: createdMoment.hour() + createdMoment.minute() / 60 + createdMoment.second() / 3600,
-              hit
+              hit,
+              label
             };
-          }) as any[],
-          borderColor: theme.palette.divider,
-          pointRadius: 5,
-          backgroundColor: alpha(stringToColor(label), 0.6)
+          }) as any[]
         };
       });
 
@@ -128,7 +135,7 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
     } finally {
       setLoading(false);
     }
-  }, [dispatchApi, escalationFilter, filterField, override, query, theme.palette.divider]);
+  }, [dispatchApi, escalationFilter, filterField, override, query]);
 
   useEffect(() => {
     if (!query || !execute) {
@@ -144,19 +151,27 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
     return {
       ...parentOptions,
       animation: false,
-      onClick: (__, elements) => {
-        const ids = elements.map(element => (data[element.datasetIndex].data[element.index] as any).hit.howler.id);
+      onClick: (event, elements) => {
+        const ids = elements.map(({ element }) => (element as any).$context?.raw.hit?.howler.id).filter(id => !!id);
         if (ids.length < 1) {
           return;
         }
 
-        if (ids.length < 2) {
-          searchParams.set('selected', ids[0]);
+        if ((event.native as MouseEvent).ctrlKey || (event.native as MouseEvent).shiftKey) {
+          ids.forEach(id => {
+            if (selectedHits.some(hit => hit.howler.id === id)) {
+              removeHitFromSelection(id);
+            } else {
+              addHitToSelection(id);
+            }
+          });
         } else {
-          searchParams.set('query', `howler.id:(${ids.join(' OR ')})`);
+          if (ids.length < 2) {
+            setSelected(ids[0]);
+          } else {
+            setQuery(`howler.id:(${ids.join(' OR ')})`);
+          }
         }
-
-        setSearchParams(new URLSearchParams(searchParams));
       },
       onHover: (event, chartElement) =>
         ((event.native.target as any).style.cursor = chartElement[0] ? 'pointer' : 'default'),
@@ -203,9 +218,35 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
             }
           }
         }
+      },
+      elements: {
+        point: {
+          borderWidth: context => {
+            return selectedHits.some(hit => hit.howler.id === (context.raw as any).hit?.howler.id) ? 2 : 0;
+          },
+          backgroundColor: context => {
+            return alpha(stringToColor((context.raw as any).label), 0.6);
+          },
+          borderColor: theme.palette.success.light,
+          pointRadius: 5
+        }
       }
     };
-  }, [data, scatter, searchParams, setSearchParams, t, theme.palette.divider]);
+  }, [
+    addHitToSelection,
+    removeHitFromSelection,
+    scatter,
+    selectedHits,
+    setQuery,
+    setSelected,
+    t,
+    theme.palette.divider,
+    theme.palette.success.light
+  ]);
+
+  useEffect(() => {
+    chartRef.current?.update();
+  }, [selectedHits]);
 
   return (
     <Stack sx={{ position: 'relative' }} spacing={1}>
@@ -285,7 +326,7 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
         </Tooltip>
         <Tooltip title={t('hit.summary.refresh')}>
           <IconButton disabled={loading} onClick={performQuery}>
-            <Refresh />
+            {loading ? <CircularProgress size={20} /> : <Refresh />}
           </IconButton>
         </Tooltip>
       </Stack>

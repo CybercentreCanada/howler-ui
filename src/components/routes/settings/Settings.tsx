@@ -9,7 +9,6 @@ import LocalSection from './LocalSection';
 import ProfileSection from './ProfileSection';
 import SecuritySection from './SecuritySection';
 
-
 const Settings: FC = () => {
   const { user: currentUser, setUser } = useAppUser<HowlerUser>();
   const { editName, editPassword, editQuota, addApiKey, removeApiKey, addRole, removeRole, viewGroups } =

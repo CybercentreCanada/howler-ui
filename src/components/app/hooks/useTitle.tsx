@@ -1,6 +1,6 @@
 import api from 'api';
 import useMySitemap from 'components/hooks/useMySitemap';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import { useCallback, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';

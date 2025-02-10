@@ -443,7 +443,8 @@ const QueryBuilder: FC = () => {
               backgroundColor: theme.palette.divider,
               cursor: 'col-resize',
               transform: `translateX(${x}px)`,
-              zIndex: 1000
+              zIndex: 1000,
+              borderRadius: theme.shape.borderRadius
             }}
             onMouseDown={onMouseDown}
           />

@@ -14,7 +14,7 @@ import {
 import api from 'api';
 import PageCenter from 'commons/components/pages/PageCenter';
 import TemplateEditor from 'components/routes/templates/TemplateEditor';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Check, Delete, Remove, SsidChart } from '@mui/icons-material';
@@ -24,11 +24,12 @@ import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import HitOutline, { DEFAULT_FIELDS } from 'components/elements/hit/HitOutline';
 import useMyApi from 'components/hooks/useMyApi';
-import _ from 'lodash';
+import isEqual from 'lodash-es/isEqual';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { Template } from 'models/entities/generated/Template';
 import { useSearchParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 const CUSTOM_OUTLINES = ['cmt.aws.sigma.rules', 'assemblyline', '6tailphish'];
@@ -36,7 +37,7 @@ const CUSTOM_OUTLINES = ['cmt.aws.sigma.rules', 'assemblyline', '6tailphish'];
 const TemplateViewer = () => {
   const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
-  const { getTemplates } = useContext(TemplateContext);
+  const getTemplates = useContextSelector(TemplateContext, ctx => ctx.getTemplates);
   const { dispatchApi } = useMyApi();
 
   const [templateList, setTemplateList] = useState<Template[]>([]);
@@ -107,7 +108,7 @@ const TemplateViewer = () => {
 
   useEffect(() => {
     if (analytic && detection) {
-      const template = templateList.find(
+      const template = (templateList ?? []).find(
         _template =>
           _template.analytic === analytic &&
           ((detection === 'ANY' && !_template.detection) || _template.detection === detection) &&
@@ -198,7 +199,7 @@ const TemplateViewer = () => {
   const isCustomOutline = useMemo(() => CUSTOM_OUTLINES.includes(analytic.toLowerCase()), [analytic]);
   const analyticOrDetectionMissing = useMemo(() => !analytic || !detection, [analytic, detection]);
   const noFieldChange = useMemo(
-    () => displayFields.length < 1 || _.isEqual(selectedTemplate?.keys ?? DEFAULT_FIELDS, displayFields),
+    () => displayFields.length < 1 || isEqual(selectedTemplate?.keys ?? DEFAULT_FIELDS, displayFields),
     [displayFields, selectedTemplate?.keys]
   );
 
@@ -207,13 +208,13 @@ const TemplateViewer = () => {
       <LinearProgress sx={{ mb: 1, opacity: +loading }} />
       <Stack direction="column" spacing={2} divider={<Divider orientation="horizontal" flexItem />} height="100%">
         <Stack direction="row" spacing={2} mb={2} alignItems="stretch">
-          <FormControl sx={{ minWidth: { sm: '200px' } }}>
+          <FormControl sx={{ flex: 1, maxWidth: '450px' }}>
             <Autocomplete
               id="analytic"
               options={analytics.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))}
               getOptionLabel={option => option.name}
               value={analytics.find(a => a.name === analytic) || null}
-              onChange={(event, newValue) => setAnalytic(newValue ? newValue.name : '')}
+              onChange={(__, newValue) => setAnalytic(newValue ? newValue.name : '')}
               renderInput={autocompleteAnalyticParams => (
                 <TextField {...autocompleteAnalyticParams} label={t('route.templates.analytic')} size="small" />
               )}
@@ -221,7 +222,7 @@ const TemplateViewer = () => {
           </FormControl>
           {!(detections?.length < 2 && detections[0]?.toLowerCase() === 'rule') ? (
             <FormControl
-              sx={{ minWidth: { sm: '200px' } }}
+              sx={{ flex: 1, maxWidth: '300px' }}
               disabled={!analytic || (isCustomOutline && type === 'global')}
             >
               <Autocomplete
@@ -229,7 +230,7 @@ const TemplateViewer = () => {
                 options={['ANY', ...detections.sort()]}
                 getOptionLabel={option => option}
                 value={isCustomOutline && type === 'global' ? 'any' : (detection ?? '')}
-                onChange={(event, newValue) => setDetection(newValue)}
+                onChange={(__, newValue) => setDetection(newValue)}
                 renderInput={autocompleteDetectionParams => (
                   <TextField {...autocompleteDetectionParams} label={t('route.templates.detection')} size="small" />
                 )}

@@ -1,5 +1,7 @@
-import { grey, indigo, pink, teal } from '@mui/material/colors';
+import { LocalPolice, MoodBad, NewReleases, PsychologyAlt, Star, Timeline } from '@mui/icons-material';
+import { blue, grey, indigo, orange, pink, red, teal, yellow } from '@mui/material/colors';
 import moment from 'moment';
+import type { ReactElement } from 'react';
 
 export const HOWLER_API = import.meta.env.VITE_API;
 export const LOCAL = HOWLER_API === 'MOCK';
@@ -55,9 +57,11 @@ export enum StorageKey {
   MOCK_FAVOURITES_STORE = 'mock_favourite_store',
   COMPACT_JSON = 'compact_json_view',
   FLATTEN_JSON = 'flatten_json_view',
+  FORCE_DRAWER = 'force_drawer',
   LAST_VIEW = 'last_view',
   ONLY_RULES = 'only_rules',
-  PAGE_COUNT = 'page_count'
+  PAGE_COUNT = 'page_count',
+  SEARCH_PANE_WIDTH = 'search_pane_width'
 }
 
 export const MOCK_SEARCH_QUERY_STORE = `${MY_LOCAL_STORAGE_PREFIX}.${StorageKey.MOCK_SEARCH_QUERY_STORE}`;
@@ -94,3 +98,28 @@ export const RULE_INTERVALS = [
   },
   { key: 'rule.interval.one.day', crontab: `${CURRENT_TIME.get('minute')} ${CURRENT_TIME.get('hour')} * * *` }
 ];
+
+export const DATE_RANGES = [
+  'date.range.1.day',
+  'date.range.3.day',
+  'date.range.1.week',
+  'date.range.1.month',
+  'date.range.all',
+  'date.range.custom'
+];
+
+interface LabelData {
+  icon?: ReactElement;
+  color?: string;
+}
+
+export const LABEL_TYPES: Record<string, LabelData> = {
+  insight: { icon: <PsychologyAlt fontSize="small" />, color: '#FFFFFF' }, //brain icon
+  mitigation: { icon: <LocalPolice fontSize="small" />, color: blue[600] }, //police badge
+  victim: { icon: <MoodBad fontSize="small" />, color: pink[400] }, //crime outline
+  campaign: { icon: <Timeline fontSize="small" />, color: orange[900] }, //net graph?
+  threat: { icon: <NewReleases fontSize="small" />, color: red[400] },
+  operation: { icon: <Star fontSize="small" />, color: yellow[600] },
+  generic: {},
+  assignments: {}
+};

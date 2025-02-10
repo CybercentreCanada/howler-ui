@@ -5,6 +5,7 @@ export interface Related {
   hash?: string[];
   hosts?: string[];
   id?: string;
+  ids?: string[];
   ip?: string[];
   signature?: string[];
   uri?: string[];

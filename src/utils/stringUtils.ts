@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { get } from 'lodash-es';
 
 export function nameToInitials(string: string) {
   const parts = string.split(' ').slice(0, 2);
@@ -36,8 +36,8 @@ export function sanitizeLuceneQuery(query: string) {
 // Supports : prop or any form of nested object.. prop.object.prop2, prop.object[0].prop2
 export function safeStringPropertyCompare(propertyPath: string) {
   return function (a: unknown, b: unknown) {
-    const aVal = _.get(a, propertyPath);
-    const bVal = _.get(b, propertyPath);
+    const aVal = get(a, propertyPath);
+    const bVal = get(b, propertyPath);
     return aVal && bVal ? aVal.localeCompare(bVal) : aVal ? 1 : 0;
   };
 }

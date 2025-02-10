@@ -21,7 +21,7 @@ import { FieldContext } from 'components/app/providers/FieldProvider';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
 import useMyApi from 'components/hooks/useMyApi';
 import HitQuery from 'components/routes/hits/search/HitQuery';
-import _, { difference } from 'lodash';
+import { difference, uniq } from 'lodash-es';
 import type { ActionOperation } from 'models/ActionTypes';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Action } from 'models/entities/generated/Action';
@@ -177,7 +177,7 @@ const ActionEditor: FC = () => {
 
         <FormGroup>
           <Stack direction="row" spacing={1} ml={-1} mr={-1}>
-            {_.uniq(operations.flatMap(op => op.triggers)).map(trigger => {
+            {uniq(operations.flatMap(op => op.triggers)).map(trigger => {
               const disabled =
                 !user.roles.includes('automation_advanced') ||
                 userOperations.length < 1 ||

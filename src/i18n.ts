@@ -1,4 +1,4 @@
-import i18n, { use } from 'i18next';
+import { createInstance } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import helpMainEN from 'locales/en/help/main.json';
 import helpSearchEN from 'locales/en/help/search.json';
@@ -30,7 +30,10 @@ const resources = {
   }
 };
 
-use(LanguageDetector)
+const i18nInstance = createInstance();
+
+i18nInstance
+  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
@@ -44,4 +47,4 @@ use(LanguageDetector)
     resources
   });
 
-export default i18n;
+export default i18nInstance;

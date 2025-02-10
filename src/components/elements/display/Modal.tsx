@@ -13,7 +13,7 @@ const Modal: FC = () => {
   }, [options, setContent]);
 
   return (
-    <MuiModal open={!!content} onClose={onClose} sx={{ zIndex: '1000' }}>
+    <MuiModal open={!!content} onClose={onClose} sx={{ zIndex: '1500' }}>
       <Box
         sx={theme => ({
           position: 'absolute',

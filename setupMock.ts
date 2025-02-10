@@ -1,6 +1,6 @@
 import express from 'express';
 import fs from 'fs';
-import lodash from 'lodash';
+import * as lodash from 'lodash-es';
 import path from 'path';
 import { ViteDevServer } from 'vite';
 

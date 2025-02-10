@@ -1,3 +1,5 @@
+import { Terminal } from '@mui/icons-material';
+import { LinearProgress, Stack } from '@mui/material';
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
 import type { RecievedDataType } from 'components/app/providers/SocketProvider';
@@ -7,14 +9,16 @@ import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { ActionReport } from 'models/ActionTypes';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { Operation } from 'models/entities/generated/Operation';
+import { useSnackbar, type SnackbarKey } from 'notistack';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 
 const useMyActionFunctions = () => {
   const { t } = useTranslation();
-  const { showErrorMessage } = useMySnackbar();
+  const { closeSnackbar } = useSnackbar();
+  const { showErrorMessage, showSuccessMessage, showInfoMessage } = useMySnackbar();
   const { dispatchApi } = useMyApi();
   const navigate = useNavigate();
   const location = useLocation();
@@ -152,7 +156,28 @@ const useMyActionFunctions = () => {
         setRequestId(reqId);
         setReport(null);
 
+        let key: SnackbarKey = null;
         try {
+          const action = api.search.action.post({ query: `action_id:${actionId}`, rows: 1 });
+
+          key = showInfoMessage(
+            <Stack spacing={1} width="100%" mb={-2} pb={1}>
+              <Stack direction="row" spacing={1} px="20px" pt="6px" pb="2px">
+                <Terminal fontSize="small" sx={{ mr: 2 }} />
+                <span>
+                  <Trans i18nKey="actions.running" values={{ action: (await action).items[0]?.name || t('unknown') }} />
+                </span>
+              </Stack>
+              <LinearProgress color="inherit" sx={theme => ({ borderRadius: theme.shape.borderRadius })} />
+            </Stack>,
+            0,
+            {
+              persist: true,
+              hideIconVariant: true,
+              style: { padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }
+            }
+          );
+
           setReport(
             await dispatchApi(
               api.action.execute.post({
@@ -163,13 +188,20 @@ const useMyActionFunctions = () => {
               { throwError: false, showError: true }
             )
           );
+
+          showSuccessMessage(
+            <Trans i18nKey="actions.succeeded" values={{ action: (await action).items[0]?.name || t('unknown') }} />
+          );
         } finally {
+          if (key) {
+            closeSnackbar(key);
+          }
           setLoading(false);
           setRequestId(null);
           setProgress([0, 0]);
         }
       },
-      [dispatchApi]
+      [closeSnackbar, dispatchApi, showInfoMessage, showSuccessMessage, t]
     ),
     deleteAction: useCallback(
       async (actionId: string) => {

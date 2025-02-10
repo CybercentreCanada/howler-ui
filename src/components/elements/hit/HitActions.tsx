@@ -34,16 +34,14 @@ import { ASSESSMENT_KEYBINDS, TOP_ROW, VOTE_OPTIONS } from './actions/SharedComp
 const THROTTLER = new Throttler(250);
 const HitActions: FC<{
   hit: Hit;
-  setHit: (h: Hit) => void;
   orientation?: 'horizontal' | 'vertical';
-}> = ({ hit, setHit, orientation = 'horizontal' }) => {
+}> = ({ hit, orientation = 'horizontal' }) => {
   const config = useMyApiConfig();
   const { values, set } = useMyLocalStorageProvider();
 
-  const { availableTransitions, canVote, canAssess, loading, manage, assess, vote, selectedVote } = useHitActions(
-    hit,
-    setHit
-  );
+  const { availableTransitions, canVote, canAssess, loading, manage, assess, vote, selectedVote } = useHitActions([
+    hit
+  ]);
 
   const [openSetting, setOpenSetting] = useState<null | HTMLElement>(null);
 
@@ -167,7 +165,7 @@ const HitActions: FC<{
     );
 
   return (
-    <Stack direction="row" alignItems="stretch" sx={{ position: 'relative' }}>
+    <Stack direction="row" alignItems="stretch">
       {actions}
       {(!showDropdown || !isMobile) && (
         <Box

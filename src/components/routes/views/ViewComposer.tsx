@@ -24,6 +24,8 @@ import VSBox from 'commons/addons/vsbox/VSBox';
 import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
 import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
 import PageCenter from 'commons/components/pages/PageCenter';
+import { HitContext } from 'components/app/providers/HitProvider';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import HitCard from 'components/elements/hit/HitCard';
 import { HitLayout } from 'components/elements/hit/HitLayout';
@@ -31,28 +33,33 @@ import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { Hit } from 'models/entities/generated/Hit';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
 import HitQuery from '../hits/search/HitQuery';
 import HitSort from '../hits/search/HitSort';
 import SearchSpan from '../hits/search/SearchSpan';
 
 const ViewComposer: FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
   const { showSuccessMessage, showErrorMessage } = useMySnackbar();
   const viewContext = useContext(ViewContext);
   const routeParams = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
+
+  const loadHits = useContextSelector(HitContext, ctx => ctx.loadHits);
 
   // view state
   const [title, setTitle] = useState('');
   const [type, setType] = useState('global');
-  const [query, setQuery] = useState(searchParams.get('query') || '');
-  const [sort, setSort] = useState('event.created desc');
-  const [span, setSpan] = useState('');
+
+  const query = useContextSelector(ParameterContext, ctx => ctx.query);
+  const setQuery = useContextSelector(ParameterContext, ctx => ctx.setQuery);
+  const sort = useContextSelector(ParameterContext, ctx => ctx.sort);
+  const setSort = useContextSelector(ParameterContext, ctx => ctx.setSort);
+  const span = useContextSelector(ParameterContext, ctx => ctx.span);
+  const setSpan = useContextSelector(ParameterContext, ctx => ctx.setSpan);
 
   // Non-view state
   const [loading, setLoading] = useState(false);
@@ -86,13 +93,7 @@ const ViewComposer: FC = () => {
 
   const search = useCallback(
     async (_query: string) => {
-      if (_query === 'woof!') {
-        i18n.changeLanguage('woof');
-      }
-
       setQuery(_query);
-      searchParams.set('query', _query);
-      setSearchParams(searchParams, { replace: true });
 
       setSearching(true);
       setError(null);
@@ -108,6 +109,7 @@ const ViewComposer: FC = () => {
           { showError: false, throwError: true }
         );
 
+        loadHits(_response.items);
         setResponse(_response);
       } catch (e) {
         setError(e.message);
@@ -115,11 +117,11 @@ const ViewComposer: FC = () => {
         setSearching(false);
       }
     },
-    [dispatchApi, i18n, pageCount, searchParams, setSearchParams, sort, span]
+    [dispatchApi, loadHits, pageCount, setQuery, sort, span]
   );
 
   useEffect(() => {
-    search(searchParams.get('query') || 'howler.id:*');
+    search(query || 'howler.id:*');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -145,23 +147,14 @@ const ViewComposer: FC = () => {
       if (viewToEdit) {
         setTitle(viewToEdit.title);
         setQuery(viewToEdit.query);
-        searchParams.set('query', viewToEdit.query);
 
         if (viewToEdit.sort) {
           setSort(viewToEdit.sort);
-          searchParams.set('sort', viewToEdit.sort);
-        } else {
-          searchParams.delete('sort');
         }
 
         if (viewToEdit.span) {
           setSpan(viewToEdit.span);
-          searchParams.set('span', viewToEdit.span);
-        } else {
-          searchParams.delete('span');
         }
-
-        setSearchParams(searchParams, { replace: true });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -214,15 +207,25 @@ const ViewComposer: FC = () => {
                 </TuiButton>
               </Stack>
               <Typography
-                sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic', mb: 0.5 })}
+                sx={theme => ({
+                  color: theme.palette.text.secondary,
+                  fontSize: '0.9em',
+                  fontStyle: 'italic',
+                  mb: 0.5
+                })}
                 variant="body2"
               >
                 {t('hit.search.prompt')}
               </Typography>
               <HitQuery triggerSearch={search} searching={searching} />
-              <Stack direction="row" spacing={1} divider={<Divider flexItem orientation="vertical" />}>
-                <HitSort onChange={setSort} useDefault={false} />
-                <SearchSpan onChange={setSpan} useDefault={false} />
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ '& > :not(.MuiDivider-root)': { flex: 1 } }}
+                divider={<Divider flexItem orientation="vertical" />}
+              >
+                <HitSort />
+                <SearchSpan useDefault={false} />
               </Stack>
               {response?.total ? (
                 <TuiSearchTotal
@@ -238,7 +241,7 @@ const ViewComposer: FC = () => {
           <VSBoxContent>
             <Stack spacing={1}>
               {!response?.total && <TuiListEmpty />}
-              {response?.items.map(hit => <HitCard key={hit.howler.id} hit={hit} layout={HitLayout.DENSE} />)}
+              {response?.items.map(hit => <HitCard key={hit.howler.id} id={hit.howler.id} layout={HitLayout.DENSE} />)}
             </Stack>
           </VSBoxContent>
         </VSBox>

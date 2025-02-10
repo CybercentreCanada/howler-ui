@@ -2,6 +2,7 @@ import { useMonaco } from '@monaco-editor/react';
 import { Height, Search } from '@mui/icons-material';
 import { Badge, Box, Card, Skeleton, Tooltip, alpha, useTheme } from '@mui/material';
 import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import QueryEditor from 'components/routes/advanced/QueryEditor';
 import type { IDisposable, editor } from 'monaco-editor';
 
@@ -9,6 +10,7 @@ import type { FC } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { sanitizeMultilineLucene } from 'utils/stringUtils';
 
 const DEFAULT_MULTILINE_HEIGHT = 250;
@@ -26,6 +28,8 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
   const theme = useTheme();
   const monaco = useMonaco();
 
+  const savedQuery = useContextSelector(ParameterContext, ctx => ctx.query || 'howler.id:*');
+
   const prevQuery = useRef<string | null>(null);
 
   const [query, setQuery] = useState(new URLSearchParams(window.location.search).get('query') || 'howler.id:*');
@@ -37,7 +41,7 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
 
   const search = useCallback(() => triggerSearch(sanitizeMultilineLucene(query)), [query, triggerSearch]);
 
-  const isDirty = useMemo(() => query !== new URLSearchParams(location.search).get('query'), [query, location]);
+  const isDirty = useMemo(() => query !== savedQuery, [query, savedQuery]);
 
   useEffect(() => {
     if (!monaco) {
@@ -91,13 +95,11 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
   }, []);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    if (urlParams.has('query') && urlParams.get('query') !== prevQuery.current) {
-      prevQuery.current = urlParams.get('query');
+    if (savedQuery && savedQuery !== prevQuery.current) {
+      prevQuery.current = savedQuery;
       setQuery(prevQuery.current);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
+  }, [savedQuery]);
 
   const onMouseUp = useCallback(() => {
     window.removeEventListener('mousemove', onMouseMove);

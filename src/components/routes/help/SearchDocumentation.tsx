@@ -145,7 +145,7 @@ const SearchDocumentation: FC = () => {
   return (
     <PageCenterRoot margin={4} width="100%" maxWidth="1750px" textAlign="left">
       <Stack sx={{ flexDirection: useHorizontal ? 'column' : 'row', '& h1': { mt: 0 } }}>
-        <HelpTabs value={location.hash}>
+        <HelpTabs value={location.hash || '#overview'}>
           {TOC_CONFIGS.flatMap(value => [
             <Tab
               key={value.id}

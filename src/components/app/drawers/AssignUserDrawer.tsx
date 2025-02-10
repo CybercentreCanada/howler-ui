@@ -5,34 +5,36 @@ import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import useMyApi from 'components/hooks/useMyApi';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import useMyUserList from 'components/hooks/useMyUserList';
-import type { Howler } from 'models/entities/generated/Howler';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { FC } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 type AssignUserDrawerProps = {
-  howler: Howler;
-  onAssigned: (howler: Howler) => void;
+  assignment: string;
+  ids: string[];
+  onAssigned: (assignment: string) => void;
   skipSubmit?: boolean;
 };
 
-const AssignUserDrawer: FC<AssignUserDrawerProps> = ({ howler, onAssigned, skipSubmit = false }) => {
+const AssignUserDrawer: FC<AssignUserDrawerProps> = ({ assignment, ids, onAssigned, skipSubmit = false }) => {
   const { dispatchApi } = useMyApi();
   const { showInfoMessage } = useMySnackbar();
   const { t } = useTranslation();
 
   const userIds = useMemo(() => new Set(['*']), []);
   const users = useMyUserList(userIds);
-  const [assignedUserId, setAssignedUserId] = useState(howler.assignment === 'unassigned' ? null : howler.assignment);
+  const [assignedUserId, setAssignedUserId] = useState(assignment === 'unassigned' ? null : assignment);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = useCallback(async () => {
     if (!skipSubmit) {
       setLoading(true);
       try {
-        await dispatchApi(
-          api.hit.assign.put(howler.id, { value: assignedUserId !== 'unassigned' ? assignedUserId : null })
+        await Promise.all(
+          ids.map(id =>
+            dispatchApi(api.hit.assign.put(id, { value: assignedUserId !== 'unassigned' ? assignedUserId : null }))
+          )
         );
 
         showInfoMessage(t('app.drawer.hit.assignment.success'));
@@ -41,11 +43,8 @@ const AssignUserDrawer: FC<AssignUserDrawerProps> = ({ howler, onAssigned, skipS
       }
     }
 
-    onAssigned({
-      ...howler,
-      assignment: assignedUserId
-    });
-  }, [assignedUserId, dispatchApi, howler, onAssigned, showInfoMessage, skipSubmit, t]);
+    onAssigned(assignedUserId);
+  }, [assignedUserId, dispatchApi, ids, onAssigned, showInfoMessage, skipSubmit, t]);
 
   return (
     <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
@@ -112,7 +111,7 @@ const AssignUserDrawer: FC<AssignUserDrawerProps> = ({ howler, onAssigned, skipS
         onChange={(_, value: HowlerUser) => setAssignedUserId(value?.username)}
       />
       <Button
-        disabled={!assignedUserId || assignedUserId === howler.assessment || loading}
+        disabled={!assignedUserId || assignedUserId === assignment || loading}
         variant="contained"
         sx={{ alignSelf: 'end' }}
         onClick={onSubmit}

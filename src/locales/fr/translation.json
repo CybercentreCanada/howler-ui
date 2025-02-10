@@ -22,6 +22,9 @@
   "close": "Fermer",
   "desc": "Descendant",
 
+  "actions.running": "Action \"{{action}}\" s'exécute.",
+  "actions.succeeded": "Action \"{{action}}\" achevé avec succès.",
+
   "app.drawer.hit.assignment.autocomplete.label": "Choisissez le destinataire",
   "app.drawer.hit.assignment.description": "Choisissez un utilisateur à qui assigner ce hit.",
   "app.drawer.hit.assignment.success": "L'utilisateur a été assigné au hit avec succès.",
@@ -53,6 +56,7 @@
   "breadcrumb.404": "404",
 
   "button.add": "Ajouter",
+  "button.aggregate": "Agréger",
   "button.cancel": "Annuler",
   "button.delete": "Supprimer",
   "button.drag": "Glisser",
@@ -131,8 +135,8 @@
   "hit.label.category.insight": "Catégorie : Insight - Un analyste a acquis une connaissance utile dont il est certain qu'elle restera vraie pour les futures alertes si les circonstances environnantes restent les mêmes.",
   "hit.label.category.victim": "Catégorie : Victime - Les messages produits à partir d'un flux de notification aux victimes peuvent avoir une étiquette qui identifie l'organisation victime qui doit être notifiée.",
   "hit.label.category.campaign": "Catégorie : Campagne - Identifie les campagnes en cours menées par des familles de logiciels malveillants ou des initiatives d'hameçonnage spécifiques. Elles ne doivent être considérées comme des attributions correctes que si le résultat positif est promu au rang de preuve.",
-  "hit.label.category.threat": "Catégorie : Menace - Indique que la réponse positive a été attribuée à un acteur ou à un groupe de menace connu.",
-  "hit.label.category.operation": "Catégorie : Opération - La réponse positive est liée à une opération en cours et doit être examinée avec des considérations particulières et une compréhension plus large des circonstances actuelles.",
+  "hit.label.category.threat": "Catégorie : Menace - Indique que le hit a été attribuée à un acteur ou à un groupe de menace connu.",
+  "hit.label.category.operation": "Catégorie : Opération - le hit est liée à une opération en cours et doit être examinée avec des considérations particulières et une compréhension plus large des circonstances actuelles.",
   "hit.label.category.generic": "Catégorie : Générique - Un fourre-tout pour toutes les étiquettes ajoutées qui ne correspondent pas à une autre catégorie.",
   "hit.label.category.assignments": "Catégorie : Affectation - Indique quel analyste ou quelle équipe d'analystes est chargé(e) de trier cette réponse positive.",
   "hit.label.edit": "Gestion des étiquettes",
@@ -160,6 +164,17 @@
   "hit.details.actions.transition.demote": "Rétrograder",
   "hit.details.actions.vote": "Voter",
   "hit.details.actions.vote.novote": "Pas de vote",
+
+  "hit.details.asessments.ambiguous.description": "La nature du hit n'a pas pu être déterminée avec succès sur la base des données disponibles.",
+  "hit.details.asessments.attempt.description": "Le hit faisait partie d'une tentative de compromis qui a échoué.",
+  "hit.details.asessments.compromise.description": "Le hit fait partie d'un compromis réussi.",
+  "hit.details.asessments.development.description": "Le hit est liée à une activité de développement et doit être ignorée.",
+  "hit.details.asessments.false-positive.description": "Le hit n'est pas lié à la détection qui l'a créé.",
+  "hit.details.asessments.legitimate.description": "Le hit représente une activité légitime qui n'est pas liée à un incident.",
+  "hit.details.asessments.mitigated.description": "La compromission devrait échouer en raison des mesures d'atténuation existantes.",
+  "hit.details.asessments.recon.description": "Le hit est limitée à une activité de reconnaissance.",
+  "hit.details.asessments.security.description": "Le hit est liée à une activité interne de cybersécurité et doit être ignorée.",
+  "hit.details.asessments.trivial.description": "Le hit fait partie d'un incident dont la gravité est trop faible pour justifier une réponse.",
   "hit.details.forceDropdown": "Utiliser l'affichage de la liste déroulante",
   "hit.details.shortcuts": "Paramètres des raccourcis",
   "hit.details.title": "Détails",
@@ -192,10 +207,7 @@
   "hit.panel.hit.noselection": "Aucun résultat n'a été sélectionné",
 
   "hit.panel.details.cluster": "Taille de la grappe",
-  "hit.panel.details.domains": "Domaines à bloquer",
   "hit.panel.details.cluster.description": "Taille de la grappe",
-  "hit.panel.details.domains.description": "Domaines à bloquer",
-  "hit.panel.details.no.domains": "Aucun domaine trouvé",
   "hit.panel.details.no.subjects": "Aucun sujet trouvé",
 
   "hit.summary.title": "Résumé des hits au fil du temps",
@@ -225,6 +237,7 @@
   "help.hit.banner.title": "Remplissage de l'en-tête de hit",
   "help.hit.banner.description": "Voir l'exemple d'en-tête de résultat ci-dessous pour connaître les clés de résultat nécessaires pour le remplir correctement. Si vous avez d'autres questions, posez-les dans le réseau d'assistance HOWLER.",
   "help.hit.banner.json": "Voici les données de résultats utilisées pour remplir cet en-tête:",
+  "help.hit.labels.title": "Étiquettes du hit",
   "help.hit.links.title": "Liens du hit",
   "help.hit.schema.title": "Schéma du hit",
   "help.hit.schema.regex": "Regex de validation",
@@ -261,6 +274,9 @@
   "hit.search.sort.fields": "Champ à trier",
   "hit.search.span": "Durée",
   "hit.search.sort.button": "Trier les résultats",
+  "hit.search.select.all": "Sélectionner tous les résultats de la page",
+  "hit.search.select.clear": "Effacer la sélection",
+  "hit.search.selected": "{{size}} sélectionné(s)",
   "hit.search.view.current": "Vue courante",
   "hit.search.view.default": "(Défaut)",
 
@@ -284,6 +300,9 @@
   "json.viewer.search.label": "Recherche de valeurs JSON",
   "json.viewer.search.prompt": "La requête doit être une expression rationnelle valide.",
 
+  "lead.invalid": "Type de piste non valide",
+  "lead.invalid.description": "La piste sélectionnée ne correspond à aucun type reconnu par Howler, et ne sera donc pas rendu.",
+
   "link.open": "Ouvrir le lien",
 
   "list": "liste",
@@ -296,6 +315,9 @@
   "loading": "Chargement...",
 
   "manage": "Gérer",
+
+  "markdown.error": "Une erreur s'est produite.",
+  "markdown.json.invalid": "JSON non valide fourni. Pensez à utiliser l'utilitaire {{json <data>}} pour convertir les objets en chaînes JSON.",
 
   "modal.action.title": "Enregistrer l'action",
   "modal.action.description": "Donnez un nom qui permette aux autres utilisateurs d'identifier l'objectif de cette action.",
@@ -369,6 +391,10 @@
   "page.documentation.description": "Description du point de terminaison",
   "page.documentation.description.explanation": "La documentation décrivant à quoi sert ce point de terminaison et comment vous devez interagir avec lui.",
 
+  "page.documentation.labels.name": "Catégorie de l'étiquette",
+  "page.documentation.labels.description": "Description de la catégorie",
+  "page.documentation.labels.example": "Exemple",
+
   "page.help": "Aide",
   "page.help.title": "Tableau de bord de l'aide",
   "page.help.support.title": "Vous avez encore besoin d'aide ?",
@@ -401,11 +427,15 @@
   "page.settings.local.compact.json.description": "Activer ou désactiver une vue JSON plus compacte, mieux adaptée à la visualisation d'un grand nombre de données en une seule fois",
   "page.settings.local.flatten.json": "Aplatir le JSON dans la vue JSON",
   "page.settings.local.flatten.json.description": "Au lieu d'afficher la structure d'objet du JSON, affichez-la sous forme de clés aplaties",
+  "page.settings.local.details.drawer": "Toujours utiliser le tiroir dans la recherche du hit",
+  "page.settings.local.details.drawer.description": "Au lieu de basculer entre une vue divisée et le tiroir en fonction de la taille de l'écran, ce paramètre oblige Howler à toujours utiliser le tiroir.",
   "page.settings.local.hits.layout": "Change Layout",
   "page.settings.local.hits.layout.description": "Ce paramètre vous permet de décider de la quantité de rembourrage et d'espacement, ainsi que de la taille de la police et de la taille de l'élément, que nous utilisons lors du rendu de l'interface utilisateur. Plus l'interface est dense, plus il est possible d'afficher de données.",
   "page.settings.local.hits.layout.dense": "Dense",
   "page.settings.local.hits.layout.normal": "Normal",
   "page.settings.local.hits.layout.comfy": "Confortable",
+  "page.settings.local.search.width": "Largeur maximale des résultats",
+  "page.settings.local.search.width.description": "Taille maximale (en pixels) de la colonne des résultats dans la page de recherche.",
   "page.settings.local.results.count": "Résultats par page",
   "page.settings.local.results.count.description": "Combien de résultats devons-nous afficher par page lors de l'affichage des résultats de recherche ?",
   "page.settings.admin.title": "Administration",

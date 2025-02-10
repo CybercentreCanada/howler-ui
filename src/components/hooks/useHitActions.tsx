@@ -3,17 +3,16 @@ import type { HitTransitionBody } from 'api/hit';
 import { useAppUser } from 'commons/components/app/hooks';
 import AssignUserDrawer from 'components/app/drawers/AssignUserDrawer';
 import useAppDrawer from 'components/app/hooks/useAppDrawer';
+import { HitContext } from 'components/app/providers/HitProvider';
 import RationaleModal from 'components/elements/display/modals/RationaleModal';
 import type { ActionButton } from 'components/elements/hit/actions/SharedComponents';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
-import type { Howler } from 'models/entities/generated/Howler';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StorageKey } from 'utils/constants';
+import { useContextSelector } from 'use-context-selector';
 import useMyApi from './useMyApi';
 import useMyApiConfig from './useMyApiConfig';
-import { useMyLocalStorageProvider } from './useMyLocalStorage';
 import useMyModal from './useMyModal';
 import useMySnackbar from './useMySnackbar';
 
@@ -31,17 +30,20 @@ export const MANAGE_OPTIONS: ActionButton[] = [
 
 type TransitionStates = 'in-progress' | 'on-hold' | 'open' | 'resolved';
 
-export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) {
+export default function useHitActions(_hits: Hit | Hit[]) {
   const { t } = useTranslation();
   const config = useMyApiConfig();
   const { user } = useAppUser<HowlerUser>();
   const drawer = useAppDrawer();
   const { showModal } = useMyModal();
   const { showWarningMessage } = useMySnackbar();
-  const { values } = useMyLocalStorageProvider();
   const { dispatchApi } = useMyApi();
 
+  const updateHit = useContextSelector(HitContext, ctx => ctx.updateHit);
+
   const [loading, setLoading] = useState(false);
+
+  const hits = useMemo(() => (Array.isArray(_hits) ? _hits : [_hits]).filter(_hit => !!_hit), [_hits]);
 
   const availableTransitions = useMemo(
     () =>
@@ -49,53 +51,54 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
         const name = option.name.toLowerCase();
 
         // Is this option one that is valid for the current state?
-        return (
-          config.config.lookups?.transitions[hit?.howler.status as TransitionStates]?.includes(name) &&
-          // If we are assigning or voting, the hit can't be assigned to the current user
-          ((name !== 'assign_to_me' && name !== 'vote') || hit?.howler.assignment !== user.username) &&
-          // If we are running any of these actions, the current user must be assigned the hit
-          ((name !== 'release' && name !== 'start' && name !== 'resume' && name !== 'pause') ||
-            hit?.howler.assignment === user.username) &&
-          // If we're promoting, it has to be a hit
-          (name !== 'promote' || hit?.howler.escalation === 'hit') &&
-          // If we're demoting, it has to be an alert
-          (name !== 'demote' || hit?.howler.escalation === 'alert')
+        return hits.every(
+          hit =>
+            config.config.lookups?.transitions[hit?.howler.status as TransitionStates]?.includes(name) &&
+            // If we are assigning or voting, the hit can't be assigned to the current user
+            ((name !== 'assign_to_me' && name !== 'vote') || hit?.howler.assignment !== user.username) &&
+            // If we are running any of these actions, the current user must be assigned the hit
+            ((name !== 'release' && name !== 'start' && name !== 'resume' && name !== 'pause') ||
+              hit?.howler.assignment === user.username) &&
+            // If we're promoting, it has to be a hit
+            (name !== 'promote' || hit?.howler.escalation === 'hit') &&
+            // If we're demoting, it has to be an alert
+            (name !== 'demote' || hit?.howler.escalation === 'alert')
         );
       }),
-    [
-      config.config.lookups?.transitions,
-      hit?.howler.assignment,
-      hit?.howler.escalation,
-      hit?.howler.status,
-      user.username
-    ]
+    [config.config.lookups?.transitions, hits, user.username]
   );
-
 
   const canVote = useMemo(
-    () => hit?.howler.assignment !== user.username || hit?.howler.status === 'in-progress',
-    [hit?.howler.assignment, hit?.howler.status, user.username]
+    () => hits.every(hit => hit?.howler.assignment !== user.username || hit?.howler.status === 'in-progress'),
+    [hits, user.username]
   );
   const canAssess = useMemo(
-    () => !(['on-hold', 'resolved'].includes(hit?.howler.status) && hit?.howler.assignment === user.username),
-    [hit?.howler.assignment, hit?.howler.status, user.username]
+    () =>
+      hits.every(
+        hit => !(['on-hold', 'resolved'].includes(hit?.howler.status) && hit?.howler.assignment === user.username)
+      ),
+    [hits, user.username]
   );
 
-  const selectedVote = useMemo(
-    () =>
-      hit?.howler.votes.benign.includes(user.email)
-        ? 'benign'
-        : hit?.howler.votes.malicious.includes(user.email)
-          ? 'malicious'
-          : hit?.howler.votes.obscure.includes(user.email)
-            ? 'obscure'
-            : '',
-    [hit?.howler.votes.benign, hit?.howler.votes.malicious, hit?.howler.votes.obscure, user.email]
-  );
+  const selectedVote = useMemo(() => {
+    if (hits.length !== 1) {
+      return '';
+    }
+
+    const hit = hits[0];
+
+    return hit?.howler.votes.benign.includes(user.email)
+      ? 'benign'
+      : hit?.howler.votes.malicious.includes(user.email)
+        ? 'malicious'
+        : hit?.howler.votes.obscure.includes(user.email)
+          ? 'obscure'
+          : '';
+  }, [hits, user.email]);
 
   const onAssign = useCallback(
     () =>
-      new Promise<Howler>((res, rej) => {
+      new Promise<string>((res, rej) => {
         let done = false;
 
         drawer.open({
@@ -103,7 +106,12 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
           children: (
             <AssignUserDrawer
               skipSubmit
-              howler={hit?.howler}
+              ids={hits.map(hit => hit.howler.id)}
+              assignment={
+                (hits.every(hit => hit.howler.assignment === hits[0].howler.assignment) &&
+                  hits[0]?.howler.assessment) ||
+                'unassigned'
+              }
               onAssigned={h => {
                 done = true;
                 drawer.close();
@@ -118,7 +126,7 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
           }
         });
       }),
-    [drawer, hit]
+    [drawer, hits]
   );
 
   const vote = useCallback(
@@ -127,69 +135,81 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
         setLoading(true);
 
         try {
-          const _vote = () =>
-            api.hit.transition.post(hit?.howler.id, { transition: 'vote', data: { vote: v, email: user.email } });
+          await Promise.all(
+            hits.map(async hit => {
+              const _vote = () =>
+                api.hit.transition.post(hit?.howler.id, { transition: 'vote', data: { vote: v, email: user.email } });
 
-          const updatedHit: Hit = await dispatchApi(_vote(), {
-            onConflict: async () => {
-              await api.hit.get(hit?.howler.id);
-              setHit?.(await _vote());
-            }
-          });
+              const updatedHit: Hit = await dispatchApi(_vote(), {
+                onConflict: async () => {
+                  await api.hit.get(hit?.howler.id);
 
-          if (updatedHit) {
-            setHit?.(updatedHit);
-          }
+                  const newResult = await _vote();
+
+                  updateHit(newResult);
+                }
+              });
+
+              if (updatedHit) {
+                updateHit(updatedHit);
+              }
+            })
+          );
         } finally {
           setLoading(false);
         }
       }
     },
-    [dispatchApi, hit, selectedVote, setHit, user.email]
+    [dispatchApi, hits, selectedVote, updateHit, user.email]
   );
-
 
   const assess = useCallback(
     async (assessment: string) => {
-      if (assessment !== hit?.howler.assessment) {
-        const rationale = await new Promise<string>(res => {
-          showModal(
-            <RationaleModal
-              onSubmit={_rationale => {
-                res(_rationale);
-              }}
-            />
-          );
-        });
+      const rationale = await new Promise<string>(res => {
+        showModal(
+          <RationaleModal
+            onSubmit={_rationale => {
+              res(_rationale);
+            }}
+          />
+        );
+      });
 
-        setLoading(true);
+      await Promise.all(
+        hits.map(async hit => {
+          if (assessment !== hit?.howler.assessment) {
+            setLoading(true);
 
-        try {
-          const update = () =>
-            api.hit.transition.post(hit?.howler.id, { transition: 'assess', data: { assessment, rationale } });
+            try {
+              const update = () =>
+                api.hit.transition.post(hit?.howler.id, { transition: 'assess', data: { assessment, rationale } });
 
-          const updatedHit = await dispatchApi(update(), {
-            onConflict: async () => {
-              const updatedData = await api.hit.get(hit?.howler.id);
+              const updatedHit = await dispatchApi(update(), {
+                onConflict: async () => {
+                  const updatedData = await api.hit.get(hit?.howler.id);
 
-              if (!updatedData.howler.assessment) {
-                setHit?.(await update());
-              } else {
-                setHit?.(updatedData);
-                showWarningMessage(t('hit.actions.conflict.assess'));
+                  if (!updatedData.howler.assessment) {
+                    const result = await update();
+
+                    updateHit(result);
+                  } else {
+                    updateHit(updatedData);
+                    showWarningMessage(t('hit.actions.conflict.assess'));
+                  }
+                }
+              });
+
+              if (updatedHit) {
+                updateHit(updatedHit);
               }
+            } finally {
+              setLoading(false);
             }
-          });
-
-          if (updatedHit && setHit) {
-            setHit(updatedHit);
           }
-        } finally {
-          setLoading(false);
-        }
-      }
+        })
+      );
     },
-    [dispatchApi, hit, setHit, showModal, showWarningMessage, t]
+    [dispatchApi, hits, showModal, showWarningMessage, t, updateHit]
   );
 
   const manage = useCallback(
@@ -199,21 +219,25 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
         const data: HitTransitionBody['data'] = {};
 
         if (transition === 'assign_to_other') {
-          data.assignee = (await onAssign()).assignment;
+          data.assignee = await onAssign();
         }
 
-        const update = () => api.hit.transition.post(hit?.howler.id, { transition, data });
-        const updatedHit = await dispatchApi(update(), {
-          onConflict: async () => {
-            const updatedData = await api.hit.get(hit?.howler.id);
-            setHit?.(updatedData);
-            showWarningMessage(t('hit.actions.conflict.manage'));
-          }
-        });
+        await Promise.all(
+          hits.map(async hit => {
+            const update = () => api.hit.transition.post(hit?.howler.id, { transition, data });
+            const updatedHit = await dispatchApi(update(), {
+              onConflict: async () => {
+                const updatedData = await api.hit.get(hit?.howler.id);
+                updateHit(updatedData);
+                showWarningMessage(t('hit.actions.conflict.manage'));
+              }
+            });
 
-        if (updatedHit && setHit) {
-          setHit(updatedHit);
-        }
+            if (updatedHit && updateHit) {
+              updateHit(updatedHit);
+            }
+          })
+        );
       } catch (e) {
         if (e !== 'unassigned') {
           throw e;
@@ -222,7 +246,7 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
         setLoading(false);
       }
     },
-    [dispatchApi, hit, onAssign, setHit, showWarningMessage, t]
+    [dispatchApi, hits, onAssign, showWarningMessage, t, updateHit]
   );
 
   return {
@@ -233,6 +257,6 @@ export default function useHitActions(hit: Hit, setHit?: (newHit: Hit) => void) 
     manage,
     assess,
     vote,
-    selectedVote,
+    selectedVote
   };
 }

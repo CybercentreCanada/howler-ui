@@ -3,7 +3,7 @@ import api from 'api';
 import type { ChartDataset, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-moment';
 import useMyChart from 'components/hooks/useMyChart';
-import _ from 'lodash';
+import sum from 'lodash-es/sum';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
@@ -48,7 +48,7 @@ const Stacked = forwardRef<
               fill: true,
               data: Object.keys(ingestionData).map((time, index, arr) => ({
                 x: new Date(time).getTime(),
-                y: _.sum(arr.map(key => ingestionData[key]).slice(0, index))
+                y: sum(arr.map(key => ingestionData[key]).slice(0, index))
               })),
               borderColor: color(_value),
               backgroundColor: color(_value),

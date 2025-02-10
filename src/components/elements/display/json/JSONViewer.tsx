@@ -1,15 +1,20 @@
 import ReactJson, { type CollapsedFieldProps } from '@microlink/react-json-view';
-import { Skeleton, Stack } from '@mui/material';
+import { Clear } from '@mui/icons-material';
+import { IconButton, Skeleton, Stack } from '@mui/material';
 import { TuiPhrase } from 'commons/addons/controls';
+import Throttler from 'commons/addons/utils/Throttler';
 import { useAppTheme } from 'commons/components/app/hooks';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
-import { t } from 'i18next';
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
 // eslint-disable-next-line import/no-unresolved
 import JSONWorker from './worker?worker';
 
+const THROTTLER = new Throttler(150);
+
 const JSONViewer: FC<{ data: object; collapse?: boolean }> = ({ data, collapse = true }) => {
+  const { t } = useTranslation();
   const { isDark } = useAppTheme();
   const [compact] = useMyLocalStorageItem<boolean>(StorageKey.COMPACT_JSON, true);
   const [flat] = useMyLocalStorageItem<boolean>(StorageKey.FLATTEN_JSON);
@@ -20,11 +25,13 @@ const JSONViewer: FC<{ data: object; collapse?: boolean }> = ({ data, collapse =
   const jsonWorker = useMemo(() => new JSONWorker(), []);
 
   useEffect(() => {
-    jsonWorker.postMessage([data, compact, query, flat]);
+    THROTTLER.debounce(() => {
+      jsonWorker.postMessage([data, compact, query, flat]);
 
-    jsonWorker.onmessage = (e: MessageEvent<[any]>) => {
-      setResult(e.data[0]);
-    };
+      jsonWorker.onmessage = (e: MessageEvent<[any]>) => {
+        setResult(e.data[0]);
+      };
+    });
 
     return () => (jsonWorker.onmessage = null);
   }, [compact, data, flat, jsonWorker, query]);
@@ -39,21 +46,13 @@ const JSONViewer: FC<{ data: object; collapse?: boolean }> = ({ data, collapse =
     }
   }, [query]);
 
-  const shouldCollapse = (field: CollapsedFieldProps) => {
+  const shouldCollapse = useCallback((field: CollapsedFieldProps) => {
     return (field.name !== 'root' && field.type !== 'object') || field.namespace.length > 3;
-  };
+  }, []);
 
-  return data ? (
-    <Stack direction="column" spacing={1} sx={{ '& > div:first-of-type': { mt: 1, mr: 0.5 } }}>
-      <TuiPhrase
-        value={query}
-        onChange={setQuery}
-        error={hasError}
-        label={t('json.viewer.search.label')}
-        placeholder={t('json.viewer.search.prompt')}
-        disabled={!result}
-      />
-      {result && (
+  const renderer = useMemo(
+    () =>
+      result && (
         <ReactJson
           src={result}
           theme={isDark ? 'summerfruit' : 'summerfruit:inverted'}
@@ -75,7 +74,26 @@ const JSONViewer: FC<{ data: object; collapse?: boolean }> = ({ data, collapse =
             displayArrayKey: !compact
           } as any)}
         />
-      )}
+      ),
+    [collapse, compact, isDark, result, shouldCollapse]
+  );
+
+  return data ? (
+    <Stack direction="column" spacing={1} sx={{ '& > div:first-of-type': { mt: 1, mr: 0.5 } }}>
+      <TuiPhrase
+        value={query}
+        onChange={setQuery}
+        error={hasError}
+        label={t('json.viewer.search.label')}
+        placeholder={t('json.viewer.search.prompt')}
+        disabled={!result}
+        endAdornment={
+          <IconButton onClick={() => setQuery('')}>
+            <Clear />
+          </IconButton>
+        }
+      />
+      {renderer}
     </Stack>
   ) : (
     <Skeleton width="100%" height="95%" variant="rounded" />

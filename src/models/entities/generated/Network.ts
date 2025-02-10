@@ -3,5 +3,6 @@
  */
 export interface Network {
   direction?: string;
+  protocol?: string;
   transport?: string;
 }

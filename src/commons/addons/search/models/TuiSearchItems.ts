@@ -1,4 +1,4 @@
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import TuiSearchModel from './TuiSearchModel';
 import TuiSearchTerms, { isMatcher, isSeparator, TuiSearchDirection, TuiSearchTerm } from './TuiSearchTerms';
 

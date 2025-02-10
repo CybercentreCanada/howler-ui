@@ -4,7 +4,7 @@ import api from 'api';
 import { TuiPhrase } from 'commons/addons/controls';
 import { useAppUser } from 'commons/components/app/hooks';
 import Markdown from 'components/elements/display/Markdown';
-import { difference } from 'lodash';
+import { difference } from 'lodash-es';
 import type { ActionOperation } from 'models/ActionTypes';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useEffect, useMemo, useState, type FC } from 'react';

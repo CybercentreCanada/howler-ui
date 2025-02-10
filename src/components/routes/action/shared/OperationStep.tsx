@@ -12,7 +12,7 @@ import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
 import Throttler from 'commons/addons/utils/Throttler';
 import useMyApi from 'components/hooks/useMyApi';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import type { ActionOperationStep } from 'models/ActionTypes';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';

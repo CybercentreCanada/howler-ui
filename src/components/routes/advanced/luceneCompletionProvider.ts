@@ -86,7 +86,7 @@ const useLuceneCompletionProvider = (): languages.CompletionItemProvider => {
             detail: item.type,
             documentation: item.description,
             kind: monaco.languages.CompletionItemKind.Property,
-            insertText: item.key,
+            insertText: item.key + ':',
             range
           }))
         };
@@ -97,7 +97,7 @@ const useLuceneCompletionProvider = (): languages.CompletionItemProvider => {
             detail: _field.type,
             documentation: _field.description,
             kind: monaco.languages.CompletionItemKind.Property,
-            insertText: _field.key,
+            insertText: _field.key + ':',
             range
           }))
         };

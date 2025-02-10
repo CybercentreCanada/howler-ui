@@ -8,35 +8,38 @@ import {
   Stack,
   Tooltip,
   Typography,
-  useMediaQuery
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
-import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
 import FlexOne from 'commons/addons/flexers/FlexOne';
-import type { TuiListItemOnSelect, TuiListItemProps } from 'commons/addons/lists';
-import { TuiList } from 'commons/addons/lists';
+import TuiListEmpty from 'commons/addons/lists/TuiListEmpty';
 import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
 import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
 import VSBox from 'commons/addons/vsbox/VSBox';
 import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
 import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
+import type { AppSiteMapRoute } from 'commons/components/app/AppConfigs';
+import { useAppBreadcrumbs } from 'commons/components/app/hooks';
+import { HitContext } from 'components/app/providers/HitProvider';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import HitBanner from 'components/elements/hit/HitBanner';
 import HitCard from 'components/elements/hit/HitCard';
 import { HitLayout } from 'components/elements/hit/HitLayout';
-import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
+import useMyLocalStorage, { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
+import useMySitemap from 'components/hooks/useMySitemap';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
-import type { SetURLSearchParams } from 'react-router-dom';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
-import { convertCustomDateRangeToLucene } from 'utils/utils';
 import BundleParentMenu from './BundleParentMenu';
 import CustomSpan from './CustomSpan';
 import HitContextMenu from './HitContextMenu';
@@ -45,43 +48,188 @@ import HitQuery from './HitQuery';
 import HitSort from './HitSort';
 import SearchSpan from './SearchSpan';
 
+const Item: FC<{
+  hit: Hit;
+  response: HowlerSearchResponse<Hit>;
+  lastSelected: string;
+  setLastSelected: (value: string) => void;
+}> = memo(({ hit, response, lastSelected, setLastSelected }) => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const { get } = useMyLocalStorage();
+
+  const { setItems } = useAppBreadcrumbs();
+  const { routes } = useMySitemap();
+
+  const selectedHits = useContextSelector(HitContext, ctx => ctx.selectedHits);
+  const addHitToSelection = useContextSelector(HitContext, ctx => ctx.addHitToSelection);
+  const removeHitFromSelection = useContextSelector(HitContext, ctx => ctx.removeHitFromSelection);
+  const clearSelectedHits = useContextSelector(HitContext, ctx => ctx.clearSelectedHits);
+
+  const selected = useContextSelector(ParameterContext, ctx => ctx.selected);
+  const setSelected = useContextSelector(ParameterContext, ctx => ctx.setSelected);
+
+  const layout: HitLayout = useMemo(
+    () => (isMobile ? HitLayout.COMFY : (get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL)),
+    [get]
+  );
+
+  const checkMiddleClick = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>, id: string | number) => {
+    if (e.button === 1) {
+      window.open(`${window.origin}/hits/${id}`, '_blank');
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, []);
+
+  const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
+    e => {
+      setLastSelected(hit.howler.id);
+
+      if (e.ctrlKey) {
+        document.getSelection().removeAllRanges();
+
+        if (selectedHits.some(_hit => _hit.howler.id === hit.howler.id)) {
+          removeHitFromSelection(hit.howler.id);
+        } else {
+          addHitToSelection(hit.howler.id);
+        }
+
+        e.stopPropagation();
+        return;
+      }
+
+      if (e.shiftKey) {
+        document.getSelection().removeAllRanges();
+
+        if (selectedHits.length < 1) {
+          addHitToSelection(hit.howler.id);
+        } else if (lastSelected) {
+          const lastSelectedIndex = response?.items.findIndex(_hit => _hit.howler.id === lastSelected);
+          const currentIndex = response?.items.findIndex(_hit => _hit.howler.id === hit.howler.id);
+
+          const lowerBound = lastSelectedIndex < currentIndex ? lastSelectedIndex : currentIndex;
+          const upperBound = lastSelectedIndex > currentIndex ? lastSelectedIndex : currentIndex;
+
+          for (let i = lowerBound; i <= upperBound; i++) {
+            addHitToSelection(response.items[i]?.howler.id);
+          }
+        }
+
+        e.stopPropagation();
+        return;
+      }
+
+      if (hit.howler.is_bundle) {
+        const searchRoute = routes.find(_route =>
+          _route.path.startsWith(location.pathname.replace(/^(\/.*)\/.+/, '$1'))
+        );
+
+        const newBreadcrumb: AppSiteMapRoute = {
+          ...searchRoute,
+          path: location.pathname + location.search
+        };
+        setItems([{ route: newBreadcrumb, matcher: null }]);
+
+        navigate(`/bundles/${hit.howler.id}?span=date.range.all&query=howler.id%3A*&offset=0`);
+        clearSelectedHits(hit.howler.id);
+      } else {
+        clearSelectedHits(hit.howler.id);
+        setSelected(hit.howler.id);
+      }
+    },
+    [
+      addHitToSelection,
+      clearSelectedHits,
+      hit.howler.id,
+      hit.howler.is_bundle,
+      lastSelected,
+      navigate,
+      removeHitFromSelection,
+      response.items,
+      routes,
+      selectedHits,
+      setItems,
+      setLastSelected,
+      setSelected
+    ]
+  );
+
+  // Search result list item renderer.
+  return (
+    <Box
+      id={hit.howler.id}
+      onMouseUp={e => checkMiddleClick(e, hit.howler.id)}
+      onClick={onClick}
+      sx={[
+        {
+          mb: 2,
+          cursor: 'pointer',
+          '& span,p,h6': {
+            cursor: 'text'
+          },
+          '& .MuiPaper-root': {
+            border: '4px solid transparent',
+            boxShadow: `0px 0px 0px 0px transparent`,
+            transition: theme.transitions.create(['border-color', 'box-shadow'])
+          },
+          '& .MuiCardContent-root': {
+            p: 1,
+            pb: 1
+          },
+          '& .MuiCardContent-root:last-child': {
+            paddingBottom: 'inherit' // prevents slight height variation on selected card.
+          }
+        },
+        selectedHits.some(_hit => _hit.howler.id === hit.howler.id) && {
+          '& .MuiPaper-root': { borderColor: grey[500], boxShadow: `0px 0px 5px 2px ${grey[500]}` }
+        },
+        selected === hit.howler.id && {
+          '& .MuiPaper-root': {
+            borderColor: 'primary.main',
+            boxShadow: `0px 0px 5px 2px ${theme.palette.primary.main}`
+          }
+        }
+      ]}
+    >
+      <HitCard id={hit.howler.id} layout={layout} />
+    </Box>
+  );
+});
+
 const SearchPane: FC<{
   error?: string;
-  onSelection: TuiListItemOnSelect<Hit>;
-  onSortChange: (sort: string) => void;
-  onLookupChange: (filter: string) => void;
-  onSpanChange: (span: string) => void;
-  onPageChange: (offset: number) => void;
   triggerSearch: (query: string) => void;
-  params: URLSearchParams;
-  setParams: SetURLSearchParams;
   response: HowlerSearchResponse<Hit>;
   searching: boolean;
   top?: number;
-}> = ({
-  error,
-  onSelection,
-  onSortChange,
-  onLookupChange,
-  onPageChange,
-  onSpanChange,
-  triggerSearch,
-  response,
-  searching,
-  top = 0
-}) => {
+}> = ({ error, triggerSearch, response, searching, top = 0 }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const routeParams = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { refresh } = useContext(TemplateContext);
+  const refresh = useContextSelector(TemplateContext, ctx => ctx.refresh);
   const viewContext = useContext(ViewContext);
-  const { get } = useMyLocalStorage();
 
-  const verticalSorters = useMediaQuery('(max-width: 1919px)');
+  const selected = useContextSelector(ParameterContext, ctx => ctx.selected);
+  const setSelected = useContextSelector(ParameterContext, ctx => ctx.setSelected);
+  const query = useContextSelector(ParameterContext, ctx => ctx.query);
+  const sort = useContextSelector(ParameterContext, ctx => ctx.sort);
+  const span = useContextSelector(ParameterContext, ctx => ctx.span);
 
-  const [bundleHit, setBundleHit] = useState<Hit>(null);
+  const setOffset = useContextSelector(ParameterContext, ctx => ctx.setOffset);
+
+  const getHit = useContextSelector(HitContext, ctx => ctx.getHit);
+  const clearSelectedHits = useContextSelector(HitContext, ctx => ctx.clearSelectedHits);
+  const bundleHit = useContextSelector(HitContext, ctx =>
+    location.pathname.startsWith('/bundles') ? ctx.hits[routeParams.id] : null
+  );
+
+  const searchPaneWidth = useMyLocalStorageItem(StorageKey.SEARCH_PANE_WIDTH, null)[0];
+
+  const [lastSelected, setLastSelected] = useState<string>(null);
+
+  const verticalSorters = useMediaQuery('(max-width: 1919px)') || searchPaneWidth < 900;
 
   const viewId = useMemo(
     () => (location.pathname.startsWith('/views') ? routeParams.id : null),
@@ -93,41 +241,37 @@ const SearchPane: FC<{
     [viewContext.views, viewId]
   );
 
-  const layout: HitLayout = useMemo(
-    () => (isMobile ? HitLayout.COMFY : (get(StorageKey.HIT_LAYOUT) ?? HitLayout.NORMAL)),
-    [get]
-  );
-
   const viewUrl = useMemo(() => {
     if (viewId) {
       return `/views/${viewId}/edit`;
     }
 
     const keys = [];
-    if (searchParams.has('query')) {
-      keys.push(`query=${searchParams.get('query')}`);
+    if (query) {
+      keys.push(`query=${query}`);
     }
 
-    if (searchParams.has('sort')) {
-      keys.push(`sort=${searchParams.get('sort')}`);
+    if (sort) {
+      keys.push(`sort=${sort}`);
     }
 
-    if (searchParams.has('span')) {
-      keys.push(`span=${searchParams.get('span')}`);
+    if (span) {
+      keys.push(`span=${span}`);
     }
 
     return keys.length > 0 ? `/views/create?${keys.join('&')}` : '/views/create';
-  }, [searchParams, viewId]);
+  }, [query, sort, span, viewId]);
 
-  useEffect(() => {
-    if (location.pathname.startsWith('/bundles') && routeParams.id) {
-      api.hit.get(routeParams.id).then(result => {
-        setBundleHit(result);
-      });
-    } else {
-      setBundleHit(null);
+  const getSelectedId = useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const target = event.target as HTMLElement;
+    const selectedElement = target.closest('[id]') as HTMLElement;
+
+    if (!selectedElement) {
+      return;
     }
-  }, [location.pathname, routeParams.id]);
+
+    return selectedElement.id;
+  }, []);
 
   // Load the index field for a hit in order to provide autocomplete suggestions.
   useEffect(() => {
@@ -135,59 +279,26 @@ const SearchPane: FC<{
   }, [refresh]);
 
   useEffect(() => {
-    if (searchParams.get('span')?.endsWith('custom') && searchParams.has('startDate') && searchParams.has('endDate')) {
-      onSpanChange(
-        `event.created:${convertCustomDateRangeToLucene(searchParams.get('startDate'), searchParams.get('endDate'))}`
-      );
+    if (location.pathname.startsWith('/bundles')) {
+      getHit(routeParams.id);
     }
-  }, [onSpanChange, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, routeParams.id]);
 
-  // Search result list item renderer.
-  const renderer = useCallback(
-    ({ item }: TuiListItemProps<Hit>, classRenderer: () => string) => {
-      return (
-        <Box
-          id={item.id as string}
-          key={item.id}
-          className={classRenderer()}
-          sx={[
-            {
-              mb: 2,
-              '& .MuiPaper-root': { border: '4px solid transparent' },
-              '& .MuiCardContent-root': {
-                p: 1,
-                pb: 1
-              },
-              '& .MuiCardContent-root:last-child': {
-                paddingBottom: 'inherit' // prevents slight height variation on selected card.
-              }
-            },
-            item.cursor && {
-              '& .MuiPaper-root': { borderColor: grey[500] }
-            },
-            searchParams.get('selected') === item.id && {
-              '& .MuiPaper-root': { borderColor: 'primary.main' }
-            }
-          ]}
+  const viewButton = useMemo(
+    () => (
+      <Tooltip title={viewId ? t('route.views.edit') : t('route.views.create')}>
+        <IconButton
+          size="small"
+          component={Link}
+          disabled={(!viewId && !query) || span?.endsWith('custom')}
+          to={viewUrl}
         >
-          <HitCard hit={item.item} layout={layout} />
-        </Box>
-      );
-    },
-    [layout, searchParams]
-  );
-
-  const viewButton = (
-    <Tooltip title={viewId ? t('route.views.edit') : t('route.views.create')}>
-      <IconButton
-        size="small"
-        component={Link}
-        disabled={(!viewId && !searchParams.has('query')) || searchParams.get('span')?.endsWith('custom')}
-        to={viewUrl}
-      >
-        {viewId ? <Edit fontSize="small" /> : <SavedSearch />}
-      </IconButton>
-    </Tooltip>
+          {viewId ? <Edit fontSize="small" /> : <SavedSearch />}
+        </IconButton>
+      </Tooltip>
+    ),
+    [query, span, t, viewId, viewUrl]
   );
 
   return (
@@ -225,21 +336,23 @@ const SearchPane: FC<{
           ))}
 
         {bundleHit && (
-          <Stack spacing={1} sx={{ mx: -1 }}>
-            <HowlerCard
-              sx={[
-                { p: 1, border: '4px solid transparent', cursor: 'pointer' },
-                location.pathname.startsWith('/bundles') &&
-                  !searchParams.has('selected') && { borderColor: 'primary.main' }
-              ]}
-              onClick={() => {
-                searchParams.delete('selected');
-                setSearchParams(searchParams);
-              }}
-            >
-              <HitBanner hit={bundleHit} layout={HitLayout.DENSE} useListener />
-            </HowlerCard>
-          </Stack>
+          <HitContextMenu getSelectedId={() => bundleHit.howler.id}>
+            <Stack spacing={1} sx={{ mx: -1 }}>
+              <HowlerCard
+                sx={[
+                  { p: 1, border: '4px solid transparent', cursor: 'pointer' },
+                  location.pathname.startsWith('/bundles') &&
+                    selected === routeParams.id && { borderColor: 'primary.main' }
+                ]}
+                onClick={() => {
+                  clearSelectedHits(bundleHit.howler.id);
+                  setSelected(bundleHit.howler.id);
+                }}
+              >
+                <HitBanner hit={bundleHit} layout={HitLayout.DENSE} useListener />
+              </HowlerCard>
+            </Stack>
+          </HitContextMenu>
         )}
 
         <Stack direction="row" spacing={1} alignItems="center">
@@ -265,19 +378,17 @@ const SearchPane: FC<{
           )}
           {!viewId && viewButton}
           <Tooltip title={t('route.actions.save')}>
-            <IconButton
-              component={Link}
-              disabled={!searchParams.has('query')}
-              to={`/action/execute?query=${searchParams.get('query')}`}
-            >
+            <IconButton component={Link} disabled={!query} to={`/action/execute?query=${query}`}>
               <Terminal />
             </IconButton>
           </Tooltip>
         </Stack>
+      </Stack>
 
+      <VSBoxHeader ml={-3} mr={-3} px={2} pb={1} sx={{ zIndex: 999 }}>
         <HitQuery disabled={viewId && !selectedView} searching={searching} triggerSearch={triggerSearch} />
 
-        <Box sx={{ position: 'relative', pb: 1.5 }}>
+        <Box sx={{ position: 'relative', pb: 1.5, pt: 1.5 }}>
           <Stack
             direction={verticalSorters ? 'column' : 'row'}
             justifyContent="space-between"
@@ -292,9 +403,9 @@ const SearchPane: FC<{
                 }
             ]}
           >
-            <HitSort onChange={onSortChange} useDefault={!selectedView?.sort} />
-            <HitFilter onChange={onLookupChange} />
-            <SearchSpan onChange={onSpanChange} useDefault={!selectedView?.span} />
+            <HitSort />
+            <HitFilter />
+            <SearchSpan useDefault={!selectedView?.span} />
           </Stack>
 
           <CustomSpan />
@@ -303,9 +414,7 @@ const SearchPane: FC<{
             <LinearProgress sx={theme => ({ position: 'absolute', bottom: theme.spacing(0.5), left: 0, right: 0 })} />
           )}
         </Box>
-      </Stack>
 
-      <VSBoxHeader ml={-1} mr={-1} pb={1}>
         {response && (
           <Stack direction="row" alignItems="center">
             <TuiSearchTotal
@@ -319,20 +428,30 @@ const SearchPane: FC<{
               total={response.total}
               limit={response.rows}
               offset={response.offset}
-              onChange={onPageChange}
+              onChange={nextOffset => setOffset(nextOffset)}
             />
           </Stack>
         )}
       </VSBoxHeader>
-      <VSBoxContent mr={-1} ml={-1}>
-        <HitContextMenu>
-          <TuiList keyboard onSelection={onSelection}>
-            {renderer}
-          </TuiList>
+      <VSBoxContent mr={-1} ml={-1} mt={1}>
+        <HitContextMenu getSelectedId={getSelectedId}>
+          {!response ? (
+            <TuiListEmpty />
+          ) : (
+            response.items.map(hit => (
+              <Item
+                key={hit.howler.id}
+                hit={hit}
+                response={response}
+                lastSelected={lastSelected}
+                setLastSelected={setLastSelected}
+              />
+            ))
+          )}
         </HitContextMenu>
       </VSBoxContent>
     </VSBox>
   );
 };
 
-export default SearchPane;
+export default memo(SearchPane);

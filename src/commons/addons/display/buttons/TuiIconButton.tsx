@@ -4,15 +4,15 @@ import {
   darken,
   emphasize,
   IconButton,
-  IconButtonProps,
+  type IconButtonProps,
   lighten,
   Link as MuiLink,
   Tooltip,
   useTheme
 } from '@mui/material';
-import { ReactNode, useMemo } from 'react';
+import { type HTMLAttributeAnchorTarget, type ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { isMuiButtonColor, MuiButtonColorType } from '.';
+import { isMuiButtonColor, type MuiButtonColorType } from '.';
 
 export type TuiIconButtonProps = Omit<IconButtonProps, 'color'> & {
   progress?: boolean | number;
@@ -22,6 +22,7 @@ export type TuiIconButtonProps = Omit<IconButtonProps, 'color'> & {
   route?: string;
   href?: string;
   tooltip?: string | ReactNode;
+  target?: HTMLAttributeAnchorTarget;
   clickableWithProgress?: boolean;
 };
 
@@ -32,6 +33,7 @@ export default function TuiIconButton({
   color,
   route,
   href,
+  target,
   tooltip,
   disabled,
   children,
@@ -108,7 +110,7 @@ export default function TuiIconButton({
     _IconButton = <Link to={route}>{_IconButton}</Link>;
   } else if (href) {
     _IconButton = (
-      <MuiLink href={href} target="_new">
+      <MuiLink href={href} target={target ?? '_new'}>
         {_IconButton}
       </MuiLink>
     );

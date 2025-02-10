@@ -1,6 +1,6 @@
 import * as colors from '@mui/material/colors';
 import { flatten, unflatten } from 'flat';
-import { isArray, isEmpty, isNil, isPlainObject } from 'lodash';
+import { isArray, isEmpty, isNil, isPlainObject } from 'lodash-es';
 import moment from 'moment';
 
 export function bytesToSize(bytes: number | null) {
@@ -154,6 +154,10 @@ export const convertDateToLucene = (date: string) => {
     return '[now-1d TO now]';
   }
 
+  if (date.endsWith('all')) {
+    return '*';
+  }
+
   const [amount, type] = date.replace('date.range.', '').split('.');
 
   return `[now-${amount}${DATE_TO_LUCENE_MAP[type] ?? 'd'} TO now]`;
@@ -163,7 +167,7 @@ export const convertCustomDateRangeToLucene = (startDate: string, endDate: strin
   return `[${startDate} TO ${endDate}]`;
 };
 
-export const convertLucenceToDate = (lucene: string) => {
+export const convertLuceneToDate = (lucene: string) => {
   const [amount, initial] = lucene.replace(/.+\[now-(\d+)(\w+) TO now]/, '$1 $2').split(' ');
 
   const type = Object.entries(DATE_TO_LUCENE_MAP).find(([__, _initial]) => _initial === initial)?.[0] ?? 'day';

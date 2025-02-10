@@ -11,7 +11,7 @@ export type BreadcrumbItem = { route: AppSiteMapRoute; matcher: PathMatch<string
 export const getRoute = (route: string, siteMap: AppSiteMapRoute[]): BreadcrumbItem => {
   // match all the route provide in sitemap with current route.
   const matchers = siteMap.map(_route => {
-    const matcher = matchPath(_route.path, route);
+    const matcher = matchPath(_route.path, route.replace(/\?.+/, ''));
     return { route: _route, matcher };
   });
 

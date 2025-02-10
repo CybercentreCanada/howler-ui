@@ -1,14 +1,16 @@
-import { Clear, KeyboardArrowDown, OpenInNew, QueryStats } from '@mui/icons-material';
-import { Box, Collapse, Divider, Skeleton, Stack, Tab, Tabs } from '@mui/material';
-import api from 'api';
+import { Clear, Code, Comment, DataObject, History, LinkSharp, OpenInNew, QueryStats } from '@mui/icons-material';
+import { Badge, Box, Divider, Skeleton, Stack, Tab, Tabs, Tooltip, useTheme } from '@mui/material';
 import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 
+import { Icon } from '@iconify/react/dist/iconify.js';
 import FlexOne from 'commons/addons/flexers/FlexOne';
-import FlexPort from 'commons/addons/flexers/FlexPort';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
+import VSBox from 'commons/addons/vsbox/VSBox';
+import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
+import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { HitContext } from 'components/app/providers/HitProvider';
 import { OverviewContext } from 'components/app/providers/OverviewProvider';
-import type { RecievedDataType } from 'components/app/providers/SocketProvider';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import { SocketContext } from 'components/app/providers/SocketProvider';
 import BundleButton from 'components/elements/display/icons/BundleButton';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
@@ -25,141 +27,84 @@ import HitRelated from 'components/elements/hit/HitRelated';
 import HitSummary from 'components/elements/hit/HitSummary';
 import HitWorklog from 'components/elements/hit/HitWorklog';
 import RelatedLink from 'components/elements/hit/related/RelatedLink';
-import useMyApi from 'components/hooks/useMyApi';
-import { useMyLocalStorageProvider } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
 import ErrorBoundary from 'components/routes/ErrorBoundary';
+import { uniqBy } from 'lodash-es';
 import type { Analytic } from 'models/entities/generated/Analytic';
-import type { Hit } from 'models/entities/generated/Hit';
-import type { HitUpdate } from 'models/socket/HitUpdate';
 import type { FC } from 'react';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { StorageKey } from 'utils/constants';
+import { useLocation } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { getUserList } from 'utils/hitFunctions';
 import { tryParse } from 'utils/utils';
+import LeadRenderer from '../view/LeadRenderer';
 
 const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { dispatchApi } = useMyApi();
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const location = useLocation();
-  const params = useParams();
-  const [searchParams] = useSearchParams();
-  const { values, set } = useMyLocalStorageProvider();
-  const { replaceById } = useTuiListMethods<Hit>();
-  const { addListener, removeListener, emit, isOpen } = useContext(SocketContext);
+  const { emit, isOpen } = useContext(SocketContext);
   const { getAnalyticFromName } = useContext(AnalyticContext);
   const { getMatchingOverview, refresh } = useContext(OverviewContext);
+  const selected = useContextSelector(ParameterContext, ctx => ctx.selected);
+
+  const getHit = useContextSelector(HitContext, ctx => ctx.getHit);
 
   const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const [analytic, setAnalytic] = useState<Analytic>();
   const [tab, setTab] = useState<string>('overview');
-  const [hit, _setHit] = useState<Hit>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const users = useMyUserList(userIds);
 
-  // remember last hit selection.
-  const hitIdRef = useRef<string>();
+  const hit = useContextSelector(HitContext, ctx => ctx.hits[selected]);
 
-  // check to see if we have selected a hit.
-  const hitId = useMemo(() => {
-    if (searchParams.has('selected')) {
-      hitIdRef.current = searchParams.get('selected');
-    } else if (location.pathname.startsWith('/bundles') && params.id) {
-      hitIdRef.current = params.id;
-    } else {
-      hitIdRef.current = null;
+  useEffect(() => {
+    if (!selected) {
+      return;
     }
 
-    return hitIdRef.current;
-  }, [location.pathname, params.id, searchParams]);
-
-  // Show header details indicator.
-  const showDetails = useMemo(() => values[StorageKey.SHOW_DETAILS] as boolean, [values]);
-
-  // Fetch hit data handler.
-  const fetchHit = useCallback(
-    async (_hitId: string, enableLoading: boolean = true) => {
-      if (enableLoading) {
+    (async () => {
+      if (selected && !hit) {
         setLoading(true);
-      }
-
-      try {
-        const _hit = await dispatchApi(api.hit.get(_hitId));
-        _setHit(_hit);
-        setUserIds(getUserList(_hit));
-        setAnalytic(await getAnalyticFromName(_hit.howler.analytic));
-        if (tab === 'hit_aggregate' && !_hit.howler.is_bundle) {
-          setTab('overview');
+        try {
+          await getHit(selected, true);
+        } finally {
+          setLoading(false);
+          return;
         }
-      } finally {
-        setLoading(false);
+      } else if (!hit?.howler.data) {
+        getHit(selected, true);
       }
-    },
-    [dispatchApi, getAnalyticFromName, tab]
-  );
 
-  const handler = useMemo(
-    () => (data: RecievedDataType<HitUpdate>) => {
-      if (!hitId) {
-        _setHit(null);
-      } else if (data.hit?.howler.id === hitId) {
-        _setHit(data.hit);
+      setUserIds(getUserList(hit));
+      setAnalytic(await getAnalyticFromName(hit.howler.analytic));
+
+      if (tab === 'hit_aggregate' && !hit.howler.is_bundle) {
+        setTab('overview');
       }
-    },
-    [hitId]
-  );
+    })();
+  }, [getAnalyticFromName, getHit, hit, selected, tab]);
 
   const matchingOverview = useMemo(() => getMatchingOverview(hit), [getMatchingOverview, hit]);
 
   useEffect(() => {
-    addListener<HitUpdate>('infoPane', handler);
-
-    return () => removeListener('infoPane');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handler]);
-
-  useEffect(() => {
-    if (hitId && isOpen()) {
+    if (selected && isOpen()) {
       emit({
         broadcast: false,
         action: 'viewing',
-        id: hitId
+        id: selected
       });
 
       return () =>
         emit({
           broadcast: false,
           action: 'stop_viewing',
-          id: hitId
+          id: selected
         });
     }
-  }, [emit, hitId, isOpen]);
-
-  // Effect to trigger fetching of hit data when hitId changes.
-  // This will cause loading effect to activate.
-  useEffect(() => {
-    if (hitId) {
-      fetchHit(hitId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hitId]);
-
-  // Effect to trigger fetching of hit data when tab changes.
-  // This will not cause loading effect to activate.
-  useEffect(() => {
-    // If the websocket is enabled, the hit will reload automatically
-    if (isOpen()) {
-      return;
-    }
-
-    if (hitIdRef.current) {
-      fetchHit(hitIdRef.current, false);
-    }
-  }, [tab, fetchHit, isOpen]);
+  }, [emit, selected, isOpen]);
 
   useEffect(() => {
     refresh();
@@ -173,15 +118,6 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchingOverview]);
-
-  // Memoized callback for HitAction to update 'hit.howler' schema.
-  const setHit = useCallback(
-    (newHit: Hit) => {
-      replaceById({ id: hitId, item: hit }, { id: hitId, item: newHit });
-      _setHit(newHit);
-    },
-    [hit, hitId, replaceById]
-  );
 
   /**
    * What to show as the header? If loading a skeleton, then it depends on bundle or not. Bundles don't
@@ -197,127 +133,194 @@ const InformationPane: FC<{ onClose?: () => void }> = ({ onClose }) => {
     }
   }, [hit, loading]);
 
+  const tabContent = useMemo(() => {
+    if (!tab) {
+      return;
+    }
+
+    return {
+      overview: () => <HitOverview hit={hit} />,
+      details: () => <HitDetails hit={hit} />,
+      hit_comments: () => <HitComments hit={hit} users={users} />,
+      hit_raw: () => <JSONViewer data={!loading && hit} />,
+      hit_data: () => (
+        <JSONViewer data={!loading && hit?.howler?.data?.map(entry => tryParse(entry))} collapse={false} />
+      ),
+      hit_worklog: () => <HitWorklog hit={!loading && hit} users={users} />,
+      hit_aggregate: () => <HitSummary query={`howler.bundles:(${hit?.howler?.id})`} />,
+      hit_related: () => <HitRelated hit={hit} />,
+      ...Object.fromEntries(
+        hit?.howler.dossier?.map((lead, index) => ['lead:' + index, () => <LeadRenderer lead={lead} />]) ?? []
+      )
+    }[tab]?.();
+  }, [hit, loading, tab, users]);
+
   return (
-    <Stack direction="column" flex={1} height="100%" position="relative" spacing={1} ml={2}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={0.5}
-        flexShrink={0}
-        pr={2}
-        sx={[hit?.howler?.is_bundle && { position: 'absolute', top: 1, right: 0, zIndex: 10 }]}
-      >
-        <FlexOne />
-        {onClose && !location.pathname.startsWith('/bundles') && (
-          <TuiIconButton size="small" onClick={onClose} tooltip={t('hit.panel.details.exit')}>
-            <Clear />
-          </TuiIconButton>
-        )}
-        {hit && !hit.howler.is_bundle && (
-          <TuiIconButton
-            size="small"
-            tooltip={t(`hit.panel.details.${showDetails ? 'hide' : 'show'}`)}
-            onClick={() => set(StorageKey.SHOW_DETAILS, !showDetails)}
-          >
-            <KeyboardArrowDown sx={{ transition: 'rotate 250ms', rotate: showDetails ? '180deg' : '0deg' }} />
-          </TuiIconButton>
-        )}
-        <SocketBadge size="small" />
-        {analytic && (
-          <TuiIconButton
-            size="small"
-            tooltip={t('hit.panel.analytic.open')}
-            disabled={!analytic || loading}
-            onClick={() => navigate(`/analytics/${analytic.analytic_id}`)}
-          >
-            <QueryStats />
-          </TuiIconButton>
-        )}
-        {hit?.howler.bundles?.length > 0 && <BundleButton ids={hit.howler.bundles} disabled={loading} />}
-        {!!hit && !hit.howler.is_bundle && (
-          <TuiIconButton
-            tooltip={t('hit.panel.open')}
-            href={`/hits/${hitIdRef.current}`}
-            disabled={!hit || loading}
-            size="small"
-          >
-            <OpenInNew />
-          </TuiIconButton>
-        )}
-      </Stack>
-      <Box pr={2}>{header}</Box>
-      {!!hit && !hit.howler.is_bundle && (
-        <Collapse in={showDetails} sx={{ overflow: 'auto', maxHeight: '40vh', pr: 2 }} unmountOnExit>
-          {!loading ? (
+    <VSBox top={10} sx={{ height: '100%', flex: 1 }}>
+      <Stack direction="column" flex={1} sx={{ overflowY: 'auto', flexGrow: 1 }} position="relative" spacing={1} ml={2}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={0.5}
+          flexShrink={0}
+          pr={2}
+          sx={[hit?.howler?.is_bundle && { position: 'absolute', top: 1, right: 0, zIndex: 1100 }]}
+        >
+          <FlexOne />
+          {onClose && !location.pathname.startsWith('/bundles') && (
+            <TuiIconButton size="small" onClick={onClose} tooltip={t('hit.panel.details.exit')}>
+              <Clear />
+            </TuiIconButton>
+          )}
+          <SocketBadge size="small" />
+          {analytic && (
+            <TuiIconButton
+              size="small"
+              tooltip={t('hit.panel.analytic.open')}
+              disabled={!analytic || loading}
+              route={`/analytics/${analytic.analytic_id}`}
+            >
+              <QueryStats />
+            </TuiIconButton>
+          )}
+          {hit?.howler.bundles?.length > 0 && <BundleButton ids={hit.howler.bundles} disabled={loading} />}
+          {!!hit && !hit.howler.is_bundle && (
+            <TuiIconButton
+              tooltip={t('hit.panel.open')}
+              href={`/hits/${selected}`}
+              disabled={!hit || loading}
+              size="small"
+              target="_blank"
+            >
+              <OpenInNew />
+            </TuiIconButton>
+          )}
+        </Stack>
+        <Box pr={2}>{header}</Box>
+        {!!hit &&
+          !hit.howler.is_bundle &&
+          (!loading ? (
             <>
               <HitOutline hit={hit} layout={HitLayout.DENSE} />
-              <HitLabels hit={hit} setHit={setHit} />
+              <HitLabels hit={hit} />
             </>
           ) : (
             <Skeleton height={124} />
-          )}
-        </Collapse>
-      )}
-      {hit?.howler?.links?.length > 0 && (
-        <Stack direction="row" spacing={1} pr={2}>
-          {hit?.howler?.links?.length > 0 &&
-            hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href} compact {...l} />)}
-        </Stack>
-      )}
-      <Stack direction="row" alignItems="center" pr={2}>
-        <Tabs value={tab}>
-          {hit?.howler?.is_bundle && (
-            <Tab label={t('hit.viewer.aggregate')} value="hit_aggregate" onClick={() => setTab('hit_aggregate')} />
-          )}
-          {matchingOverview && (
-            <Tab label={t('hit.viewer.overview')} value="overview" onClick={() => setTab('overview')} />
-          )}
-          <Tab label={t('hit.viewer.details')} value="details" onClick={() => setTab('details')} />
-          <Tab
-            label={
-              t('hit.viewer.comments') +
-              ((hit?.howler?.comment?.length ?? 0) > 0 ? ` (${hit.howler.comment.length})` : '')
-            }
-            value="hit_comments"
-            onClick={() => setTab('hit_comments')}
-          />
-          <Tab label={t('hit.viewer.json')} value="hit_raw" onClick={() => setTab('hit_raw')} />
-          <Tab
-            label={t('hit.viewer.data')}
-            value="hit_data"
-            onClick={() => setTab('hit_data')}
-            disabled={!hit?.howler?.data}
-          />
-          <Tab label={t('hit.viewer.worklog')} value="hit_worklog" onClick={() => setTab('hit_worklog')} />
-          <Tab label={t('hit.viewer.related')} value="hit_related" onClick={() => setTab('hit_related')} />
-        </Tabs>
+          ))}
+        {hit?.howler?.links?.length > 0 && (
+          <Stack direction="row" spacing={1} pr={2}>
+            {hit?.howler?.links?.length > 0 &&
+              uniqBy(hit.howler.links, 'href')
+                .slice(0, 3)
+                .map(l => <RelatedLink key={l.href} compact {...l} />)}
+          </Stack>
+        )}
+        <VSBoxHeader ml={-1} mr={-1} pb={1} sx={{ top: '0px' }}>
+          <Tabs
+            value={tab === 'overview' && !matchingOverview ? 'details' : tab}
+            sx={{ display: 'flex', flexDirection: 'row', pr: 2, alignItems: 'center' }}
+          >
+            {hit?.howler?.is_bundle && (
+              <Tab label={t('hit.viewer.aggregate')} value="hit_aggregate" onClick={() => setTab('hit_aggregate')} />
+            )}
+            {matchingOverview && (
+              <Tab label={t('hit.viewer.overview')} value="overview" onClick={() => setTab('overview')} />
+            )}
+            <Tab label={t('hit.viewer.details')} value="details" onClick={() => setTab('details')} />
+            {hit?.howler.dossier?.map((lead, index) => (
+              <Tab
+                key={lead.label.en}
+                label={
+                  <Stack direction="row" spacing={0.5}>
+                    {lead.icon && <Icon icon={lead.icon} />}
+                    <span>{i18n.language === 'en' ? lead.label.en : lead.label.fr}</span>
+                  </Stack>
+                }
+                value={'lead:' + index}
+                onClick={() => setTab('lead:' + index)}
+              />
+            ))}
+            <FlexOne />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.data')}>
+                  <DataObject />
+                </Tooltip>
+              }
+              value="hit_data"
+              onClick={() => setTab('hit_data')}
+              disabled={!hit?.howler?.data}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.json')}>
+                  <Code />
+                </Tooltip>
+              }
+              value="hit_raw"
+              onClick={() => setTab('hit_raw')}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.comments')}>
+                  <Badge
+                    sx={{
+                      '& > .MuiBadge-badge': {
+                        backgroundColor: theme.palette.divider,
+                        zIndex: 1,
+                        right: theme.spacing(-0.5)
+                      },
+                      '& > svg': { zIndex: 2 }
+                    }}
+                    badgeContent={hit?.howler.comment?.length ?? 0}
+                  >
+                    <Comment />
+                  </Badge>
+                </Tooltip>
+              }
+              value="hit_comments"
+              onClick={() => setTab('hit_comments')}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.worklog')}>
+                  <History />
+                </Tooltip>
+              }
+              value="hit_worklog"
+              onClick={() => setTab('hit_worklog')}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.related')}>
+                  <LinkSharp />
+                </Tooltip>
+              }
+              value="hit_related"
+              onClick={() => setTab('hit_related')}
+            />
+          </Tabs>
+        </VSBoxHeader>
+        <ErrorBoundary>
+          <VSBoxContent mr={-1} ml={-1} height="100%">
+            <Stack height="100%" flex={1}>
+              {tabContent}
+            </Stack>
+          </VSBoxContent>
+        </ErrorBoundary>
       </Stack>
-      <ErrorBoundary>
-        <Stack flex={1} minHeight="20%">
-          <FlexPort>
-            {{
-              overview: () => <HitOverview hit={hit} />,
-              details: () => <HitDetails hit={hit} />,
-              hit_comments: () => <HitComments hit={hit} users={users} />,
-              hit_raw: () => <JSONViewer data={!loading && hit} />,
-              hit_data: () => (
-                <JSONViewer data={!loading && hit?.howler?.data?.map(entry => tryParse(entry))} collapse={false} />
-              ),
-              hit_worklog: () => <HitWorklog hit={!loading && hit} users={users} />,
-              hit_aggregate: () => <HitSummary query={`howler.bundles:(${hit?.howler?.id})`} />,
-              hit_related: () => <HitRelated hit={hit} />
-            }[tab]()}
-          </FlexPort>
-        </Stack>
-      </ErrorBoundary>
-
       {!!hit && hit?.howler && (
-        <Box pr={2}>
+        <Box pr={2} bgcolor={theme.palette.background.default} position="relative">
           <Divider orientation="horizontal" />
-          <HitActions hit={hit} setHit={setHit} />
+          <HitActions hit={hit} />
         </Box>
       )}
-    </Stack>
+    </VSBox>
   );
 };
 

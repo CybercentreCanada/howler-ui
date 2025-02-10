@@ -15,11 +15,9 @@ import {
 import { useAppUser } from 'commons/components/app/hooks/useAppUser';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
-import { SocketContext, type RecievedDataType } from 'components/app/providers/SocketProvider';
-import { uniq, uniqueId } from 'lodash';
+import { uniq } from 'lodash-es';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
-import type { HitUpdate } from 'models/socket/HitUpdate';
 import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -37,16 +35,10 @@ type HitBannerProps = {
   useListener?: boolean;
 };
 
-const HitBanner: FC<HitBannerProps> = ({
-  hit: hitData,
-  layout = HitLayout.NORMAL,
-  showAssigned = true,
-  useListener = false
-}) => {
+const HitBanner: FC<HitBannerProps> = ({ hit, layout = HitLayout.NORMAL, showAssigned = true }) => {
   const { t } = useTranslation();
   const { user } = useAppUser<HowlerUser>();
   const { config } = useContext(ApiConfigContext);
-  const { addListener, removeListener } = useContext(SocketContext);
   const { getIdFromName } = useContext(AnalyticContext);
   const theme = useTheme();
 
@@ -55,34 +47,9 @@ const HitBanner: FC<HitBannerProps> = ({
   const compressed = useMemo(() => layout === HitLayout.DENSE, [layout]);
   const textVariant = useMemo(() => (layout === HitLayout.COMFY ? 'body1' : 'caption'), [layout]);
 
-  const [hit, setHit] = useState(hitData);
   useEffect(() => {
-    setHit(hitData);
-    getIdFromName(hitData.howler?.analytic).then(setAnalyticId);
-  }, [getIdFromName, hitData]);
-
-  const handler = useCallback(
-    (data: RecievedDataType<HitUpdate>) => {
-      // We compare against the ID we're getting from where this is rendered.
-      // This circumvents a bug where switching between bundles wouldn't actually change the hit header
-      if (data.hit?.howler.id === hitData?.howler.id) {
-        setHit(data.hit);
-      }
-    },
-    [hitData?.howler.id]
-  );
-
-  useEffect(() => {
-    if (!hit || !useListener) {
-      return;
-    }
-
-    const _id = uniqueId();
-    addListener<HitUpdate>(_id, handler);
-
-    return () => removeListener(_id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handler, hit?.howler?.id]);
+    getIdFromName(hit?.howler.analytic).then(setAnalyticId);
+  }, [getIdFromName, hit]);
 
   const providerColor = useMemo(
     () => PROVIDER_COLORS[hit.event?.provider ?? 'unknown'] ?? stringToColor(hit.event.provider),

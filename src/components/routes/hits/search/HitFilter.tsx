@@ -1,11 +1,12 @@
 import type { UseAutocompleteProps } from '@mui/material';
 import { Autocomplete, Stack, TextField } from '@mui/material';
 import api from 'api';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import type { FC } from 'react';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 
 const ACCEPTED_LOOKUPS = [
@@ -17,10 +18,12 @@ const ACCEPTED_LOOKUPS = [
   'organization.name'
 ];
 
-const HitFilter: FC<{ onChange: (filter: string) => void }> = ({ onChange }) => {
+const HitFilter: FC = () => {
   const { t } = useTranslation();
   const { config } = useMyApiConfig();
-  const [params, setParams] = useSearchParams();
+
+  const savedFilter = useContextSelector(ParameterContext, ctx => ctx.filter);
+  const setSavedFilter = useContextSelector(ParameterContext, ctx => ctx.setFilter);
 
   const [category, setCategory] = useState(ACCEPTED_LOOKUPS[0]);
   const [filter, setFilter] = useState('');
@@ -28,10 +31,8 @@ const HitFilter: FC<{ onChange: (filter: string) => void }> = ({ onChange }) => 
   const [customLookups, setCustomLookups] = useState<string[]>([]);
 
   useEffect(() => {
-    const _params = new URLSearchParams(window.location.search);
-
-    if (_params.get('filter')) {
-      const [_category, _filter] = (_params.get('filter') || ':').split(':');
+    if (savedFilter) {
+      const [_category, _filter] = (savedFilter || ':').split(':');
 
       if (_category) {
         setCategory(_category);
@@ -42,20 +43,17 @@ const HitFilter: FC<{ onChange: (filter: string) => void }> = ({ onChange }) => 
       }
 
       if (_category && _filter) {
-        onChange(`${_category}:${_filter}`);
+        setSavedFilter(`${_category}:${_filter}`);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [window.location.search]);
+  }, [setSavedFilter, savedFilter]);
 
   const onCategoryChange: UseAutocompleteProps<string, false, false, false>['onChange'] = useCallback(
     async (_, _category) => {
       setCategory(_category);
       setFilter('');
-      onChange('');
 
-      params.delete('filter');
-      setParams(params);
+      setSavedFilter(null);
 
       if (!config.lookups[_category]) {
         const facets = await api.search.facet.hit.post(_category, { query: 'howler.id:*' });
@@ -65,7 +63,7 @@ const HitFilter: FC<{ onChange: (filter: string) => void }> = ({ onChange }) => 
         setCustomLookups([]);
       }
     },
-    [config.lookups, onChange, params, setParams]
+    [config.lookups, setSavedFilter]
   );
 
   const onValueChange: UseAutocompleteProps<string, false, false, false>['onChange'] = useCallback(
@@ -74,16 +72,12 @@ const HitFilter: FC<{ onChange: (filter: string) => void }> = ({ onChange }) => 
       if (value) {
         const newFilter = `${category}:"${sanitizeLuceneQuery(value)}"`;
 
-        onChange(newFilter);
-        params.set('filter', newFilter);
+        setSavedFilter(newFilter);
       } else {
-        onChange('');
-        params.delete('filter');
+        setSavedFilter(null);
       }
-
-      setParams(params);
     },
-    [category, onChange, params, setParams]
+    [category, setSavedFilter]
   );
 
   return (

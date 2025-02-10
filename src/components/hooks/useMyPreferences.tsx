@@ -166,6 +166,13 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               i18nKey: 'route.help.templates',
               route: '/help/templates',
               nested: true,
+              icon: <FormatListBulleted />
+            },
+            {
+              id: 'help.overview',
+              i18nKey: 'route.help.overviews',
+              route: '/help/overviews',
+              nested: true,
               icon: <Article />
             },
             { id: 'help.auth', i18nKey: 'route.help.auth', route: '/help/auth', nested: true, icon: <Key /> },

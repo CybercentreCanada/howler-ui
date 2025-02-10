@@ -2,6 +2,7 @@ import { hdelete, hget, hpost, joinAllUri, joinUri, uri as parentUri } from 'api
 import * as assign from 'api/hit/assign';
 import * as comments from 'api/hit/comments';
 import * as labels from 'api/hit/labels';
+import * as overwrite from 'api/hit/overwrite';
 import * as transition from 'api/hit/transition';
 import type { Hit } from 'models/entities/generated/Hit';
 
@@ -46,4 +47,4 @@ export function del(ids: string[]): Promise<{ success: boolean }> {
   return hdelete(uri(), ids);
 }
 
-export { assign, comments, labels, transition };
+export { assign, comments, labels, overwrite, transition };

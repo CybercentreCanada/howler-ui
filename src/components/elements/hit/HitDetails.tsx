@@ -5,6 +5,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Divider,
   Grid,
   Stack,
@@ -28,7 +29,7 @@ import {
   max,
   sortBy,
   uniq
-} from 'lodash';
+} from 'lodash-es';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -47,34 +48,45 @@ const ListRenderer: FC<{
   const omittedDuplicates = useMemo(() => uniqueEntries.length !== entries.length, [entries, uniqueEntries]);
 
   return (
-    <Stack
+    <Box
       className={key.replace(/\./g, '_')}
-      direction={allPrimitives ? 'row' : 'column'}
-      alignItems="stretch"
+      display={allPrimitives ? 'grid' : 'flex'}
+      sx={[
+        allPrimitives
+          ? {
+              gridTemplateColumns: '40% 60%'
+            }
+          : {
+              flexDirection: 'column'
+            }
+      ]}
       overflow="hidden"
       maxWidth="100%"
     >
-      <code
-        style={{
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: allPrimitives ? 'end' : 'start',
           borderRight: allPrimitives ? '1px solid' : 'none',
           borderColor: theme.palette.divider,
-          paddingRight: theme.spacing(1)
+          pr: 1,
+          mr: 1
         }}
       >
-        <pre
+        <code
           style={{
             marginTop: allPrimitives ? 0 : theme.spacing(2),
             marginBottom: allPrimitives ? 0 : theme.spacing(1)
           }}
         >
           {allPrimitives ? key.padStart(maxKeyLength ?? key.length) : key}
-        </pre>
-      </code>
-      <Grid container spacing={allPrimitives ? 1 : 4} ml={allPrimitives ? 0 : -4} overflow="hidden" maxWidth="100%">
+        </code>
+      </Box>
+      <Grid container spacing={allPrimitives ? 1 : 4} ml={allPrimitives ? -1 : -4} overflow="hidden" maxWidth="100%">
         {uniqueEntries.map((entry, index) => {
           if (Array.isArray(entry)) {
             return (
-              <Grid item maxWidth="100%" key={index}>
+              <Grid item xs="auto" maxWidth="100%" key={index}>
                 <ListRenderer objKey={`${key}.${index}`.replace(/\./g, '_')} entries={entry} />
               </Grid>
             );
@@ -82,7 +94,7 @@ const ListRenderer: FC<{
 
           if (isPlainObject(entry)) {
             return (
-              <Grid item maxWidth="100%" key={index}>
+              <Grid item xs={'auto'} maxWidth="100%" minWidth="350px" key={index}>
                 <ObjectRenderer parentKey={`${key}.${index}`.replace(/\./g, '_')} indent data={entry} />
               </Grid>
             );
@@ -114,7 +126,7 @@ const ListRenderer: FC<{
           </Grid>
         )}
       </Grid>
-    </Stack>
+    </Box>
   );
 });
 
@@ -155,25 +167,28 @@ const ObjectRenderer: FC<{ parentKey?: string; showParentKey?: boolean; data: an
                   className={(parentKey ? `${parentKey}.${key}` : key).replace(/\./g, '_')}
                   key={key}
                   style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'stretch',
-                    maxWidth: '100%',
-                    wordWrap: 'break-word'
+                    display: 'grid',
+                    gridTemplateColumns: '40% 60%',
+                    alignItems: 'start',
+                    maxWidth: '100%'
                   }}
                 >
-                  <pre
-                    style={{
+                  <Box
+                    display="flex"
+                    justifyContent="end"
+                    sx={{
                       marginRight: theme.spacing(1),
                       marginBottom: 0,
                       marginTop: 0,
                       borderRight: '1px solid',
                       borderColor: theme.palette.divider,
-                      paddingRight: theme.spacing(1)
+                      paddingRight: theme.spacing(1),
+                      height: '100%',
+                      wordWrap: 'break-word'
                     }}
                   >
-                    {key.padStart(longestKey)}
-                  </pre>
+                    <code style={{ maxWidth: '100%' }}>{key}</code>
+                  </Box>
                 </code>
               );
             })}

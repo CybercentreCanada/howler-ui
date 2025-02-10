@@ -1,5 +1,7 @@
-import { QueryStats, ViewAgenda } from '@mui/icons-material';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Code, Comment, DataObject, History, LinkSharp, QueryStats, ViewAgenda } from '@mui/icons-material';
 import {
+  Badge,
   Box,
   CardContent,
   Collapse,
@@ -12,12 +14,11 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import api from 'api';
+import FlexOne from 'commons/addons/flexers/FlexOne';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { HitContext } from 'components/app/providers/HitProvider';
 import { OverviewContext } from 'components/app/providers/OverviewProvider';
-import type { RecievedDataType } from 'components/app/providers/SocketProvider';
-import { SocketContext } from 'components/app/providers/SocketProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import BundleButton from 'components/elements/display/icons/BundleButton';
@@ -30,22 +31,22 @@ import HitDetails from 'components/elements/hit/HitDetails';
 import HitLabels from 'components/elements/hit/HitLabels';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import HitOutline from 'components/elements/hit/HitOutline';
+import HitOverview from 'components/elements/hit/HitOverview';
 import HitRelated from 'components/elements/hit/HitRelated';
 import HitWorklog from 'components/elements/hit/HitWorklog';
 import RelatedLink from 'components/elements/hit/related/RelatedLink';
-import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
 import type { Analytic } from 'models/entities/generated/Analytic';
-import type { Hit } from 'models/entities/generated/Hit';
-import type { HitUpdate } from 'models/socket/HitUpdate';
 import type { FC } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
 import { getUserList } from 'utils/hitFunctions';
 import { tryParse } from 'utils/utils';
+import LeadRenderer from './LeadRenderer';
 
 export enum Orientation {
   VERTICAL = 'vertical',
@@ -53,19 +54,19 @@ export enum Orientation {
 }
 
 const HitViewer: FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const params = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
   const isUnderLg = useMediaQuery(theme.breakpoints.down('lg'));
   const [orientation, setOrientation] = useMyLocalStorageItem(StorageKey.VIEWER_ORIENTATION, Orientation.VERTICAL);
-  const { dispatchApi } = useMyApi();
-  const { addListener, removeListener } = useContext(SocketContext);
-  const { refresh: refreshTemplates } = useContext(TemplateContext);
+  const refreshTemplates = useContextSelector(TemplateContext, ctx => ctx.refresh);
   const { getAnalyticFromName } = useContext(AnalyticContext);
   const { getMatchingOverview, refresh: refreshOverviews } = useContext(OverviewContext);
 
-  const [hit, setHit] = useState<Hit>(null);
+  const getHit = useContextSelector(HitContext, ctx => ctx.getHit);
+  const hit = useContextSelector(HitContext, ctx => ctx.hits[params.id]);
+
   const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const users = useMyUserList(userIds);
   const [tab, setTab] = useState<string>('details');
@@ -73,17 +74,19 @@ const HitViewer: FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const _hit = await dispatchApi(api.hit.get(params.id), { showError: true, throwError: true });
-      setHit(_hit);
-      setUserIds(getUserList(_hit));
+      let existingHit = hit;
+      if (!existingHit) {
+        existingHit = await getHit(params.id, true);
+      }
+      setUserIds(getUserList(existingHit));
 
-      setAnalytic(await getAnalyticFromName(_hit.howler.analytic));
+      setAnalytic(await getAnalyticFromName(existingHit.howler.analytic));
     } catch (err) {
       if (err.cause?.api_status_code === 404) {
         navigate('/404');
       }
     }
-  }, [dispatchApi, params.id, getAnalyticFromName, navigate]);
+  }, [hit, getAnalyticFromName, getHit, params.id, navigate]);
 
   useEffect(() => {
     if (isUnderLg) {
@@ -100,28 +103,7 @@ const HitViewer: FC = () => {
     [orientation, setOrientation]
   );
 
-  const handler = useMemo(
-    () => (data: RecievedDataType<HitUpdate>) => {
-      if (data.hit?.howler.id === params.id) {
-        setHit(data.hit);
-        setUserIds(getUserList(data.hit));
-      }
-    },
-    [params.id]
-  );
-
   const matchingOverview = useMemo(() => getMatchingOverview(hit), [getMatchingOverview, hit]);
-
-  useEffect(() => {
-    if (!hit) {
-      return;
-    }
-
-    addListener<HitUpdate>('hitDetails', handler);
-
-    return () => removeListener('hitDetails');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handler, hit]);
 
   useEffect(() => {
     refreshTemplates();
@@ -136,6 +118,25 @@ const HitViewer: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchingOverview]);
+
+  const tabContent = useMemo(() => {
+    if (!tab || !hit) {
+      return;
+    }
+
+    return {
+      overview: () => <HitOverview hit={hit} />,
+      details: () => <HitDetails hit={hit} />,
+      hit_comments: () => <HitComments hit={hit} users={users} />,
+      hit_raw: () => <JSONViewer data={hit} />,
+      hit_data: () => <JSONViewer data={hit?.howler?.data?.map(entry => tryParse(entry))} collapse={false} />,
+      hit_worklog: () => <HitWorklog hit={hit} users={users} />,
+      hit_related: () => <HitRelated hit={hit} />,
+      ...Object.fromEntries(
+        hit?.howler.dossier?.map((lead, index) => ['lead:' + index, () => <LeadRenderer lead={lead} />]) ?? []
+      )
+    }[tab]?.();
+  }, [hit, tab, users]);
 
   if (!hit) {
     return (
@@ -163,7 +164,7 @@ const HitViewer: FC = () => {
           sx={{ gridColumn: '1 / span 2', '& [class*=MuiStack-root]': { padding: '0 !important' } }}
           in={orientation === 'horizontal'}
         >
-          <HitActions hit={hit} setHit={setHit} orientation="horizontal" />
+          <HitActions hit={hit} orientation="horizontal" />
         </Collapse>
         <Box
           sx={{
@@ -176,7 +177,7 @@ const HitViewer: FC = () => {
             <CardContent>
               <HitBanner hit={hit} layout={HitLayout.COMFY} useListener />
               <HitOutline hit={hit} layout={HitLayout.COMFY} />
-              <HitLabels hit={hit} setHit={setHit} />
+              <HitLabels hit={hit} />
               {hit?.howler?.links?.length > 0 && (
                 <Stack direction="row" spacing={1}>
                   {hit?.howler?.links?.length > 0 &&
@@ -215,25 +216,98 @@ const HitViewer: FC = () => {
         </Box>
         <HowlerCard sx={[orientation === 'horizontal' && { height: '0px' }]}>
           <CardContent sx={{ padding: 1, position: 'relative' }}>
-            <HitActions hit={hit} setHit={setHit} orientation="vertical" />
+            <HitActions hit={hit} orientation="vertical" />
           </CardContent>
         </HowlerCard>
         <Box sx={{ gridColumn: '1 / span 2', mb: 1 }}>
-          <Tabs value={tab}>
+          <Tabs
+            value={tab === 'overview' && !matchingOverview ? 'details' : tab}
+            sx={{ display: 'flex', flexDirection: 'row', pr: 2, alignItems: 'center' }}
+          >
+            {hit?.howler?.is_bundle && (
+              <Tab label={t('hit.viewer.aggregate')} value="hit_aggregate" onClick={() => setTab('hit_aggregate')} />
+            )}
             {matchingOverview && (
               <Tab label={t('hit.viewer.overview')} value="overview" onClick={() => setTab('overview')} />
             )}
             <Tab label={t('hit.viewer.details')} value="details" onClick={() => setTab('details')} />
-            <Tab label={t('hit.viewer.comments')} value="hit_comments" onClick={() => setTab('hit_comments')} />
-            <Tab label={t('hit.viewer.json')} value="hit_raw" onClick={() => setTab('hit_raw')} />
+            {hit?.howler.dossier?.map((lead, index) => (
+              <Tab
+                key={lead.label.en}
+                label={
+                  <Stack direction="row" spacing={0.5}>
+                    {lead.icon && <Icon icon={lead.icon} />}
+                    <span>{i18n.language === 'en' ? lead.label.en : lead.label.fr}</span>
+                  </Stack>
+                }
+                value={'lead:' + index}
+                onClick={() => setTab('lead:' + index)}
+              />
+            ))}
+            <FlexOne />
             <Tab
-              label={t('hit.viewer.data')}
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.data')}>
+                  <DataObject />
+                </Tooltip>
+              }
               value="hit_data"
               onClick={() => setTab('hit_data')}
               disabled={!hit?.howler?.data}
             />
-            <Tab label={t('hit.viewer.worklog')} value="hit_worklog" onClick={() => setTab('hit_worklog')} />
-            <Tab label={t('hit.viewer.related')} value="hit_related" onClick={() => setTab('hit_related')} />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.json')}>
+                  <Code />
+                </Tooltip>
+              }
+              value="hit_raw"
+              onClick={() => setTab('hit_raw')}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.comments')}>
+                  <Badge
+                    sx={{
+                      '& > .MuiBadge-badge': {
+                        backgroundColor: theme.palette.divider,
+                        zIndex: 1,
+                        right: theme.spacing(-0.5)
+                      },
+                      '& > svg': { zIndex: 2 }
+                    }}
+                    badgeContent={hit?.howler.comment?.length ?? 0}
+                  >
+                    <Comment />
+                  </Badge>
+                </Tooltip>
+              }
+              value="hit_comments"
+              onClick={() => setTab('hit_comments')}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.worklog')}>
+                  <History />
+                </Tooltip>
+              }
+              value="hit_worklog"
+              onClick={() => setTab('hit_worklog')}
+            />
+            <Tab
+              sx={{ px: 2, minWidth: 0 }}
+              label={
+                <Tooltip title={t('hit.viewer.related')}>
+                  <LinkSharp />
+                </Tooltip>
+              }
+              value="hit_related"
+              onClick={() => setTab('hit_related')}
+            />
           </Tabs>
         </Box>
         <Box
@@ -243,17 +317,7 @@ const HitViewer: FC = () => {
             '& .react-json-view': { backgroundColor: 'transparent !important' }
           }}
         >
-          {
-            {
-              overview: <HitOverview hit={hit} />,
-              details: <HitDetails hit={hit} />,
-              hit_comments: <HitComments hit={hit} users={users} />,
-              hit_raw: <JSONViewer data={hit} />,
-              hit_data: <JSONViewer data={(hit?.howler?.data ?? []).map(entry => tryParse(entry))} />,
-              hit_worklog: <HitWorklog hit={hit} users={users} />,
-              hit_related: <HitRelated hit={hit} />
-            }[tab]
-          }
+          {tabContent}
         </Box>
       </Box>
     </PageCenter>

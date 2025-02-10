@@ -27,7 +27,6 @@ import ActionReportDisplay from '../shared/ActionReportDisplay';
 import QueryResultText from '../shared/QueryResultText';
 import useMyActionFunctions from '../useMyActionFunctions';
 
-
 const ActionDetails = () => {
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
@@ -173,7 +172,6 @@ const ActionDetails = () => {
         {operations.length > 0 &&
           action &&
           action.operations.map(a => {
-
             return (
               <OperationEntry
                 key={a.operation_id}

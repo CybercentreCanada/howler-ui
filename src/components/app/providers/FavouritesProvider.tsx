@@ -1,7 +1,7 @@
 import { QueryStats, SavedSearch } from '@mui/icons-material';
 import type { AppLeftNavElement, AppLeftNavGroup } from 'commons/components/app/AppConfigs';
 import { useAppLeftNav, useAppUser } from 'commons/components/app/hooks';
-import _ from 'lodash';
+import { uniqBy } from 'lodash-es';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { createContext, useCallback, useContext, useEffect, type FC, type PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,7 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
       return viewElement;
     }
 
-    const items = _.uniqBy(
+    const items = uniqBy(
       favourites
         .map(view_id => {
           const view = views.views?.find(v => v.view_id === view_id);

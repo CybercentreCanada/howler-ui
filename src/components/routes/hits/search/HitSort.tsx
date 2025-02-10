@@ -1,9 +1,11 @@
 import { Autocomplete, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import type { FC } from 'react';
 import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import CustomSort from './CustomSort';
 
 const CUSTOM = '__custom__';
@@ -19,29 +21,29 @@ const ACCEPTED_SORTS = [
   CUSTOM
 ];
 
-const HitSort: FC<{ onChange: (sort: string) => void; useDefault?: boolean }> = ({ onChange, useDefault = true }) => {
+const HitSort: FC = () => {
   const { t } = useTranslation();
-  const [params, setParams] = useSearchParams();
   const location = useLocation();
   const routeParams = useParams();
   const viewContext = useContext(ViewContext);
 
-  /**
-   * This array contains an array of sort fields in the form "<key> <sort>". All edits to the sort string will go through this
-   */
-  const [sortEntries, setSortEntries] = useState(
-    (params.get('sort') || useDefault ? `${ACCEPTED_SORTS[0]} desc` : '').split(',').filter(part => !!part)
-  );
+  const savedSort = useContextSelector(ParameterContext, ctx => ctx.sort);
+  const setSavedSort = useContextSelector(ParameterContext, ctx => ctx.setSort);
+
+  const sortEntries = useMemo(() => savedSort.split(',').filter(part => !!part), [savedSort]);
 
   /**
    * The currently selected field when not using custom sorting
    */
-  const [field, setField] = useState(sortEntries[0]?.split(' ')[0] || (useDefault ? ACCEPTED_SORTS[0] : ''));
+  const field = useMemo(() => (sortEntries.length < 2 ? sortEntries[0].split(' ')[0] : null), [sortEntries]);
 
   /**
    * The currently selected sorter when not using custom sorting
    */
-  const [sort, setSort] = useState<'asc' | 'desc'>((sortEntries[0]?.split(' ')[1] as 'asc' | 'desc') || 'desc');
+  const sort = useMemo(
+    () => (sortEntries.length < 2 ? sortEntries[0].split(' ')[1] : null) as 'asc' | 'desc',
+    [sortEntries]
+  );
 
   /**
    * Should the custom sorter be shown? Defaults to true if there's more than one sort field, or we're sorting on a field not supported by the default dropdown
@@ -63,82 +65,18 @@ const HitSort: FC<{ onChange: (sort: string) => void; useDefault?: boolean }> = 
       if (value === CUSTOM) {
         setShowCustomSort(true);
       } else {
-        setSortEntries([`${field} ${sort || 'desc'}`]);
+        setSavedSort(`${value} ${sort}`);
       }
     },
-    [field, sort]
+    [setSavedSort, sort]
   );
-
-  /**
-   * This effect handles propagating changes to the sortEntries upstream and to the query string
-   */
-  useEffect(() => {
-    // Do we have any sorting to show?
-    if (sortEntries.length > 0) {
-      const sortString = sortEntries.join(',');
-      onChange(sortString);
-
-      // Does the search parameter match? If it doesn't, update it
-      if (params.get('sort') !== sortString) {
-        params.set('sort', sortString);
-        setParams(params, { replace: true });
-      }
-    }
-  }, [onChange, params, setParams, sortEntries]);
-
-  // Handle changes to the search bar from external sources (i.e. the user manually editing the url)
-  useEffect(() => {
-    const _params = new URLSearchParams(window.location.search);
-
-    if (_params.has('sort')) {
-      const rawSort = _params.get('sort');
-
-      if (!rawSort || !rawSort.includes(' ') || rawSort === sortEntries.join(',')) {
-        return;
-      }
-
-      const rawSortEntries = rawSort.split(',');
-      // Since we're using custom sorting when this is true, we don't need to set the field or sort states, as they're unused
-      if (rawSortEntries.length > 1) {
-        setShowCustomSort(true);
-        return;
-      } else if (sortEntries.length > 0 && !ACCEPTED_SORTS.includes(rawSortEntries[0]?.split(' ')[0])) {
-        setShowCustomSort(true);
-        return;
-      }
-
-      const [_field, _sort] = rawSortEntries[0].split(' ').slice(0, 2) as [string, string];
-      if (_field && field !== _field) {
-        setField(_field);
-      }
-
-      if (['asc', 'desc'].includes(_sort) && _sort !== sort) {
-        setSort(_sort as 'asc' | 'desc');
-
-        if (_field) {
-          onChange(`${_field} ${_sort}`);
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [window.location.search]);
 
   useEffect(() => {
     if (viewId) {
       const selectedView = viewContext.views.find(_view => _view.view_id === viewId);
 
-      if (selectedView?.sort) {
-        onChange(selectedView.sort);
-        params.set('sort', selectedView.sort);
-      } else {
-        params.delete('sort');
-      }
-
-      setParams(params, { replace: true });
-
-      const firstEntry = selectedView?.sort?.split(',')?.[0]?.split(' ')?.[0];
-      if (firstEntry && field !== firstEntry) {
-        setField(firstEntry);
+      if (selectedView?.sort && !location.search.includes('sort')) {
+        setSavedSort(selectedView.sort);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,14 +99,14 @@ const HitSort: FC<{ onChange: (sort: string) => void; useDefault?: boolean }> = 
         size="small"
         sx={{ minWidth: '150px' }}
         value={sort}
-        onChange={e => setSort(e.target.value as 'asc' | 'desc')}
+        onChange={e => setSavedSort(`${field} ${e.target.value as 'asc' | 'desc'}`)}
       >
         <MenuItem value="asc">{t('asc')}</MenuItem>
         <MenuItem value="desc">{t('desc')}</MenuItem>
       </Select>
     </Stack>
   ) : (
-    <CustomSort sortEntries={sortEntries} setSortEntries={setSortEntries} />
+    <CustomSort />
   );
 };
 

@@ -24,8 +24,10 @@ const LocalSection: FC = () => {
   const { t } = useTranslation();
   const [compactJson, setCompactJson] = useMyLocalStorageItem(StorageKey.COMPACT_JSON, true);
   const [flattenJson, setFlattenJson] = useMyLocalStorageItem(StorageKey.FLATTEN_JSON, false);
+  const [forceDrawer, setForceDrawer] = useMyLocalStorageItem(StorageKey.FORCE_DRAWER, false);
   const [hitLayout, setHitLayout] = useMyLocalStorageItem(StorageKey.HIT_LAYOUT, false);
   const [pageCount, setPageCount] = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25);
+  const [searchWidth, setSearchWidth] = useMyLocalStorageItem(StorageKey.SEARCH_PANE_WIDTH, null);
 
   return (
     <SettingsSection title={t('page.settings.local.title')} colSpan={3}>
@@ -42,6 +44,23 @@ const LocalSection: FC = () => {
         value={flattenJson}
         type="checkbox"
         onEdit={async value => setFlattenJson(JSON.parse(value))}
+      />
+      <EditRow
+        titleKey="page.settings.local.details.drawer"
+        descriptionKey="page.settings.local.details.drawer.description"
+        value={forceDrawer}
+        type="checkbox"
+        onEdit={async value => setForceDrawer(JSON.parse(value))}
+      />
+      <EditRow
+        titleKey="page.settings.local.search.width"
+        descriptionKey="page.settings.local.search.width.description"
+        value={searchWidth}
+        type="range"
+        min={400}
+        max={Math.floor(window.innerWidth / 100) * 100}
+        optional
+        onEdit={async value => setSearchWidth(value ? parseInt(value) : null)}
       />
       <TableRow>
         <TableCell sx={CELL_SX} style={{ whiteSpace: 'nowrap' }}>
@@ -90,6 +109,8 @@ const LocalSection: FC = () => {
               setPageCount(typeof event.target.value === 'string' ? parseInt(event.target.value) : event.target.value)
             }
           >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
             <MenuItem value={25}>25</MenuItem>
             <MenuItem value={50}>50</MenuItem>
             <MenuItem value={75}>75</MenuItem>

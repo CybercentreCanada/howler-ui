@@ -10,6 +10,9 @@
   "close": "Close",
   "desc": "Descending",
 
+  "actions.running": "Action \"{{action}}\" is executing.",
+  "actions.succeeded": "Action \"{{action}}\" completed successfully.",
+
   "api.user.apikey.updated": "New API key added successfully.",
   "api.user.apikey.removed": "API key removed successfully.",
   "api.user.email.updated": "User's email updated successfully.",
@@ -53,6 +56,7 @@
   "breadcrumb.404": "404",
 
   "button.add": "Add",
+  "button.aggregate": "Aggregate",
   "button.cancel": "Cancel",
   "button.copy": "Copy",
   "button.create": "Create",
@@ -160,6 +164,16 @@
   "hit.details.actions.transition.demote": "Demote",
   "hit.details.actions.vote": "Vote",
   "hit.details.actions.vote.novote": "No Vote",
+  "hit.details.asessments.ambiguous.description": "The nature of the hit was not successfully determined based on available data.",
+  "hit.details.asessments.attempt.description": "The hit was part of a failed attempt to compromise.",
+  "hit.details.asessments.compromise.description": "The hit was part of a successful compromise.",
+  "hit.details.asessments.development.description": "The hit is related to development activity and should be ignored.",
+  "hit.details.asessments.false-positive.description": "The hit is not related to the detection that created it.",
+  "hit.details.asessments.legitimate.description": "The hit represents legitimate activity not related to an incident.",
+  "hit.details.asessments.mitigated.description": "The compromise is expected to fail due to existing mitigation.",
+  "hit.details.asessments.recon.description": "The hit is limited to reconnaissance activity.",
+  "hit.details.asessments.security.description": "The hit is related to internal cybersecurity activity and should be ignored.",
+  "hit.details.asessments.trivial.description": "The hit was part of an incident of too low a severity to warrant a response.",
   "hit.details.forceDropdown": "Dropdown View",
   "hit.details.shortcuts": "Shortcut Settings",
   "hit.details.title": "Details",
@@ -192,10 +206,7 @@
   "hit.panel.hit.noselection": "No hit has been selected",
 
   "hit.panel.details.cluster": "Cluster Size",
-  "hit.panel.details.domains": "Domains To Block",
   "hit.panel.details.cluster.description": "Size of the cluster",
-  "hit.panel.details.domains.description": "Domains that need to be blocked",
-  "hit.panel.details.no.domains": "No domains found",
   "hit.panel.details.no.subjects": "No subjects found",
 
   "hit.summary.title": "Summary of Hits Over Time",
@@ -225,6 +236,7 @@
   "help.hit.banner.title": "Populating the Hit Banner",
   "help.hit.banner.description": "See the below hit banner example for the hit keys necessary to properly populate it. If you have any additional questions, ask in the HOWLER support channel.",
   "help.hit.banner.json": "Here is the hit data used to populate this banner:",
+  "help.hit.labels.title": "Hit Labels",
   "help.hit.links.title": "Hit Links",
   "help.hit.schema.title": "Hit Schema",
 
@@ -261,6 +273,9 @@
   "hit.search.sort.button": "Sort Results",
   "hit.search.sort.fields": "Sort Field",
   "hit.search.span": "Timespan",
+  "hit.search.select.all": "Select all hits on page",
+  "hit.search.select.clear": "Clear Selection",
+  "hit.search.selected": "{{size}} selected",
   "hit.search.view.current": "Current View",
   "hit.search.view.default": "(Default)",
 
@@ -284,6 +299,9 @@
   "json.viewer.search.label": "Search JSON Data",
   "json.viewer.search.prompt": "Query must be a valid regex.",
 
+  "lead.invalid": "Invalid Lead Type",
+  "lead.invalid.description": "The selected lead does not match any type Howler recognizes, and therefore will not be rendered.",
+
   "link.open": "Open Link",
 
   "list": "list",
@@ -296,6 +314,9 @@
   "loading": "Loading...",
 
   "manage": "Manage",
+
+  "markdown.error": "An Error Has Occurred.",
+  "markdown.json.invalid": "Invalid JSON Provided. Consider using the {{json <data>}} utility to convert objects into JSON strings.",
 
   "modal.action.title": "Save Action",
   "modal.action.description": "Provide a name that allows other users to identify the purpose of this action.",
@@ -369,6 +390,10 @@
   "page.documentation.description": "Endpoint Description",
   "page.documentation.description.explanation": "The documentation outlining what this endpoint is used for and how you should interact with it.",
 
+  "page.documentation.labels.name": "Label Category",
+  "page.documentation.labels.description": "Category Description",
+  "page.documentation.labels.example": "Example",
+
   "page.help": "Help",
   "page.help.title": "Help Dashboard",
   "page.help.support.title": "Still Need Help?",
@@ -400,11 +425,15 @@
   "page.settings.local.compact.json.description": "Enable or disable a more compact JSON view, better suited to viewing lots of data at once.",
   "page.settings.local.flatten.json": "Flatten JSON in JSON View",
   "page.settings.local.flatten.json.description": "Instead of showing the object structure of the JSON, show it as flattened keys.",
+  "page.settings.local.details.drawer": "Always use drawer in Hit Search",
+  "page.settings.local.details.drawer.description": "Instead of switching between a divided view and the drawer on different screen sizes, this setting forces Howler to always use the drawer.",
   "page.settings.local.hits.layout": "Change Layout",
   "page.settings.local.hits.layout.description": "This setting allows you to decide how much padding and spacing, as well as font size and element size, we use when rendering the UI. The denser the UI, the more data can be viewed.",
   "page.settings.local.hits.layout.dense": "Dense",
   "page.settings.local.hits.layout.normal": "Normal",
   "page.settings.local.hits.layout.comfy": "Comfy",
+  "page.settings.local.search.width": "Maximum Results Width",
+  "page.settings.local.search.width.description": "The maximum size (in pixels) the results column in the search page.",
   "page.settings.local.results.count": "Results Per Page",
   "page.settings.local.results.count.description": "How many results should we show per page when showing search results?",
   "page.settings.admin.title": "Administration",

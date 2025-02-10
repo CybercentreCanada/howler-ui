@@ -59,10 +59,7 @@ const ActionReportDisplay: FC<{ report: ActionReport; operations: ActionOperatio
                         <AlertTitle>{r.title}</AlertTitle>
                         <Stack>
                           <Typography variant="caption">
-                            <Markdown
-                              md={r.message
-                                .replace('$UI_HOST', window.location.origin)}
-                            />
+                            <Markdown md={r.message.replace('$UI_HOST', window.location.origin)} />
                           </Typography>
                           <Typography variant="caption">
                             <Link to={`/hits?query=${encodeURIComponent(r.query)}`}>

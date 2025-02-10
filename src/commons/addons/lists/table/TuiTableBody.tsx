@@ -1,5 +1,5 @@
 import { Collapse } from '@mui/material';
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import { useCallback } from 'react';
 import { TuiTableCellRenderer, TuiTableColumn, TuiTableRowDetailRenderer } from '.';
 import { TuiListElement, TuiListItemOnSelect, TuiListItemProps, TuiListMenuRenderer } from '..';

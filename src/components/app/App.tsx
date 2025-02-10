@@ -33,6 +33,7 @@ import AuthDocumentation from 'components/routes/help/AuthDocumentation';
 import ClientDocumentation from 'components/routes/help/ClientDocumentation';
 import HelpDashboard from 'components/routes/help/Help';
 import HitDocumentation from 'components/routes/help/HitDocumentation';
+import OverviewDocumentation from 'components/routes/help/OverviewDocumentation';
 import SearchDocumentation from 'components/routes/help/SearchDocumentation';
 import TemplateDocumentation from 'components/routes/help/TemplateDocumentation';
 import ViewDocumentation from 'components/routes/help/ViewDocumentation';
@@ -46,10 +47,12 @@ import TemplateViewer from 'components/routes/templates/TemplateViewer';
 import Templates from 'components/routes/templates/Templates';
 import ViewComposer from 'components/routes/views/ViewComposer';
 import Views from 'components/routes/views/Views';
+import i18n from 'i18n';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
 import * as monaco from 'monaco-editor';
 import { useEffect, type FC, type PropsWithChildren } from 'react';
+import { I18nextProvider } from 'react-i18next';
 import { createBrowserRouter, Outlet, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import useMySearch from '../hooks/useMySearch';
@@ -59,9 +62,11 @@ import ApiConfigProvider from './providers/ApiConfigProvider';
 import AvatarProvider from './providers/AvatarProvider';
 import FavouriteProvider from './providers/FavouritesProvider';
 import FieldProvider from './providers/FieldProvider';
+import HitProvider from './providers/HitProvider';
 import LocalStorageProvider from './providers/LocalStorageProvider';
 import ModalProvider from './providers/ModalProvider';
 import OverviewProvider from './providers/OverviewProvider';
+import ParameterProvider from './providers/ParameterProvider';
 import SocketProvider from './providers/SocketProvider';
 import TemplateProvider from './providers/TemplateProvider';
 import UserListProvider from './providers/UserListProvider';
@@ -153,15 +158,17 @@ const MyAppProvider: FC<PropsWithChildren> = ({ children }) => {
                 <FieldProvider>
                   <LocalStorageProvider>
                     <SocketProvider>
-                      <TemplateProvider>
-                        <OverviewProvider>
-                          <AnalyticProvider>
-                            <FavouriteProvider>
-                              <UserListProvider>{children}</UserListProvider>
-                            </FavouriteProvider>
-                          </AnalyticProvider>
-                        </OverviewProvider>
-                      </TemplateProvider>
+                      <HitProvider>
+                        <TemplateProvider>
+                          <OverviewProvider>
+                            <AnalyticProvider>
+                              <FavouriteProvider>
+                                <UserListProvider>{children}</UserListProvider>
+                              </FavouriteProvider>
+                            </AnalyticProvider>
+                          </OverviewProvider>
+                        </TemplateProvider>
+                      </HitProvider>
                     </SocketProvider>
                   </LocalStorageProvider>
                 </FieldProvider>
@@ -176,12 +183,14 @@ const MyAppProvider: FC<PropsWithChildren> = ({ children }) => {
 
 const AppProviderWrapper = () => {
   return (
-    <ApiConfigProvider>
-      <MyAppProvider>
-        <MyApp />
-        <Modal />
-      </MyAppProvider>
-    </ApiConfigProvider>
+    <I18nextProvider i18n={i18n as any} defaultNS="translation">
+      <ApiConfigProvider>
+        <MyAppProvider>
+          <MyApp />
+          <Modal />
+        </MyAppProvider>
+      </ApiConfigProvider>
+    </I18nextProvider>
   );
 };
 
@@ -240,7 +249,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'views/create',
-        element: <ViewComposer />
+        element: (
+          <ParameterProvider>
+            <ViewComposer />
+          </ParameterProvider>
+        )
       },
       {
         path: 'views/:id',
@@ -248,7 +261,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'views/:id/edit',
-        element: <ViewComposer />
+        element: (
+          <ParameterProvider>
+            <ViewComposer />
+          </ParameterProvider>
+        )
       },
       {
         path: 'admin/users',
@@ -299,6 +316,10 @@ const router = createBrowserRouter([
         element: <ActionDocumentation />
       },
       {
+        path: 'help/overviews',
+        element: <OverviewDocumentation />
+      },
+      {
         path: 'help/views',
         element: <ViewDocumentation />
       },
@@ -324,7 +345,11 @@ const router = createBrowserRouter([
           },
           {
             path: 'execute',
-            element: <ActionEditor />
+            element: (
+              <ParameterProvider>
+                <ActionEditor />
+              </ParameterProvider>
+            )
           },
           {
             path: ':id',
@@ -335,7 +360,11 @@ const router = createBrowserRouter([
               },
               {
                 path: 'edit',
-                element: <ActionEditor />
+                element: (
+                  <ParameterProvider>
+                    <ActionEditor />
+                  </ParameterProvider>
+                )
               }
             ]
           }

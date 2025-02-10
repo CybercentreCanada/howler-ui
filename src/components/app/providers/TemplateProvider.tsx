@@ -1,8 +1,10 @@
 import api from 'api';
+import useMyApi from 'components/hooks/useMyApi';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { Template } from 'models/entities/generated/Template';
 import type { FC, PropsWithChildren } from 'react';
-import { createContext, useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { createContext } from 'use-context-selector';
 
 interface TemplateContextType {
   templates: Template[];
@@ -11,16 +13,6 @@ interface TemplateContextType {
   refresh: () => void;
   loaded: boolean;
 }
-
-const CMT_AWS_DETAILS = [
-  'cloud.service.name',
-  'event.action',
-  'cloud.account.id',
-  'source.ip',
-  'user.name',
-  'user_agent.original',
-  'user.email'
-];
 
 const SIX_TAIL_PHISH_DETAILS = [
   'event.start',
@@ -37,13 +29,6 @@ const SIX_TAIL_PHISH_DETAILS = [
  */
 const BUILTIN_TEMPLATES: Template[] = [
   {
-    analytic: 'cmt.aws.sigma.rules',
-    keys: CMT_AWS_DETAILS,
-    owner: 'none',
-    template_id: 'cmt.builtin',
-    type: 'readonly'
-  },
-  {
     analytic: '6TailPhish',
     keys: SIX_TAIL_PHISH_DETAILS,
     owner: 'none',
@@ -55,31 +40,44 @@ const BUILTIN_TEMPLATES: Template[] = [
 export const TemplateContext = createContext<TemplateContextType>(null);
 
 const TemplateProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [fetching, setFetching] = useState(false);
+  const request = useRef<Promise<Template[]>>(null);
+  const { dispatchApi } = useMyApi();
+
   const [loaded, setLoaded] = useState(false);
+
+  const templateRequest = useRef<Promise<Template[]>>(null);
+
   const [templates, setTemplates] = useState<Template[]>(BUILTIN_TEMPLATES);
 
   const getTemplates = useCallback(
     async (force = false) => {
-      if ((loaded && !force) || fetching) {
+      if (request.current) {
+        return request.current;
+      }
+
+      if (loaded && !force) {
         return templates;
+      } else if (templateRequest.current) {
+        return templateRequest.current;
       } else {
         try {
-          setFetching(true);
+          request.current = dispatchApi(api.template.get());
 
-          const result = await api.template.get();
+          const result = await request.current;
           const fullList = [...BUILTIN_TEMPLATES, ...result];
 
           setTemplates(fullList);
           setLoaded(true);
 
           return fullList;
+        } catch (e) {
+          return [];
         } finally {
-          setFetching(false);
+          request.current = null;
         }
       }
     },
-    [fetching, loaded, templates]
+    [dispatchApi, loaded, templates]
   );
 
   /**

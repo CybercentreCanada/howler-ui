@@ -7,5 +7,6 @@
   "route.help.auth.description": "L'API de Howler prend en charge un certain nombre d'approches d'authentification lors de l'accès à l'API. Ce document présente les différentes approches et explique comment utiliser chacune d'entre elles.",
   "route.help.actions.description": "Les actions sont une fonctionnalité de Howler qui permet aux utilisateurs d'effectuer des tâches particulières sur un grand nombre d'occurrences, en automatisant l'exécution d'une tâche sur chaque occurrence. Ce document explique comment utiliser les actions dans Howler.",
   "route.help.api.description": "Une vue d'ensemble de l'API de Howler et de ses composants.",
-  "route.help.notebook.description": "Howler offre la possibilité d'ajouter des blocs-notes aux analyses pour faciliter le triage des hits et des alertes. Ce document explique comment utiliser les blocs-notes dans Howler."
+  "route.help.notebook.description": "Howler offre la possibilité d'ajouter des blocs-notes aux analyses pour faciliter le triage des hits et des alertes. Ce document explique comment utiliser les blocs-notes dans Howler.",
+  "route.help.overviews.description": "Howler offre la possibilité de personnaliser la présentation des données associées à une alerte en utilisant des vues d'ensemble. Cet article explique les bases de la création et de l'utilisation des vues d'ensemble."
 }

@@ -1,3 +1,4 @@
+import { Delete } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -6,6 +7,7 @@ import {
   Checkbox,
   CircularProgress,
   IconButton,
+  Slider,
   Stack,
   TableCell,
   TableRow,
@@ -13,7 +15,8 @@ import {
   Typography
 } from '@mui/material';
 import useMySnackbar from 'components/hooks/useMySnackbar';
-import type { ChangeEvent, KeyboardEventHandler } from 'react';
+import { isNull, isUndefined } from 'lodash-es';
+import type { KeyboardEventHandler } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +27,10 @@ type EditRowTypes<T extends string | number | boolean> = {
   onEdit?: (value: string) => Promise<void>;
   validate?: (value: T) => boolean;
   failOnValidate?: boolean;
-  type?: 'password' | 'number' | 'text' | 'checkbox';
+  type?: 'password' | 'number' | 'text' | 'checkbox' | 'range';
+  min?: number;
+  max?: number;
+  optional?: boolean;
 };
 
 const EditRow = <T extends string | number | boolean>({
@@ -34,7 +40,10 @@ const EditRow = <T extends string | number | boolean>({
   onEdit,
   validate,
   failOnValidate = false,
-  type = 'text'
+  type = 'text',
+  min,
+  max,
+  optional
 }: EditRowTypes<T>) => {
   const { t } = useTranslation();
   const { showErrorMessage } = useMySnackbar();
@@ -42,7 +51,7 @@ const EditRow = <T extends string | number | boolean>({
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [editValue, setEditValue] = useState(type === 'password' ? '' : value);
+  const [editValue, setEditValue] = useState<string | number | boolean>(type === 'password' ? '' : value);
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
@@ -52,8 +61,8 @@ const EditRow = <T extends string | number | boolean>({
   }, [editValue, value]);
 
   const onChange = useCallback(
-    (ev: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-      if (validate && !validate(ev.target.value as T)) {
+    (_value: string | boolean | number) => {
+      if (validate && !validate(_value as T)) {
         if (failOnValidate) {
           return;
         } else {
@@ -63,13 +72,31 @@ const EditRow = <T extends string | number | boolean>({
         setError(false);
       }
 
+      if (type === 'number' || type === 'range') {
+        if (!isNull(min) && !isUndefined(min) && parseInt(_value as string) < min) {
+          if (failOnValidate) {
+            return;
+          } else {
+            setError(true);
+          }
+        } else if (!isNull(max) && !isUndefined(max) && parseInt(_value as string) > max) {
+          if (failOnValidate) {
+            return;
+          } else {
+            setError(true);
+          }
+        } else {
+          setError(false);
+        }
+      }
+
       if (type !== 'checkbox') {
-        setEditValue(ev.target.value);
+        setEditValue(_value);
       } else {
-        onEdit((ev.target as any).checked);
+        onEdit(_value.toString());
       }
     },
-    [failOnValidate, onEdit, type, validate]
+    [failOnValidate, max, min, onEdit, type, validate]
   );
 
   const onSubmit = useCallback(async () => {
@@ -137,11 +164,11 @@ const EditRow = <T extends string | number | boolean>({
                   }
                 }}
               >
-                {type !== 'checkbox' ? (
+                {!['checkbox', 'range'].includes(type) && (
                   <TextField
                     size="small"
                     value={editValue}
-                    onChange={onChange}
+                    onChange={ev => onChange(ev.target.value)}
                     onKeyDown={checkForActions}
                     fullWidth
                     label={type === 'password' ? t('password') : null}
@@ -152,8 +179,24 @@ const EditRow = <T extends string | number | boolean>({
                       endAdornment: loading && <CircularProgress size={24} />
                     }}
                   />
-                ) : (
-                  <Checkbox sx={{ marginRight: 'auto' }} value={editValue} onChange={onChange} />
+                )}
+                {type === 'checkbox' && (
+                  <Checkbox
+                    sx={{ marginRight: 'auto' }}
+                    value={editValue}
+                    onChange={ev => onChange(ev.target.checked)}
+                  />
+                )}
+                {type === 'range' && (
+                  <Slider
+                    min={min ?? 0}
+                    max={max ?? 100}
+                    step={Math.pow(10, Math.floor(Math.log10(max ?? 100) - Math.log10(Math.max(min ?? 0, 1)) / 2))}
+                    onChange={(__, val) => onChange(val as number)}
+                    value={editValue as number}
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={val => `${val}px`}
+                  />
                 )}
                 {type === 'password' && (
                   <TextField
@@ -181,11 +224,27 @@ const EditRow = <T extends string | number | boolean>({
               <IconButton onClick={() => setEditing(false)} disabled={loading}>
                 <CloseIcon fontSize="small" />
               </IconButton>
+              {optional && (
+                <IconButton
+                  onClick={() => {
+                    setEditing(false);
+                    onEdit(null);
+                  }}
+                  disabled={loading}
+                >
+                  <Delete fontSize="small" />
+                </IconButton>
+              )}
             </Stack>
           </TableCell>
         ) : (
           <TableCell sx={cellSx} width="100%">
-            {type === 'checkbox' ? <Checkbox onChange={onChange} checked={value.toString() === 'true'} /> : value}
+            {type === 'checkbox' ? (
+              <Checkbox onChange={ev => onChange(ev.target.checked)} checked={value.toString() === 'true'} />
+            ) : (
+              (value ?? t('none'))
+            )}
+            {type === 'range' && value && 'px'}
           </TableCell>
         )}
         {onEdit && !editing && type !== 'checkbox' && (

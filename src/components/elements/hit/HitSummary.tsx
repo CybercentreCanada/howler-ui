@@ -1,4 +1,4 @@
-import { InfoOutlined } from '@mui/icons-material';
+import { Analytics, InfoOutlined } from '@mui/icons-material';
 import {
   Alert,
   AlertTitle,
@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
   Fade,
   Grid,
@@ -17,14 +18,16 @@ import {
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
 import { FieldContext } from 'components/app/providers/FieldProvider';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
+import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
 import { getTimeRange } from 'utils/utils';
 import HitGraph from './aggregate/HitGraph';
@@ -37,115 +40,121 @@ const HitSummary: FC<{
   onComplete?: () => void;
 }> = ({ query, response, execute = true, onStart, onComplete }) => {
   const { t } = useTranslation();
-  const { getMatchingTemplate } = useContext(TemplateContext);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const getMatchingTemplate = useContextSelector(TemplateContext, ctx => ctx.getMatchingTemplate);
   const { dispatchApi } = useMyApi();
   const { hitFields } = useContext(FieldContext);
+  const { showErrorMessage } = useMySnackbar();
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
-  const [providedVal, setProvidedVal] = useState('');
 
+  const setQuery = useContextSelector(ParameterContext, ctx => ctx.setQuery);
+
+  const [loading, setLoading] = useState(false);
+  const [customKeys, setCustomKeys] = useState<string[]>([]);
   const [keyCounts, setKeyCounts] = useState<{ [key: string]: { count: number; sources: string[] } }>({});
   const [aggregateResults, setAggregateResults] = useState<{
     [key: string]: { [value: string]: number };
   }>({});
 
-  const performAggregation = useCallback(
-    async (value?: string) => {
-      if (onStart) {
-        onStart();
-      }
+  const performAggregation = useCallback(async () => {
+    if (onStart) {
+      onStart();
+    }
 
-      setAggregateResults({});
+    try {
+      // Get a list of every key in every template of the hits we're searching
+      const _keyCounts = (response?.items ?? [])
+        .flatMap(h => {
+          const matchingTemplate = getMatchingTemplate(h);
 
-      try {
-        // Get a list of every key in every template of the hits we're searching
-        const _keyCounts = (response?.items ?? [])
-          .flatMap(h => {
-            const matchingTemplate = getMatchingTemplate(h);
-            if (matchingTemplate && value && !matchingTemplate.keys.includes(value)) {
-              matchingTemplate.keys.push(value + 'custom');
+          return (matchingTemplate?.keys ?? [])
+            .filter(key => !['howler.id', 'howler.hash'].includes(key))
+            .map(key => ({
+              key,
+              source: `${matchingTemplate.analytic}: ${matchingTemplate.detection ?? t('any')}`
+            }));
+        })
+        .concat(customKeys.map(key => ({ key, source: 'custom' })))
+
+        // Take that array and reduce it to unique keys and the number of times we see it,
+        // as well as the templates we sourced this key from
+        .reduce(
+          (acc, val) => {
+            if (acc[val.key] && val.source !== 'custom') {
+              acc[val.key].count++;
+            } else if (val.source === 'custom') {
+              acc[val.key] = {
+                count: -1,
+                sources: [val.source]
+              };
+            } else {
+              acc[val.key] = {
+                count: 1,
+                sources: [val.source]
+              };
             }
-            return (matchingTemplate?.keys ?? [])
-              .filter(key => !['howler.id', 'howler.hash'].includes(key))
-              .map(key => ({
-                key,
-                source: `${matchingTemplate.analytic}: ${matchingTemplate.detection ?? t('any')}`
-              }));
-          })
 
-          // Take that array and reduce it to unique keys and the number of times we see it,
-          // as well as the templates we sourced this key from
-          .reduce(
-            (acc, val) => {
-              if (acc[val.key]) {
-                acc[val.key].count++;
-
-                if (!acc[val.key].sources.includes(val.source) && !val.key.endsWith('custom')) {
-                  acc[val.key].sources.push(val.source);
-                }
-              } else if (val.key.endsWith('custom')) {
-                const trueVal = val.key.replace('custom', '');
-                delete acc[val.key];
-                acc[trueVal] = {
-                  count: -1,
-                  sources: [val.source]
-                };
-              } else {
-                acc[val.key] = {
-                  count: 1,
-                  sources: [val.source]
-                };
-              }
-
-              return acc;
-            },
-            {} as { [index: string]: { count: number; sources: string[] } }
-          );
-
-        // We'll save this for later
-        setKeyCounts(_keyCounts);
-
-        // Sort the fields based on the number of occurrences
-        const sortedKeys = Object.keys(_keyCounts).sort(
-          (a, b) => (_keyCounts[b]?.count ?? 0) - (_keyCounts[a]?.count ?? 0)
+            return acc;
+          },
+          {} as { [index: string]: { count: number; sources: string[] } }
         );
 
-        // Facet each field
-        for (const key of sortedKeys) {
-          const result = await dispatchApi(
-            api.search.facet.hit.post(key, {
-              query,
-              rows: pageCount
-            }),
-            {
-              throwError: false,
-              logError: true,
-              showError: false
-            }
-          );
+      // We'll save this for later
+      setKeyCounts(_keyCounts);
 
-          if (result) {
-            setAggregateResults(_results => ({
-              ..._results,
-              [key]: result
-            }));
+      // Sort the fields based on the number of occurrences
+      const sortedKeys = Object.keys(_keyCounts).sort(
+        (a, b) => (_keyCounts[b]?.count ?? 0) - (_keyCounts[a]?.count ?? 0)
+      );
+
+      setLoading(true);
+      // Facet each field
+      for (const key of sortedKeys) {
+        const result = await dispatchApi(
+          api.search.facet.hit.post(key, {
+            query,
+            rows: pageCount
+          }),
+          {
+            throwError: false,
+            logError: true,
+            showError: false
           }
-        }
-      } finally {
-        if (onComplete) {
-          onComplete();
+        );
+
+        if (result) {
+          setAggregateResults(_results => ({
+            ..._results,
+            [key]: result
+          }));
         }
       }
-    },
-    [dispatchApi, getMatchingTemplate, onComplete, onStart, pageCount, query, response?.items, t]
-  );
+    } catch (e) {
+      showErrorMessage(e);
+      setAggregateResults({});
+    } finally {
+      setLoading(false);
+      if (onComplete) {
+        onComplete();
+      }
+    }
+  }, [
+    customKeys,
+    dispatchApi,
+    getMatchingTemplate,
+    onComplete,
+    onStart,
+    pageCount,
+    query,
+    response?.items,
+    showErrorMessage,
+    t
+  ]);
 
   const setSearch = useCallback(
     (key, value) => {
-      searchParams.set('query', `${key}:${value}`);
-      setSearchParams(searchParams);
+      setQuery(`${key}:${value}`);
     },
-    [searchParams, setSearchParams]
+    [setQuery]
   );
 
   useEffect(() => {
@@ -163,19 +172,25 @@ const HitSummary: FC<{
       <Divider flexItem />
       <HitGraph query={query} execute={execute} />
       <Divider flexItem />
-      <Stack sx={{ overflow: 'auto' }} spacing={1}>
+      <Stack sx={{ overflow: 'auto', marginTop: '0 !important' }} pt={1} spacing={1}>
         <Stack direction="row" spacing={2} mb={2} alignItems="stretch">
           <Autocomplete
             fullWidth
+            multiple
             sx={{ minWidth: '175px' }}
             size="small"
-            value={null}
+            value={customKeys}
             options={hitFields.map(_field => _field.key)}
             renderInput={_params => <TextField {..._params} label={t('hit.summary.adhoc')} />}
-            onChange={(_, value) => setProvidedVal(value)}
+            onChange={(_, value) => setCustomKeys(value)}
           />
-          <Button variant="outlined" onClick={() => performAggregation(providedVal)}>
-            {t('button.add')}
+          <Button
+            variant="outlined"
+            startIcon={loading ? <CircularProgress size={20} sx={{ ml: 1 }} /> : <Analytics sx={{ ml: 1 }} />}
+            disabled={loading || customKeys.every(key => !!keyCounts[key])}
+            onClick={() => performAggregation()}
+          >
+            {t('button.aggregate')}
           </Button>
         </Stack>
         {Object.keys(aggregateResults).length < 1 && (
@@ -244,4 +259,4 @@ const HitSummary: FC<{
   );
 };
 
-export default HitSummary;
+export default memo(HitSummary);

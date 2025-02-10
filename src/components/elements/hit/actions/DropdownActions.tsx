@@ -1,5 +1,16 @@
-import { FormControl, formControlClasses, Grid, InputLabel, MenuItem, Select, Skeleton } from '@mui/material';
+import {
+  FormControl,
+  formControlClasses,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Skeleton,
+  Stack,
+  Typography
+} from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { capitalize } from 'lodash-es';
 import type { FC } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -93,6 +104,10 @@ const DropdownActions: FC<DropdownActionProps> = ({
             size={isHorizontal ? 'small' : 'medium'}
             label={t('hit.details.actions.assess')}
             value={currentAssessment ?? 'no-assessment'}
+            MenuProps={{
+              anchorOrigin: { horizontal: 'left', vertical: 'bottom' },
+              transformOrigin: { horizontal: 'left', vertical: 'top' }
+            }}
           >
             <MenuItem value="no-assessment" sx={{ display: 'none' }}>
               {t('hit.details.actions.assess.noassessment')}
@@ -101,7 +116,17 @@ const DropdownActions: FC<DropdownActionProps> = ({
               .sort((a, b) => +TOP_ROW.includes(b) - +TOP_ROW.includes(a))
               .map((a, index) => (
                 <MenuItem value={a} onClick={customActions[ASSESSMENT_KEYBINDS[index]]} key={a}>
-                  {a.replace(/^[a-z]/, val => val.toUpperCase())}
+                  <Stack direction="column">
+                    <span>
+                      {a
+                        .split(/[ -]/)
+                        .map(part => capitalize(part))
+                        .join(' ')}
+                    </span>
+                    <Typography variant="caption" color="text.secondary" maxWidth="250px" sx={{ whiteSpace: 'wrap' }}>
+                      {t(`hit.details.asessments.${a}.description`)}
+                    </Typography>
+                  </Stack>
                 </MenuItem>
               ))}
           </Select>

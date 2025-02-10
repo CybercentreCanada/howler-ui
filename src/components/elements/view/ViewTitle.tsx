@@ -2,7 +2,7 @@ import { ArrowDownward, ArrowUpward, Language, Lock, Person } from '@mui/icons-m
 import { Chip, Stack, Tooltip, Typography } from '@mui/material';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { convertLucenceToDate } from 'utils/utils';
+import { convertLuceneToDate } from 'utils/utils';
 
 interface ViewTitleProps {
   title?: string;
@@ -43,7 +43,7 @@ export const ViewTitle: FC<ViewTitleProps> = ({ title, type, query, sort, span }
                 icon={_sort.endsWith('desc') ? <ArrowDownward /> : <ArrowUpward />}
               />
             ))}
-          {span && <Chip size="small" label={t(convertLucenceToDate(span))} />}
+          {span && <Chip size="small" label={t(convertLuceneToDate(span))} />}
         </Stack>
       )}
     </Stack>

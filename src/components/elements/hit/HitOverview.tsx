@@ -1,6 +1,7 @@
 import { InsertLink } from '@mui/icons-material';
 import { Box, IconButton, Skeleton } from '@mui/material';
 import { OverviewContext } from 'components/app/providers/OverviewProvider';
+import ErrorBoundary from 'components/routes/ErrorBoundary';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
 import { memo, useContext, useMemo } from 'react';
@@ -23,7 +24,7 @@ const HitOverview: FC<{ content?: string; hit: Hit }> = ({ content, hit }) => {
   );
 
   return (
-    <Box sx={{ position: 'relative', height: '100%' }}>
+    <Box sx={{ position: 'relative', height: '100%', overflow: 'auto' }}>
       {link && (
         <IconButton
           component={Link}
@@ -34,7 +35,9 @@ const HitOverview: FC<{ content?: string; hit: Hit }> = ({ content, hit }) => {
         </IconButton>
       )}
       {matchingOverview || content ? (
-        <HandlebarsMarkdown md={content ?? matchingOverview.content} object={hit} />
+        <ErrorBoundary>
+          <HandlebarsMarkdown md={content ?? matchingOverview.content} object={hit} disableLinks />
+        </ErrorBoundary>
       ) : (
         <Skeleton variant="rounded" height="40vh" />
       )}

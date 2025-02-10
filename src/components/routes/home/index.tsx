@@ -17,7 +17,7 @@ import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
-import _ from 'lodash';
+import isEqual from 'lodash-es/isEqual';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import moment from 'moment';
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
@@ -128,7 +128,7 @@ const Home: FC = () => {
           <TuiButton
             variant="outlined"
             size="small"
-            disabled={isEditing && _.isEqual(dashboard, user.dashboard)}
+            disabled={isEditing && isEqual(dashboard, user.dashboard)}
             color={isEditing ? 'success' : 'primary'}
             startIcon={isEditing ? loading ? <CircularProgress size={20} /> : <Check /> : <Edit />}
             onClick={() => (!isEditing ? setIsEditing(true) : saveChanges())}

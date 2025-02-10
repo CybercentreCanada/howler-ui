@@ -41,7 +41,7 @@ Comme indiqué dans la [Documentation sur l'authentification](/help/auth), les u
 3. Dans le menu utilisateur, cliquez sur Paramètres.
 4. Sous Sécurité de l'utilisateur, appuyez sur l'icône (+) sur la ligne Clés API.
 5. Nommez votre clé et donnez-lui les autorisations nécessaires.
-6. Appuyez sur Create (Créer) et copiez la chaîne fournie dans un endroit sûr. **Vous ne reverrez plus cette chaîne.
+6. Appuyez sur Create (Créer) et copiez la chaîne fournie dans un endroit sûr. \*\*Vous ne reverrez plus cette chaîne.
 
 Cette clé API sera fournie à votre code par la suite.
 

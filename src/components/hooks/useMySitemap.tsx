@@ -86,7 +86,6 @@ export default function useMySitemap(): AppSiteMapConfigs {
           path: '/bundles/:id',
           title: t('route.hits.bundle'),
           isLeaf: true,
-          breadcrumbs: [],
           icon: <Work />
         },
         {

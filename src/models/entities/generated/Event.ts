@@ -5,6 +5,7 @@ export interface Event {
   action?: string;
   category?: string[];
   code?: string;
+  count?: number;
   created?: string;
   dataset?: string;
   duration?: number;

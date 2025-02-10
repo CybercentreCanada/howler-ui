@@ -21,13 +21,17 @@ import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/prism-async-lig
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import HitCard from '../hit/HitCard';
+import { HitLayout } from '../hit/HitLayout';
 import DynamicTabs from './DynamicTabs';
 import { Notebook } from './Notebook';
+import JSONViewer from './json/JSONViewer';
 import { codeTabs } from './markdownPlugins/tabs';
 
 export interface MarkdownProps {
   md: string;
   components?: { [index: string]: ReactElement };
+  disableLinks?: boolean;
 }
 
 const customComponents = (type: string, children: any) => {
@@ -51,7 +55,7 @@ const customComponents = (type: string, children: any) => {
   }
 };
 
-const Markdown: FC<MarkdownProps> = ({ md, components = {} }) => {
+const Markdown: FC<MarkdownProps> = ({ md, components = {}, disableLinks = false }) => {
   const theme = useTheme();
   const { isDark } = useAppTheme();
   const { t } = useTranslation();
@@ -103,6 +107,14 @@ const Markdown: FC<MarkdownProps> = ({ md, components = {} }) => {
             return <pre className="mermaid">{(node.children[0] as any).value}</pre>;
           }
 
+          if (match?.[1] === 'json') {
+            try {
+              return <JSONViewer data={JSON.parse((node.children[0] as any).value)} />;
+            } catch (e) {
+              return <code style={{ color: 'red' }}>{t('markdown.json.invalid')}</code>;
+            }
+          }
+
           return match ? (
             <SyntaxHighlighter
               // eslint-disable-next-line react/no-children-prop
@@ -123,6 +135,10 @@ const Markdown: FC<MarkdownProps> = ({ md, components = {} }) => {
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         img({ node, ...props }) {
+          if (props.alt?.startsWith('$howler')) {
+            return <HitCard id={props.src} layout={HitLayout.NORMAL} />;
+          }
+
           // eslint-disable-next-line jsx-a11y/alt-text
           return <img {...props} style={{ ...props.style, maxWidth: '75%' }} />;
         },
@@ -146,15 +162,37 @@ const Markdown: FC<MarkdownProps> = ({ md, components = {} }) => {
           return <TableCell style={props.style}>{children}</TableCell>;
         },
         a({ children, ...props }) {
+          if (!props.href) {
+            return <a {...props}>{children}</a>;
+          }
+
           if (props.href?.startsWith('/')) {
             return (
               <Link to={props.href} {...props}>
                 {children}
               </Link>
             );
-          } else {
+          }
+
+          if (!disableLinks) {
             return <a {...props}>{children}</a>;
           }
+
+          if (props.href.startsWith('#')) {
+            return <a {...props}>{children}</a>;
+          }
+
+          const parsed = new URL(props.href);
+          if (parsed.hostname.endsWith('gc.ca')) {
+            return <a {...props}>{children}</a>;
+          }
+
+          return (
+            <span>
+              {children}
+              {props.href !== children && ` (${props.href})`}
+            </span>
+          );
         }
       }}
     >

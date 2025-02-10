@@ -10,35 +10,41 @@ import {
 } from '@mui/icons-material';
 import { Box, Divider, Fade, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper } from '@mui/material';
 import api from 'api';
-import useTuiListItems from 'commons/addons/lists/hooks/useTuiListItems';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { HitContext } from 'components/app/providers/HitProvider';
 import { VOTE_OPTIONS } from 'components/elements/hit/actions/SharedComponents';
 import useHitActions from 'components/hooks/useHitActions';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyActionFunctions from 'components/routes/action/useMyActionFunctions';
-import { t } from 'i18next';
 import type { Action } from 'models/entities/generated/Action';
-import type { Hit } from 'models/entities/generated/Hit';
 import type { FC, MouseEventHandler, PropsWithChildren } from 'react';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 
 // TODO: Eventually make this more generic
 
-const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
-  const navigate = useNavigate();
+interface HitContextMenuProps {
+  getSelectedId: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => string;
+}
+
+const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, getSelectedId }) => {
+  const { t } = useTranslation();
   const analyticContext = useContext(AnalyticContext);
   const { dispatchApi } = useMyApi();
   const { executeAction } = useMyActionFunctions();
-  const { replaceById } = useTuiListMethods<Hit>();
-  const { items } = useTuiListItems<Hit>();
   const { config } = useMyApiConfig();
+
+  const [id, setId] = useState<string>(null);
+
+  const hit = useContextSelector(HitContext, ctx => ctx.hits[id]);
+  const getHit = useContextSelector(HitContext, ctx => ctx.getHit);
+  const selectedHits = useContextSelector(HitContext, ctx => ctx.selectedHits);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [clickLocation, setClickLocation] = useState<[number, number]>([-1, -1]);
-  const [hitId, setHitId] = useState<string>(null);
   const [analyticId, setAnalyticId] = useState<string>(null);
   const [actions, setActions] = useState<Action[]>([]);
 
@@ -47,11 +53,8 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
   const [showVote, setShowVote] = useState(false);
   const [showManage, setShowManage] = useState(false);
 
-  const hitItem = useMemo(() => items.find(item => item.id === hitId), [hitId, items]);
-
   const { availableTransitions, canVote, canAssess, manage, assess, vote, selectedVote } = useHitActions(
-    hitItem?.item,
-    newHit => replaceById(hitItem, { ...hitItem, item: newHit })
+    selectedHits.some(_hit => _hit.howler.id === hit?.howler.id) ? selectedHits : [hit]
   );
 
   const onContextMenu: MouseEventHandler<HTMLDivElement> = useCallback(
@@ -61,32 +64,19 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
         setAnchorEl(null);
         return;
       }
+      event.preventDefault();
 
-      const target = event.target as HTMLElement;
-      const selectedElement = target.closest('[data-tuilist-id]') as HTMLElement;
+      const _id = getSelectedId(event);
+      setId(_id);
 
-      if (!selectedElement) {
-        return;
-      }
+      const _hit = await getHit(_id);
 
-      const _hitId = selectedElement.dataset?.tuilistId;
-
-      if (!_hitId) {
-        return;
-      }
-
-      const clientRect = target.getBoundingClientRect();
+      const clientRect = (event.target as HTMLElement).getBoundingClientRect();
       setClickLocation([event.clientX - clientRect.x, event.clientY - clientRect.y]);
 
-      setAnchorEl(target);
+      setAnchorEl(event.target as HTMLElement);
 
-      event.preventDefault();
-      // Set the If-Match header
-      await dispatchApi(api.hit.get(_hitId));
-
-      setHitId(_hitId);
-
-      const analyticName = items.find(item => item.id === _hitId)?.item?.howler.analytic;
+      const analyticName = _hit.howler.analytic;
       if (analyticName) {
         const _analyticId = await analyticContext.getIdFromName(analyticName);
         setAnalyticId(_analyticId);
@@ -99,12 +89,11 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
         setActions(_actions);
       }
     },
-    [analyticContext, anchorEl, dispatchApi, items]
+    [analyticContext, anchorEl, dispatchApi, getHit, getSelectedId]
   );
 
   useEffect(() => {
     if (!anchorEl) {
-      setHitId(null);
       setClickLocation([-1, -1]);
       setShowAction(false);
       setShowAssess(false);
@@ -132,14 +121,15 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
         }}
         MenuListProps={{ dense: true, sx: { minWidth: '250px' } }}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        onClick={() => setAnchorEl(null)}
       >
-        <MenuItem onClick={() => navigate(`/hits/${hitId}`)}>
+        <MenuItem component={Link} to={`/hits/${hit?.howler.id}`} disabled={!hit}>
           <ListItemIcon>
             <OpenInNew />
           </ListItemIcon>
           <ListItemText>{t('hit.panel.open')}</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => navigate(`/analytics/${analyticId}`)} disabled={!analyticId}>
+        <MenuItem component={Link} to={`/analytics/${analyticId}`} disabled={!analyticId}>
           <ListItemIcon>
             <QueryStats />
           </ListItemIcon>
@@ -164,14 +154,7 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
             >
               <MenuList sx={{ p: 0, borderTopLeftRadius: 0 }} dense>
                 {config.lookups['howler.assessment'].map(a => (
-                  <MenuItem
-                    value={a}
-                    onClick={() => {
-                      setAnchorEl(null);
-                      assess(a);
-                    }}
-                    key={a}
-                  >
+                  <MenuItem value={a} onClick={() => assess(a)} key={a}>
                     {a.replace(/^[a-z]/, val => val.toUpperCase())}
                   </MenuItem>
                 ))}
@@ -197,14 +180,7 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
             >
               <MenuList sx={{ p: 0, borderTopLeftRadius: 0, minWidth: '150px' }} dense>
                 {VOTE_OPTIONS.map(v => (
-                  <MenuItem
-                    value={v.name}
-                    onClick={() => {
-                      setAnchorEl(null);
-                      vote(v.name.toLowerCase());
-                    }}
-                    key={v.name}
-                  >
+                  <MenuItem value={v.name} onClick={() => vote(v.name.toLowerCase())} key={v.name}>
                     <ListItemText>{v.name}</ListItemText>
                     {selectedVote === v.name.toLowerCase() && <Check fontSize="small" />}
                   </MenuItem>
@@ -232,10 +208,7 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
                 {availableTransitions.map(transition => (
                   <MenuItem
                     value={transition.name}
-                    onClick={() => {
-                      setAnchorEl(null);
-                      manage(transition.name.toLowerCase());
-                    }}
+                    onClick={() => manage(transition.name.toLowerCase())}
                     key={transition.name}
                   >
                     <ListItemText>{t(`hit.details.actions.transition.${transition.name}`)}</ListItemText>
@@ -266,7 +239,7 @@ const HitContextMenu: FC<PropsWithChildren> = ({ children }) => {
                 {actions.map(action => (
                   <MenuItem
                     key={action.action_id}
-                    onClick={() => executeAction(action.action_id, `howler.id:${hitId}`)}
+                    onClick={() => executeAction(action.action_id, `howler.id:${hit?.howler.id}`)}
                   >
                     <ListItemText>{action.name}</ListItemText>
                   </MenuItem>

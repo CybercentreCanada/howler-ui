@@ -76,12 +76,11 @@ export interface APIConfiguration {
     };
   };
   ui: {
-    apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string; }[];
+    apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string }[];
     banner?: unknown;
     banner_level: string;
   };
-  features: {
-  };
+  features: {};
 }
 
 export interface APIC12Ndef {

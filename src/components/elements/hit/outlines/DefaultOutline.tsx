@@ -1,7 +1,7 @@
 import { Info, Language, Lock, Person } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import lodash from 'lodash';
+import { get, isObject } from 'lodash-es';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { Template } from 'models/entities/generated/Template';
 import type { FC } from 'react';
@@ -69,9 +69,11 @@ const DefaultOutline: FC<{
         )}
       </IconButton>
       {(fields ?? [])
-        .map<[string, string]>(field => [field, lodash.get(hit, field)])
+        .map<[string, string]>(field => [field, get(hit, field)])
         .map(([field, data]) => {
-          let displayedData: React.ReactNode = (Array.isArray(data) ? data.join(', ') : data)?.toString();
+          let displayedData: React.ReactNode = (
+            Array.isArray(data) ? data.join(', ') : isObject(data) ? JSON.stringify(data) : data
+          )?.toString();
 
           if (!displayedData) {
             return null;
@@ -90,7 +92,7 @@ const DefaultOutline: FC<{
           return (
             displayedData && (
               <React.Fragment key={field}>
-                <Tooltip title={(config.indexes.hit[field].description ?? t('none')).split('\n')[0]}>
+                <Tooltip title={(config.indexes.hit[field]?.description ?? t('none')).split('\n')[0]}>
                   <Typography variant={layout !== HitLayout.COMFY ? 'caption' : 'body1'} fontWeight="bold">
                     {field}:
                   </Typography>

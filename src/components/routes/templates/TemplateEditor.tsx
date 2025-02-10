@@ -5,7 +5,7 @@ import { Button, Stack, Typography } from '@mui/material';
 import { TuiPhrase } from 'commons/addons/controls';
 import { FieldContext } from 'components/app/providers/FieldProvider';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
-import _ from 'lodash';
+import { get, isObject } from 'lodash-es';
 import { type Hit } from 'models/entities/generated/Hit';
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,10 +72,10 @@ const TemplateEditor = ({
       <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
         <SortableContext items={(fields ?? []).map(entry => entry)}>
           {fields.map(field => {
-            let data = _.get(hit, field);
+            let data = get(hit, field);
             if (!data) {
               data = 'N/A';
-            } else if (_.isObject(data)) {
+            } else if (isObject(data)) {
               data = JSON.stringify(data);
             }
 

@@ -6,10 +6,11 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import BundleDocumentation from './BundleDocumentation';
+import HelpTabs from './components/HelpTabs';
 import HitBannerDocumentation from './HitBannerDocumentation';
+import HitLabelsDocumentation from './HitLabelsDocumentation';
 import HitLinksDocumentation from './HitLinksDocumentation';
 import HitSchemaDocumentation from './HitSchemaDocumentation';
-import HelpTabs from './components/HelpTabs';
 
 const HitDocumentation: FC = () => {
   const { t } = useTranslation();
@@ -53,12 +54,18 @@ const HitDocumentation: FC = () => {
             value="links"
             onClick={() => onChange('links')}
           />
+          <Tab
+            label={<Typography variant="caption">{t('help.hit.labels.title')}</Typography>}
+            value="labels"
+            onClick={() => onChange('labels')}
+          />
         </HelpTabs>
         <Box>
           {{
             bundle: () => <BundleDocumentation />,
             header: () => <HitBannerDocumentation />,
             links: () => <HitLinksDocumentation />,
+            labels: () => <HitLabelsDocumentation />,
             schema: () => <HitSchemaDocumentation />
           }[tab]()}
         </Box>

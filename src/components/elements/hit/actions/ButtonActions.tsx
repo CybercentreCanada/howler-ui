@@ -1,4 +1,4 @@
-import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack } from '@mui/material';
+import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Tooltip } from '@mui/material';
 import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import type { FC } from 'react';
 import { useMemo } from 'react';
@@ -148,23 +148,25 @@ const ButtonActions: FC<DesktopActionProps> = ({
                 : { gridColumn: rowIndex + 1, gridRow: index + 3 + Math.ceil(availableTransitions.length / 2) };
 
               const button = (
-                <Button
-                  key={assessment}
-                  variant="outlined"
-                  size="small"
-                  disabled={loading}
-                  onClick={customActions[ASSESSMENT_KEYBINDS[totalIndex]]}
-                  sx={[
-                    {
-                      width: '100%',
-                      p: 0.6
-                    },
-                    gridSx,
-                    isHorizontal && (theme => ({ fontSize: theme.typography.caption.fontSize }))
-                  ]}
-                >
-                  {assessment}
-                </Button>
+                <Tooltip title={t(`hit.details.asessments.${assessment}.description`)}>
+                  <Button
+                    key={assessment}
+                    variant="outlined"
+                    size="small"
+                    disabled={loading}
+                    onClick={customActions[ASSESSMENT_KEYBINDS[totalIndex]]}
+                    sx={[
+                      {
+                        width: '100%',
+                        p: 0.6
+                      },
+                      gridSx,
+                      isHorizontal && (theme => ({ fontSize: theme.typography.caption.fontSize }))
+                    ]}
+                  >
+                    {assessment}
+                  </Button>
+                </Tooltip>
               );
 
               if (showShortcuts) {

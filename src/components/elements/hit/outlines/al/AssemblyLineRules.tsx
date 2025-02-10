@@ -1,7 +1,7 @@
 import { Lock } from '@mui/icons-material';
 import { Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import type { MuiColorType } from 'commons/addons';
-import lodash from 'lodash';
+import { get } from 'lodash-es';
 import type { Antivirus } from 'models/entities/generated/Antivirus';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
@@ -44,7 +44,7 @@ const AssemblyLineRules: FC<{ hit: Hit }> = ({ hit }) => {
 
   const ipArr: string[] = (hit.related.ip ?? []).filter(e => !!e).slice(0, ARRAY_LIMIT);
 
-  const tagsArr = TAGS.map(each => lodash.get(hit, each) as Antivirus)
+  const tagsArr = TAGS.map(each => get(hit, each) as Antivirus)
     .filter(tag => !!tag?.value)
     .sort(sortByVerdict)
     .slice(0, ARRAY_LIMIT);

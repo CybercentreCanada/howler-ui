@@ -22,9 +22,10 @@ import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Template } from 'models/entities/generated/Template';
-import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
 
 const TemplatesBase: FC = () => {
@@ -34,7 +35,7 @@ const TemplatesBase: FC = () => {
   const { dispatchApi } = useMyApi();
   const [searchParams, setSearchParams] = useSearchParams();
   const { load } = useTuiListMethods();
-  const { templates } = useContext(TemplateContext);
+  const templates = useContextSelector(TemplateContext, ctx => ctx.templates);
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
   const [phrase, setPhrase] = useState<string>('');
