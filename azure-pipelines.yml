@@ -33,10 +33,23 @@ stages:
         displayName: Build And Test Source
         steps:
           - script: |
-              echo isPrBranch: $(isPrBranch)
-              yarn install
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+              nvm use v20
+            displayName: 'Nvm'
+          - script: |
+              pnpm setup
+              pnpm install --frozen-lockfile
+            displayName: 'pnpm install'
+          - script: |
+              npx eslint src
+            displayName: 'Eslint checks'
+          - script: |
+              npx prettier@^3.2.5 -c src
+            displayName: 'Prettier checks'
+          - script: |
               export VITE_BRANCH=$(branch)
               export VITE_COMMIT_HASH=$(Build.SourceVersion)
               export NODE_OPTIONS=--max-old-space-size=16384
-              yarn run build
+              pnpm run build
             displayName: 'Vite build'
