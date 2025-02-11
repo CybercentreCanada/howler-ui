@@ -36,6 +36,8 @@ stages:
               export NVM_DIR="$HOME/.nvm"
               [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
               nvm install v20
+              npm install -g corepack@latest
+              corepack enable pnpm
             displayName: 'Nvm'
           - script: |
               pnpm setup
