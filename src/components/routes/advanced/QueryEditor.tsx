@@ -1,12 +1,15 @@
 import type { Monaco } from '@monaco-editor/react';
 import { useMonaco } from '@monaco-editor/react';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
+import { HitSearchContext } from 'components/app/providers/HitSearchProvider';
 import ThemedEditor from 'components/elements/ThemedEditor';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import type { editor } from 'monaco-editor';
-import { memo, useCallback, useEffect, useMemo, type FC } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, type FC } from 'react';
+import { useContextSelector } from 'use-context-selector';
 import useEQLCompletionProvider from './eqlCompletionProvider';
 import EQL_TOKEN_PROVIDER from './eqlTokenProvider';
+import useHistoryCompletionProvider from './historyCompletionProvider';
 import useLuceneCompletionProvider from './luceneCompletionProvider';
 import LUCENE_TOKEN_PROVIDER from './luceneTokenProvider';
 import useYamlCompletionProvider from './yamlCompletionProvider';
@@ -14,7 +17,7 @@ import useYamlCompletionProvider from './yamlCompletionProvider';
 interface QueryEditorProps {
   query: string;
   setQuery: (query: string) => void;
-  onMount?: () => void;
+  onMount?: (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => void;
   language?: 'lucene' | 'eql' | 'yaml';
   fontSize?: number;
   height?: string;
@@ -34,10 +37,14 @@ const QueryEditor: FC<QueryEditorProps> = ({
 }) => {
   const theme = useTheme();
   const monaco = useMonaco();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const luceneCompletion = useLuceneCompletionProvider();
   const yamlCompletion = useYamlCompletionProvider();
   const eqlCompletion = useEQLCompletionProvider();
+  const historyCompletion = useHistoryCompletionProvider();
+
+  const fzfSearch = useContextSelector(HitSearchContext, ctx => ctx?.fzfSearch ?? false);
+  const setFzfSearch = useContextSelector(HitSearchContext, ctx => ctx?.setFzfSearch);
 
   const beforeEditorMount = useCallback((_monaco: Monaco) => {
     _monaco.languages.register({ id: 'lucene' });
@@ -45,29 +52,53 @@ const QueryEditor: FC<QueryEditorProps> = ({
   }, []);
 
   useEffect(() => {
+    const handleKeyPress = event => {
+      if (setFzfSearch && event.ctrlKey && event.key == 'r') {
+        event.preventDefault();
+        setFzfSearch(!fzfSearch);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [fzfSearch, setFzfSearch]);
+
+  useEffect(() => {
     if (!monaco) {
       return;
     }
-
-    monaco.editor.getModels().forEach(model => model.setEOL(monaco.editor.EndOfLineSequence.LF));
 
     // Set the parsers
     const monarchLuceneDisposable = monaco.languages.setMonarchTokensProvider('lucene', LUCENE_TOKEN_PROVIDER);
     const monarchEQLDisposable = monaco.languages.setMonarchTokensProvider('eql', EQL_TOKEN_PROVIDER);
 
-    // Add completion providers
-    const luceneCompletionDisposable = monaco.languages.registerCompletionItemProvider('lucene', luceneCompletion);
-    const yamlCompletionDisposable = monaco.languages.registerCompletionItemProvider('yaml', yamlCompletion);
-    const eqlCompletionDisposable = monaco.languages.registerCompletionItemProvider('eql', eqlCompletion);
+    monaco.editor.getModels().forEach(model => model.setEOL(monaco.editor.EndOfLineSequence.LF));
 
-    return () => {
-      luceneCompletionDisposable?.dispose();
-      yamlCompletionDisposable?.dispose();
-      eqlCompletionDisposable?.dispose();
-      monarchEQLDisposable?.dispose();
-      monarchLuceneDisposable?.dispose();
-    };
-  }, [config.lookups, eqlCompletion, luceneCompletion, monaco, yamlCompletion]);
+    if (!fzfSearch) {
+      // Add completion providers
+      const luceneCompletionDisposable = monaco.languages.registerCompletionItemProvider('lucene', luceneCompletion);
+      const yamlCompletionDisposable = monaco.languages.registerCompletionItemProvider('yaml', yamlCompletion);
+      const eqlCompletionDisposable = monaco.languages.registerCompletionItemProvider('eql', eqlCompletion);
+
+      return () => {
+        luceneCompletionDisposable?.dispose();
+        yamlCompletionDisposable?.dispose();
+        eqlCompletionDisposable?.dispose();
+        monarchEQLDisposable?.dispose();
+        monarchLuceneDisposable?.dispose();
+      };
+    } else {
+      const historyCompletionDisposable = monaco.languages.registerCompletionItemProvider('lucene', historyCompletion);
+
+      return () => {
+        historyCompletionDisposable?.dispose();
+        monarchLuceneDisposable?.dispose();
+      };
+    }
+  }, [config.lookups, eqlCompletion, fzfSearch, historyCompletion, luceneCompletion, monaco, yamlCompletion]);
 
   useEffect(() => {
     if (!monaco || !language) {
@@ -103,16 +134,18 @@ const QueryEditor: FC<QueryEditorProps> = ({
   );
 
   return (
-    <ThemedEditor
-      height={height}
-      width={width}
-      theme={theme.palette.mode === 'light' ? 'howler' : 'howler-dark'}
-      value={query}
-      onChange={value => setQuery(value)}
-      beforeMount={beforeEditorMount}
-      onMount={onMount}
-      options={options}
-    />
+    <Box sx={{ flex: 1 }}>
+      <ThemedEditor
+        height={height}
+        width={width}
+        theme={theme.palette.mode === 'light' ? 'howler' : 'howler-dark'}
+        value={query}
+        onChange={value => setQuery(value)}
+        beforeMount={beforeEditorMount}
+        onMount={onMount}
+        options={options}
+      />
+    </Box>
   );
 };
 

@@ -18,12 +18,13 @@ export interface APIIndex {
  * NOTE: This is an auto-generated file. Don't edit this manually.
  */
 export interface APIIndexes {
-  hit: { [index: string]: APIIndex };
-  user: { [index: string]: APIIndex };
-  template: { [index: string]: APIIndex };
-  overview: { [index: string]: APIIndex };
-  analytic: { [index: string]: APIIndex };
   action: { [index: string]: APIIndex };
+  analytic: { [index: string]: APIIndex };
+  dossier: { [index: string]: APIIndex };
+  hit: { [index: string]: APIIndex };
+  overview: { [index: string]: APIIndex };
+  template: { [index: string]: APIIndex };
+  user: { [index: string]: APIIndex };
   view: { [index: string]: APIIndex };
 }
 
@@ -77,10 +78,14 @@ export interface APIConfiguration {
   };
   ui: {
     apps: { alt: string; name: string; img_d: string; img_l: string; route: string; classification: string }[];
-    banner?: unknown;
-    banner_level: string;
   };
-  features: {};
+  features: {
+    borealis: boolean;
+    notebook: boolean;
+  };
+  borealis: {
+    status_checks: string[];
+  };
 }
 
 export interface APIC12Ndef {

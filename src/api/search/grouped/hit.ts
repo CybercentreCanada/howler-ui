@@ -3,10 +3,13 @@ import type { HowlerGroupedSearchRequest, HowlerGroupedSearchResponse } from 'ap
 import { uri as parentUri } from 'api/search/grouped';
 import type { Hit } from 'models/entities/generated/Hit';
 
-export function uri(field: string) {
+export const uri = (field: string) => {
   return joinAllUri(parentUri(), 'hit', field);
-}
+};
 
-export function post(field: string, request?: HowlerGroupedSearchRequest): Promise<HowlerGroupedSearchResponse<Hit>> {
+export const post = (
+  field: string,
+  request?: HowlerGroupedSearchRequest
+): Promise<HowlerGroupedSearchResponse<Hit>> => {
   return hpost(uri(field), { ...(request || {}), query: request?.query || 'howler.id:*' });
-}
+};

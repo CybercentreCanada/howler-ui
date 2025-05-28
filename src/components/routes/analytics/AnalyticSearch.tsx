@@ -16,12 +16,12 @@ import {
 } from '@mui/material';
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
-import FlexOne from 'commons/addons/flexers/FlexOne';
-import { TuiListProvider, type TuiListItemProps } from 'commons/addons/lists';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import { useAppUser } from 'commons/components/app/hooks';
 import useLocalStorageItem from 'commons/components/utils/hooks/useLocalStorageItem';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
+import { TuiListProvider, type TuiListItemProps } from 'components/elements/addons/lists';
+import { TuiListMethodContext, type TuiListMethodsState } from 'components/elements/addons/lists/TuiListProvider';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import ItemManager from 'components/elements/display/ItemManager';
 import useMyApi from 'components/hooks/useMyApi';
@@ -41,7 +41,7 @@ const AnalyticSearchBase: FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
-  const { load } = useTuiListMethods();
+  const { load } = useContext<TuiListMethodsState<Analytic>>(TuiListMethodContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
   const appUser = useAppUser<HowlerUser>();

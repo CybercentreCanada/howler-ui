@@ -17,13 +17,14 @@ import {
   Typography
 } from '@mui/material';
 import api from 'api';
-import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { ViewContext } from 'components/app/providers/ViewProvider';
+import CustomButton from 'components/elements/addons/buttons/CustomButton';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { FC } from 'react';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useContextSelector } from 'use-context-selector';
 
 const TYPES = {
   view: ['viewId', 'limit'],
@@ -34,7 +35,7 @@ const VISUALIZATIONS = ['assessment', 'created', 'escalation', 'status', 'detect
 
 const AddNewCard: FC<{ dashboard: HowlerUser['dashboard']; addCard: (newCard) => void }> = ({ dashboard, addCard }) => {
   const { t } = useTranslation();
-  const { views } = useContext(ViewContext);
+  const views = useContextSelector(ViewContext, ctx => ctx.views ?? []);
 
   const [selectedType, setSelectedType] = useState<'' | 'view' | 'analytic'>('');
   const [analytics, setAnalytics] = useState<Analytic[]>([]);
@@ -55,7 +56,7 @@ const AddNewCard: FC<{ dashboard: HowlerUser['dashboard']; addCard: (newCard) =>
   }, [addCard, config, selectedType]);
 
   useEffect(() => {
-    api.search.analytic.post({ query: '*:*' }).then(result => setAnalytics(result.items));
+    api.search.analytic.post({ query: '*:*' }).then(result => setAnalytics(result.items ?? []));
   }, []);
 
   useEffect(() => {
@@ -201,16 +202,16 @@ const AddNewCard: FC<{ dashboard: HowlerUser['dashboard']; addCard: (newCard) =>
               </>
             )}
             <Stack direction="row" justifyContent="end">
-              <TuiButton
+              <CustomButton
                 variant="outlined"
                 size="small"
                 color="primary"
                 startIcon={<Check />}
-                disabled={!selectedType || TYPES[selectedType]?.filter(field => !config[field]).length > 0}
+                disabled={!selectedType || TYPES[selectedType]?.filter(field => !config[field])?.length > 0}
                 onClick={_addCard}
               >
                 {t('create')}
-              </TuiButton>
+              </CustomButton>
             </Stack>
           </Stack>
         </CardContent>

@@ -5,7 +5,6 @@ export * from 'commons/components/app/hooks/useAppBarHeight';
 export * from 'commons/components/app/hooks/useAppBarScrollTrigger';
 export * from 'commons/components/app/hooks/useAppBreadcrumbs';
 export * from 'commons/components/app/hooks/useAppConfigs';
-export * from 'commons/components/app/hooks/useAppDrawer';
 export * from 'commons/components/app/hooks/useAppLanguage';
 export * from 'commons/components/app/hooks/useAppLayout';
 export * from 'commons/components/app/hooks/useAppLeftNav';

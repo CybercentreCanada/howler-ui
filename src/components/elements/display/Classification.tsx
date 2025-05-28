@@ -1,11 +1,11 @@
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const Classification: FC = () => {
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const { t } = useTranslation();
   const theme = useTheme();
   const isSm = useMediaQuery(theme.breakpoints.down('md'));

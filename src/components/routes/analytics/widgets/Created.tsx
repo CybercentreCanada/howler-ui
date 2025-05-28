@@ -7,7 +7,7 @@ import { forwardRef, useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { stringToColor } from 'utils/utils';
 
-const Created = forwardRef<any, { analytic: Analytic }>(function Created({ analytic }, ref) {
+const Created = forwardRef<any, { analytic: Analytic }>(({ analytic }, ref) => {
   const { line } = useMyChart();
 
   const [loading, setLoading] = useState(false);

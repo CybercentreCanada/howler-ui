@@ -1,5 +1,6 @@
-import type { Comment } from './Comment';
-import type { Dossier } from './Dossier';
+import type { HowlerComment } from './HowlerComment';
+import type { HowlerDossier } from './HowlerDossier';
+import type { Incident } from './Incident';
 import type { Labels } from './Labels';
 import type { Link } from './Link';
 import type { Log } from './Log';
@@ -15,15 +16,17 @@ export interface Howler {
   assignment: string;
   bundle_size?: number;
   bundles?: string[];
-  comment?: Comment[];
+  comment?: HowlerComment[];
   confidence?: number;
   data?: string[];
   detection?: string;
-  dossier?: Dossier[];
+  dossier?: HowlerDossier[];
   escalation?: string;
+  expiry?: string;
   hash: string;
   hits?: string[];
   id: string;
+  incidents?: Incident[];
   is_bundle?: boolean;
   labels?: Labels;
   links?: Link[];
@@ -35,7 +38,6 @@ export interface Howler {
   related?: string[];
   reliability?: number;
   reported?: string;
-  retained?: string;
   score?: number;
   scrutiny?: string;
   severity?: number;

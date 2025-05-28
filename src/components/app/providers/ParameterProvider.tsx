@@ -1,9 +1,9 @@
-import Throttler from 'commons/addons/utils/Throttler';
 import { isEmpty, isNull, isUndefined, omitBy, pickBy } from 'lodash-es';
 import type { FC, PropsWithChildren } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { createContext } from 'use-context-selector';
+import Throttler from 'utils/Throttler';
 
 interface ParameterProviderType {
   selected?: string;

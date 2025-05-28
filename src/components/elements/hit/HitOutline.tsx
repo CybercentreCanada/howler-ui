@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useContextSelector } from 'use-context-selector';
 import { HitLayout } from './HitLayout';
 import DefaultOutline from './outlines/DefaultOutline';
-import AssemblyLineRules from './outlines/al/AssemblyLineRules';
 
 export const DEFAULT_FIELDS = ['howler.hash'];
 
@@ -27,8 +26,6 @@ const HitOutline: FC<{ hit: Hit; layout: HitLayout; type?: 'global' | 'personal'
         template,
         fields: template.keys
       });
-    } else if (hit.howler.analytic.toLowerCase() === 'assemblyline') {
-      return createElement(AssemblyLineRules, { hit });
     } else if (!loaded) {
       return <Skeleton variant="rounded" height="50px" />;
     } else if (template) {

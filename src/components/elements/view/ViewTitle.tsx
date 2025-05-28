@@ -1,6 +1,6 @@
 import { ArrowDownward, ArrowUpward, Language, Lock, Person } from '@mui/icons-material';
 import { Chip, Stack, Tooltip, Typography } from '@mui/material';
-import type { FC } from 'react';
+import { useMemo, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { convertLuceneToDate } from 'utils/utils';
 
@@ -14,6 +14,18 @@ interface ViewTitleProps {
 
 export const ViewTitle: FC<ViewTitleProps> = ({ title, type, query, sort, span }) => {
   const { t } = useTranslation();
+  const spanLabel = useMemo(() => {
+    if (!span) {
+      return '';
+    }
+
+    if (span.includes(':')) {
+      return t(convertLuceneToDate(span));
+    } else {
+      return t(span);
+    }
+  }, [span, t]);
+
   return (
     <Stack>
       <Stack direction="row" alignItems="start" spacing={1}>
@@ -43,7 +55,7 @@ export const ViewTitle: FC<ViewTitleProps> = ({ title, type, query, sort, span }
                 icon={_sort.endsWith('desc') ? <ArrowDownward /> : <ArrowUpward />}
               />
             ))}
-          {span && <Chip size="small" label={t(convertLuceneToDate(span))} />}
+          {spanLabel && <Chip size="small" label={spanLabel} />}
         </Stack>
       )}
     </Stack>

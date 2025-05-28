@@ -35,7 +35,10 @@ import { RULE_INTERVALS } from 'utils/constants';
 import AnalyticComments from './AnalyticComments';
 import AnalyticHitComments from './AnalyticHitComments';
 import AnalyticOverview from './AnalyticOverview';
+import AnalyticOverviews from './AnalyticOverviews';
+import AnalyticTemplates from './AnalyticTemplates';
 import RuleView from './RuleView';
+import TriageSettings from './TriageSettings';
 
 const AnalyticDetails = () => {
   const { t } = useTranslation();
@@ -148,7 +151,15 @@ const AnalyticDetails = () => {
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Typography variant="h3" mb={2}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <span>{analytic?.name}</span>
+            {analytic ? (
+              <span>{analytic.name}</span>
+            ) : (
+              <Stack>
+                <Skeleton variant="text" width="170px" height="28px" />
+                <Skeleton variant="text" width="140px" height="28px" />
+              </Stack>
+            )}
+
             {analytic?.rule && (
               <>
                 <Tooltip title={t('route.analytics.rule')}>
@@ -284,7 +295,10 @@ const AnalyticDetails = () => {
               <Tab label={t('route.analytics.tab.overview')} value="overview" />
               <Tab label={t('route.analytics.tab.comments')} value="comments" />
               <Tab label={t('route.analytics.tab.hit_comments')} value="hit_comments" />
+              <Tab label={t('route.analytics.tab.templates')} value="templates" />
+              <Tab label={t('route.analytics.tab.overviews')} value="overviews" />
               {analytic?.rule && <Tab label={t('route.analytics.tab.rule')} value="rule" />}
+              <Tab label={t('route.analytics.tab.triage')} value="triage" />
             </Tabs>
           </Grid>
 
@@ -304,7 +318,10 @@ const AnalyticDetails = () => {
             comments: <AnalyticComments analytic={analytic} setAnalytic={setAnalytic} />,
             hit_comments: <AnalyticHitComments analytic={analytic} />,
             overview: <AnalyticOverview analytic={analytic} setAnalytic={setAnalytic} />,
-            rule: <RuleView analytic={analytic} setAnalytic={setAnalytic} />
+            overviews: <AnalyticOverviews analytic={analytic} />,
+            rule: <RuleView analytic={analytic} setAnalytic={setAnalytic} />,
+            templates: <AnalyticTemplates analytic={analytic} />,
+            triage: <TriageSettings analytic={analytic} setAnalytic={setAnalytic} />
           }[tab]
         }
       </div>

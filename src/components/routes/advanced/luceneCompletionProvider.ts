@@ -1,13 +1,13 @@
 import { useMonaco } from '@monaco-editor/react';
 import api from 'api';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { FieldContext } from 'components/app/providers/FieldProvider';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import Fuse from 'fuse.js';
 import type { languages } from 'monaco-editor';
 import { useContext, useEffect, useMemo } from 'react';
 
 const useLuceneCompletionProvider = (): languages.CompletionItemProvider => {
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const monaco = useMonaco();
   const { hitFields, getHitFields } = useContext(FieldContext);
 
@@ -25,8 +25,8 @@ const useLuceneCompletionProvider = (): languages.CompletionItemProvider => {
       const context = line.slice(0, position.column - 1);
 
       // Get what comes before, and the field we're intersted in autocompleting
-      const before = context.replace(/^(.*?[^a-zA-Z._]?)[a-zA-Z._]+$/, '$1');
-      const portion = context.replace(/^.+?[^a-zA-Z._]([a-zA-Z._]+)$/, '$1');
+      const before = context.replace(/^(.*?[^a-zA-Z._]?)[a-zA-Z._*]*$/, '$1');
+      const portion = context.replace(/^.+?[^a-zA-Z._]([a-zA-Z._*]*)$/, '$1');
 
       // If the field is complete and we're autocompleting the value, we parse the field and see if it's an enum.
       // If it is, suggest the matching values

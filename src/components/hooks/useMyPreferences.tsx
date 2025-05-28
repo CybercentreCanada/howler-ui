@@ -1,7 +1,9 @@
 import {
   Article,
+  Book,
   Code,
   Dashboard,
+  Description,
   Edit,
   FormatListBulleted,
   Help,
@@ -15,20 +17,24 @@ import {
   Shield,
   Storage,
   SupervisorAccount,
-  Terminal
+  Terminal,
+  Topic
 } from '@mui/icons-material';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { AppBrand } from 'branding/AppBrand';
 import type { AppLeftNavElement, AppPreferenceConfigs } from 'commons/components/app/AppConfigs';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import Classification from 'components/elements/display/Classification';
 import DocumentationButton from 'components/elements/display/DocumentationButton';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 
 // This is your App Name that will be displayed in the left drawer and the top navbar
 const APP_NAME = 'howler';
 
-export default function useMyPreferences(): AppPreferenceConfigs {
+const useMyPreferences = (): AppPreferenceConfigs => {
+  const { config } = useContext(ApiConfigContext);
+
   // The following menu items will show up in the Left Navigation Drawer
   const MENU_ITEMS = useMemo<AppLeftNavElement[]>(
     () => [
@@ -117,6 +123,13 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               route: '/overviews'
             },
             {
+              id: 'manage.dossiers',
+              i18nKey: 'route.dossiers',
+              icon: <Topic />,
+              nested: true,
+              route: '/dossiers'
+            },
+            {
               id: 'manage.actions',
               i18nKey: 'route.actions',
               icon: <Terminal />,
@@ -124,7 +137,7 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               route: '/action',
               userPropValidators: [{ prop: 'roles', value: 'automation_basic' }]
             }
-          ].filter(entry => !!entry)
+          ]
         }
       },
       {
@@ -183,13 +196,27 @@ export default function useMyPreferences(): AppPreferenceConfigs {
               nested: true,
               icon: <SettingsSuggest />
             },
-            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true, icon: <Storage /> }
+            {
+              id: 'help.notebook',
+              i18nKey: 'route.help.notebook',
+              route: '/help/notebook',
+              nested: true,
+              icon: <Description />
+            },
+            { id: 'help.api', i18nKey: 'route.help.api', route: '/help/api', nested: true, icon: <Storage /> },
+            {
+              id: 'help.retention',
+              i18nKey: 'route.help.retention',
+              route: '/help/retention',
+              nested: true,
+              icon: <Book />
+            }
           ]
         }
       }
     ],
     // prettier-ignore
-    []
+    [config.configuration?.features]
   );
 
   // This is the basic user menu, it is a menu that shows up in account avatar popover.
@@ -249,4 +276,6 @@ export default function useMyPreferences(): AppPreferenceConfigs {
     }),
     [USER_MENU_ITEMS, ADMIN_MENU_ITEMS, MENU_ITEMS]
   );
-}
+};
+
+export default useMyPreferences;

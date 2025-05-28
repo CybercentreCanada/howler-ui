@@ -15,7 +15,7 @@ const Stacked = forwardRef<
     field: string;
     color?: (value: string) => string;
   }
->(function Stacked({ analytic, field, color }, ref) {
+>(({ analytic, field, color }, ref) => {
   const { line } = useMyChart();
 
   const [loading, setLoading] = useState(false);

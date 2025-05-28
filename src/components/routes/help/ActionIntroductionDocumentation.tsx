@@ -1,8 +1,8 @@
 import { Close, Search } from '@mui/icons-material';
 import { IconButton, ListItemText, MenuItem, Select, Stack } from '@mui/material';
 import api from 'api';
-import { TuiPhrase } from 'commons/addons/controls';
 import { useAppUser } from 'commons/components/app/hooks';
+import Phrase from 'components/elements/addons/search/phrase/Phrase';
 import Markdown from 'components/elements/display/Markdown';
 import { difference } from 'lodash-es';
 import type { ActionOperation } from 'models/ActionTypes';
@@ -10,9 +10,9 @@ import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VALID_ACTION_TRIGGERS } from 'utils/constants';
+import QueryResultText from '../../elements/display/QueryResultText';
 import ActionReportDisplay from '../action/shared/ActionReportDisplay';
 import OperationStep from '../action/shared/OperationStep';
-import QueryResultText from '../action/shared/QueryResultText';
 import ACTION_INTRO_EN from './markdown/en/actionIntroduction.md';
 import ACTION_INTRO_FR from './markdown/fr/actionIntroduction.md';
 
@@ -53,7 +53,7 @@ const ActionIntroductionDocumentation: FC = () => {
         ),
         tui_phrase: (
           <Stack spacing={1}>
-            <TuiPhrase
+            <Phrase
               onChange={() => {}}
               fullWidth
               autoComplete="off"

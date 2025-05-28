@@ -1,19 +1,19 @@
 import api, { type HowlerResponse } from 'api';
 import type { PostLoginBody } from 'api/auth/login';
 import { useAppUser } from 'commons/components/app/hooks';
+import { ModalContext } from 'components/app/providers/ModalProvider';
 import LoginErrorModal from 'components/elements/display/modals/LoginErrorModal';
 import useMyApi from 'components/hooks/useMyApi';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
-import useMyModal from 'components/hooks/useMyModal';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { HowlerUser } from 'models/entities/HowlerUser';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import { saveLoginCredential } from 'utils/localStorage';
 
-export default function useLogin() {
+const useLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -21,7 +21,7 @@ export default function useLogin() {
   const { setUser } = useAppUser<HowlerUser>();
   const { showErrorMessage } = useMySnackbar();
   const { t } = useTranslation();
-  const { showModal } = useMyModal();
+  const { showModal } = useContext(ModalContext);
   const { get, remove } = useMyLocalStorage();
 
   // Get user information
@@ -96,4 +96,6 @@ export default function useLogin() {
     }),
     [doLogin, doOAuth, getUser]
   );
-}
+};
+
+export default useLogin;

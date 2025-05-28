@@ -1,6 +1,5 @@
 import { Lock } from '@mui/icons-material';
 import { Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
-import type { MuiColorType } from 'commons/addons';
 import { get } from 'lodash-es';
 import type { Antivirus } from 'models/entities/generated/Antivirus';
 import type { Hit } from 'models/entities/generated/Hit';
@@ -19,7 +18,7 @@ const TAGS = [
 ];
 
 const VERDICT_COLORS: {
-  [verdict: string]: MuiColorType;
+  [verdict: string]: 'error' | 'warning' | 'info' | 'primary' | 'default' | 'secondary' | 'success';
 } = {
   malicious: 'error',
   suspicious: 'warning',

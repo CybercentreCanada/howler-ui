@@ -1,7 +1,10 @@
 import {
   Article,
+  Book,
   Code,
+  CreateNewFolder,
   Dashboard,
+  Description,
   Edit,
   EditNote,
   FormatListBulleted,
@@ -16,6 +19,7 @@ import {
   Shield,
   Storage,
   Terminal,
+  Topic,
   Work
 } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
@@ -41,7 +45,7 @@ import { useTranslation } from 'react-i18next';
 // excluded?: boolean = false -> when true, indicates to breadcrumbs component to not render this route.
 // breadcrumbs?: string[] -> a static list of breadcrumb paths to be rendered for the given route.
 // textWidth?: number -> the max width of the text when rendering the breadcrumb.
-export default function useMySitemap(): AppSiteMapConfigs {
+const useMySitemap = (): AppSiteMapConfigs => {
   const { t } = useTranslation();
   return useMemo(
     () => ({
@@ -56,15 +60,59 @@ export default function useMySitemap(): AppSiteMapConfigs {
           icon: <PersonIcon />
         },
         { path: '/help', title: t('route.help'), isRoot: true, icon: <Help /> },
-        { path: '/help/api', title: t('route.help.api'), isLeaf: true, icon: <Storage /> },
-        { path: '/help/search', title: t('route.help.search'), isLeaf: true, icon: <Search /> },
-        { path: '/help/client', title: t('route.help.client'), isLeaf: true, icon: <Terminal /> },
-        { path: '/help/auth', title: t('route.help.auth'), isLeaf: true, icon: <Key /> },
-        { path: '/help/actions', title: t('route.help.actions'), isLeaf: true, icon: <SettingsSuggest /> },
-        { path: '/help/hit', title: t('route.help.hit'), isLeaf: true, icon: <Shield /> },
-        { path: '/help/templates', title: t('route.help.templates'), isLeaf: true, icon: <FormatListBulleted /> },
-        { path: '/help/overviews', title: t('route.help.overviews'), isLeaf: true, icon: <Article /> },
-        { path: '/help/views', title: t('route.help.views'), isLeaf: true, icon: <SavedSearch /> },
+        { path: '/help/api', title: t('route.help.api'), isLeaf: true, icon: <Storage />, breadcrumbs: ['/help'] },
+        { path: '/help/search', title: t('route.help.search'), isLeaf: true, icon: <Search />, breadcrumbs: ['/help'] },
+        {
+          path: '/help/client',
+          title: t('route.help.client'),
+          isLeaf: true,
+          icon: <Terminal />,
+          breadcrumbs: ['/help']
+        },
+        { path: '/help/auth', title: t('route.help.auth'), isLeaf: true, icon: <Key />, breadcrumbs: ['/help'] },
+        {
+          path: '/help/actions',
+          title: t('route.help.actions'),
+          isLeaf: true,
+          icon: <SettingsSuggest />,
+          breadcrumbs: ['/help']
+        },
+        { path: '/help/hit', title: t('route.help.hit'), isLeaf: true, icon: <Shield />, breadcrumbs: ['/help'] },
+        {
+          path: '/help/templates',
+          title: t('route.help.templates'),
+          isLeaf: true,
+          icon: <FormatListBulleted />,
+          breadcrumbs: ['/help']
+        },
+        {
+          path: '/help/overviews',
+          title: t('route.help.overviews'),
+          isLeaf: true,
+          icon: <Article />,
+          breadcrumbs: ['/help']
+        },
+        {
+          path: '/help/views',
+          title: t('route.help.views'),
+          isLeaf: true,
+          icon: <SavedSearch />,
+          breadcrumbs: ['/help']
+        },
+        {
+          path: '/help/retention',
+          title: t('route.help.retention'),
+          isLeaf: true,
+          icon: <Book />,
+          breadcrumbs: ['/help']
+        },
+        {
+          path: '/help/notebook',
+          title: t('route.help.notebook'),
+          isLeaf: true,
+          icon: <Description />,
+          breadcrumbs: ['/help']
+        },
         { path: '/hits', title: t('route.hits'), isRoot: true, icon: <Search /> },
         { path: '/search', title: t('route.search'), isRoot: true, icon: <Search /> },
         { path: '/views', title: t('route.views'), isRoot: true, icon: <SavedSearch /> },
@@ -108,6 +156,26 @@ export default function useMySitemap(): AppSiteMapConfigs {
           icon: <Article />
         },
         {
+          path: '/dossiers',
+          title: t('route.dossiers'),
+          isRoot: true,
+          icon: <Topic />
+        },
+        {
+          path: '/dossiers/create',
+          title: t('route.dossiers.create'),
+          isRoot: true,
+          breadcrumbs: ['/dossiers'],
+          icon: <CreateNewFolder />
+        },
+        {
+          path: '/dossiers/:id/edit',
+          title: t('route.dossiers.edit'),
+          isLeaf: true,
+          breadcrumbs: ['/dossiers'],
+          icon: <Edit />
+        },
+        {
           path: '/templates/view',
           title: t('route.templates.view'),
           breadcrumbs: ['/templates'],
@@ -132,6 +200,12 @@ export default function useMySitemap(): AppSiteMapConfigs {
           title: t('route.actions'),
           isRoot: true,
           icon: <Terminal />
+        },
+        {
+          path: '/action/integrations',
+          title: t('route.integrations'),
+          isRoot: true,
+          breadcrumbs: ['/action']
         },
         {
           path: '/action/execute',
@@ -167,4 +241,6 @@ export default function useMySitemap(): AppSiteMapConfigs {
     }),
     [t]
   );
-}
+};
+
+export default useMySitemap;

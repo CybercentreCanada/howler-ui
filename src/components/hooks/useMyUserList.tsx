@@ -1,7 +1,7 @@
 import { UserListContext } from 'components/app/providers/UserListProvider';
 import { useContext, useEffect } from 'react';
 
-export default function useMyUserList(ids: Set<string>) {
+const useMyUserList = (ids: Set<string>) => {
   const { users, fetchUsers } = useContext(UserListContext);
 
   useEffect(() => {
@@ -10,4 +10,6 @@ export default function useMyUserList(ids: Set<string>) {
   }, [ids]);
 
   return users;
-}
+};
+
+export default useMyUserList;

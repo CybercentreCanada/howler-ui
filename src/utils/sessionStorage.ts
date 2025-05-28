@@ -1,4 +1,4 @@
-import Throttler from 'commons/addons/utils/Throttler';
+import Throttler from 'utils/Throttler';
 import { MY_SESSION_STORAGE_PREFIX, StorageKey } from './constants';
 
 const buildName = (name: string) => `${MY_SESSION_STORAGE_PREFIX}.${name}`;
@@ -14,7 +14,7 @@ const {
 
   let changes = {};
 
-  const _getStored = function <T = string>(name: StorageKey): T {
+  const _getStored = <T = string>(name: StorageKey): T => {
     return {
       ...JSON.parse(sessionStorage.getItem(buildName(name))),
       ...changes[buildName(name)]

@@ -17,13 +17,13 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import api from 'api';
 import type { Privileges } from 'api/auth/apikey';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import { type APIConfiguration } from 'models/entities/generated/ApiType';
 import moment from 'moment';
 import type { ChangeEvent, FC } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { ApiConfigContext } from '../providers/ApiConfigProvider';
 
 type ApiKeyDrawerProps = {
   onCreated: (newKeyName: string, privs: string[], expiryDate: string, newKey: string) => void;
@@ -33,7 +33,7 @@ const ApiKeyDrawer: FC<ApiKeyDrawerProps> = ({ onCreated }) => {
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
   const { showInfoMessage } = useMySnackbar();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const [keyName, setKeyName] = useState('');
   const [privs, setPrivs] = useState<Privileges[]>([]);

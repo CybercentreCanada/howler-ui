@@ -2,9 +2,9 @@ import { joinUri } from 'api';
 import { uri as parentUri } from 'api/search';
 import * as hit from 'api/search/histogram/hit';
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'histogram');
-}
+};
 
 export type HowlerHistogramSearchRequest = {
   query?: string;

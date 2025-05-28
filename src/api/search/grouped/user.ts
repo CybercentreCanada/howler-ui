@@ -5,14 +5,14 @@ import type { HowlerUser } from 'models/entities/HowlerUser';
 
 export type HowlerApiUser = Omit<HowlerUser, 'username'> & { uname: string };
 
-export function uri(field: string) {
+export const uri = (field: string) => {
   return joinAllUri(parentUri(), 'user', field);
-}
+};
 
-export async function post(
+export const post = async (
   field: string,
   body?: HowlerGroupedSearchRequest
-): Promise<HowlerGroupedSearchResponse<HowlerUser>> {
+): Promise<HowlerGroupedSearchResponse<HowlerUser>> => {
   const response = await hpost<HowlerGroupedSearchResponse<HowlerApiUser>>(uri(field), {
     ...(body || {}),
     query: body?.query || 'uname:*'
@@ -27,4 +27,4 @@ export async function post(
       }))
     }))
   };
-}
+};

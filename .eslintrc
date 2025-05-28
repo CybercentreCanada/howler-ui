@@ -5,7 +5,7 @@
   "parserOptions": {
     "project": "tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "prettier", "react-hooks", "import", "jsx-a11y"],
+  "plugins": ["@typescript-eslint", "prettier", "react-hooks", "import", "jsx-a11y", "prefer-arrow"],
   "env": {
     "browser": true,
     "es6": true,
@@ -109,7 +109,18 @@
         "ignoreProps": false,
         "noAttributeStrings": false
       }
-    ]
+    ],
+    "prefer-arrow/prefer-arrow-functions": [
+      "warn",
+      {
+        "disallowPrototype": true,
+        "singleReturnOnly": false,
+        "classPropertiesAllowed": false
+      }
+    ],
+    "react/function-component-definition": ["error", { "namedComponents": "arrow-function" }],
+    "prefer-arrow-callback": ["warn", { "allowNamedFunctions": true }],
+    "func-style": ["warn", "expression", { "allowArrowFunctions": true }]
   },
   "globals": {
     "window": true,

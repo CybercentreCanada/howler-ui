@@ -2,23 +2,23 @@ import { Close, Search } from '@mui/icons-material';
 import { Box, Chip, Grid, IconButton, LinearProgress, Stack, TextField, Typography } from '@mui/material';
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
-import type { TuiListItemOnSelect } from 'commons/addons/lists';
-import { TuiListProvider } from 'commons/addons/lists';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
-import type { TuiTableCellRenderer, TuiTableColumn } from 'commons/addons/lists/table';
-import TuiTable from 'commons/addons/lists/table/TuiTable';
-import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
-import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
-import VSBox from 'commons/addons/vsbox/VSBox';
-import VSBoxContent from 'commons/addons/vsbox/VSBoxContent';
-import VSBoxHeader from 'commons/addons/vsbox/VSBoxHeader';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { parseEvent } from 'commons/components/utils/keyboard';
+import VSBox from 'components/elements/addons/layout/vsbox/VSBox';
+import VSBoxContent from 'components/elements/addons/layout/vsbox/VSBoxContent';
+import VSBoxHeader from 'components/elements/addons/layout/vsbox/VSBoxHeader';
+import type { TuiListItemOnSelect } from 'components/elements/addons/lists';
+import { TuiListProvider } from 'components/elements/addons/lists';
+import type { TuiTableCellRenderer, TuiTableColumn } from 'components/elements/addons/lists/table';
+import TuiTable from 'components/elements/addons/lists/table/TuiTable';
+import { TuiListMethodContext, type TuiListMethodsState } from 'components/elements/addons/lists/TuiListProvider';
+import SearchPagination from 'components/elements/addons/search/SearchPagination';
+import SearchTotal from 'components/elements/addons/search/SearchTotal';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { ChangeEvent, FC, KeyboardEvent } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
@@ -34,7 +34,7 @@ const UserSearch: FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
-  const { load } = useTuiListMethods();
+  const { load } = useContext<TuiListMethodsState<HowlerUser>>(TuiListMethodContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
@@ -190,14 +190,14 @@ const UserSearch: FC = () => {
         )}
         {response && (
           <Stack direction="row" alignItems="center" mt={0.5}>
-            <TuiSearchTotal
+            <SearchTotal
               total={response.total}
               pageLength={response.items.length}
               offset={response.offset}
               sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic' })}
             />
             <Box flex={1} />
-            <TuiSearchPagination
+            <SearchPagination
               total={response.total}
               limit={response.rows}
               offset={response.offset}

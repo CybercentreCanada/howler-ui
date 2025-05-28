@@ -16,15 +16,15 @@ import {
 import api from 'api';
 import type { Chart, ChartDataset, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-moment';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { HitContext } from 'components/app/providers/HitProvider';
 import { ParameterContext } from 'components/app/providers/ParameterProvider';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyChart from 'components/hooks/useMyChart';
 import { capitalize } from 'lodash-es';
 import moment from 'moment';
 import type { FC } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import { useTranslation } from 'react-i18next';
 import { useContextSelector } from 'use-context-selector';
@@ -46,7 +46,7 @@ const HitGraph: FC<{ query: string; execute?: boolean }> = ({ query, execute = t
   const theme = useTheme();
   const { dispatchApi } = useMyApi();
   const { scatter } = useMyChart();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const setSelected = useContextSelector(ParameterContext, ctx => ctx.setSelected);
   const setQuery = useContextSelector(ParameterContext, ctx => ctx.setQuery);

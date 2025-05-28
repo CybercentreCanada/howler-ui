@@ -123,9 +123,6 @@ export const AppBarContext = createContext<AppBarContextType>(null);
 // React Context for the AppBreadcrumbsProvider.
 export const AppBreadcrumbsContext = createContext<AppBreadcrumbsContextType>(null);
 
-// React Context for the AppDrawerProvider.
-export const AppDrawerContext = createContext<AppDrawerContextType>(null);
-
 // React Context for the AppLeftNavProvider.
 export const AppLeftNavContext = createContext<AppLeftNavContextType>(null);
 

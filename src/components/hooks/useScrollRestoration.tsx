@@ -8,14 +8,19 @@
 import { useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-function getScrollPosition(key: string) {
+const getScrollPosition = (key: string) => {
   const pos = window.sessionStorage.getItem(key);
   return Number(pos) || 0;
-}
+};
 
-function setScrollPosition(key: string, pos: number) {
-  window.sessionStorage.setItem(key, pos.toString());
-}
+const setScrollPosition = (key: string, pos: number) => {
+  try {
+    window.sessionStorage.setItem(key, pos.toString());
+  } catch {
+    // eslint-disable-next-line no-console
+    console.log('Session storage full, can not save the scroll position');
+  }
+};
 
 // this currently can only handle one main container
 export const useScrollRestoration = (element: string = 'app-scrollct') => {
@@ -28,5 +33,5 @@ export const useScrollRestoration = (element: string = 'app-scrollct') => {
     return () => {
       setScrollPosition(key, document.getElementById(element).scrollTop ?? 0);
     };
-  }, []);
+  }, [element, key]);
 };

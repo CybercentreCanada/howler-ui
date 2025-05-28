@@ -1,16 +1,17 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Card, CardContent, IconButton, Skeleton, Stack, Typography } from '@mui/material';
 import api from 'api';
-import TuiListEmpty from 'commons/addons/lists/TuiListEmpty';
+import AppListEmpty from 'commons/components/display/AppListEmpty';
 import { ViewContext } from 'components/app/providers/ViewProvider';
 import HitBanner from 'components/elements/hit/HitBanner';
 import { HitLayout } from 'components/elements/hit/HitLayout';
 import useMyApi from 'components/hooks/useMyApi';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useContextSelector } from 'use-context-selector';
 
 export interface ViewSettings {
   viewId: string;
@@ -21,12 +22,11 @@ const ViewCard: FC<ViewSettings> = ({ viewId, limit }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { dispatchApi } = useMyApi();
-  const { views } = useContext(ViewContext);
 
   const [hits, setHits] = useState<Hit[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const view = useMemo(() => views?.find(_view => _view.view_id === viewId), [viewId, views]);
+  const view = useContextSelector(ViewContext, ctx => ctx.views?.find(_view => _view.view_id === viewId));
 
   useEffect(() => {
     if (!view?.query) {
@@ -41,7 +41,7 @@ const ViewCard: FC<ViewSettings> = ({ viewId, limit }) => {
         rows: limit
       })
     )
-      .then(res => setHits(res.items))
+      .then(res => setHits(res.items ?? []))
       .finally(() => {
         clearTimeout(timeout);
         setLoading(false);
@@ -81,7 +81,7 @@ const ViewCard: FC<ViewSettings> = ({ viewId, limit }) => {
             </Card>
           ))
         ) : (
-          <TuiListEmpty />
+          <AppListEmpty />
         )}
       </Stack>
     </Card>

@@ -3,9 +3,9 @@ import { uri as parentUri } from 'api/search';
 import * as hit from 'api/search/grouped/hit';
 import * as user from 'api/search/grouped/user';
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'grouped');
-}
+};
 
 export type HowlerGroupedSearchRequest = {
   group_sort?: string;

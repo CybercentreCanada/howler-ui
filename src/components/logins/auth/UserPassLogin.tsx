@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useLogin from '../hooks/useLogin';
 
-export default function UserPassLogin() {
+const UserPassLogin = () => {
   const { t } = useTranslation();
   const { doLogin } = useLogin();
   const [loading, setLoading] = useState(false);
@@ -52,4 +52,6 @@ export default function UserPassLogin() {
       </Stack>
     </form>
   );
-}
+};
+
+export default UserPassLogin;

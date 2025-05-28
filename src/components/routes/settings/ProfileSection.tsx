@@ -1,12 +1,12 @@
 import { Add, Check, ChevronRight, Clear } from '@mui/icons-material';
 import { Chip, CircularProgress, Grid, TableCell, TableRow, Typography } from '@mui/material';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { FC } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { delay } from 'utils/utils';
-import EditRow from './EditRow';
+import EditRow from '../../elements/EditRow';
 import SettingsSection from './SettingsSection';
 
 const ProfileSection: FC<{
@@ -17,7 +17,7 @@ const ProfileSection: FC<{
   viewGroups: () => Promise<void>;
 }> = ({ user, editName, addRole, removeRole, viewGroups }) => {
   const { t } = useTranslation();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [loadingGroups, setLoadingGroups] = useState(false);

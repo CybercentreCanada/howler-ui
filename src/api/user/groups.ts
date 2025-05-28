@@ -3,10 +3,10 @@ import { uri as parentUri } from 'api/user';
 
 export type GroupDetailsResponse = { id: string; name: string }[];
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'groups');
-}
+};
 
-export function get(): Promise<GroupDetailsResponse> {
+export const get = (): Promise<GroupDetailsResponse> => {
   return hget(uri());
-}
+};

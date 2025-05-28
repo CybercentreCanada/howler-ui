@@ -1,6 +1,6 @@
 import { AccountTree } from '@mui/icons-material';
 import { ListItemText, Menu, MenuItem, Typography } from '@mui/material';
-import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
+import TuiIconButton from 'components/elements/addons/buttons/CustomIconButton';
 import type { FC } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';

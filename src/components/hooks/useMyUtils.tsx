@@ -2,7 +2,7 @@ import { darken, lighten } from '@mui/material';
 import { useAppTheme } from 'commons/components/app/hooks';
 import { useCallback } from 'react';
 
-export default function useMyUtils() {
+const useMyUtils = () => {
   const { isDark } = useAppTheme();
 
   return {
@@ -11,4 +11,6 @@ export default function useMyUtils() {
       [isDark]
     )
   };
-}
+};
+
+export default useMyUtils;

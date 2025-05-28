@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
-import Throttler from 'commons/addons/utils/Throttler';
 import useMyApi from 'components/hooks/useMyApi';
 import { capitalize } from 'lodash-es';
 import type { ActionOperationStep } from 'models/ActionTypes';
@@ -21,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { checkArgsAreFilled, getArgsByContext, getOptionsByContext } from 'utils/actionUtils';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
+import Throttler from 'utils/Throttler';
 
 const THROTTLER = new Throttler(500);
 

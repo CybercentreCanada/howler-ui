@@ -31,8 +31,8 @@ import {
   Typography,
   type Theme
 } from '@mui/material';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import { useAppUser } from 'commons/components/app/hooks';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
 import useMyUtils from 'components/hooks/useMyUtils';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { AnalyticComment } from 'models/entities/generated/AnalyticComment';

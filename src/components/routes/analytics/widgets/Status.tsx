@@ -5,7 +5,7 @@ import { forwardRef } from 'react';
 import { STATUS_COLORS } from 'utils/constants';
 import Stacked from './Stacked';
 
-const Status = forwardRef<any, { analytic: Analytic }>(function Status({ analytic }, ref) {
+const Status = forwardRef<any, { analytic: Analytic }>(({ analytic }, ref) => {
   const theme = useTheme();
 
   return (

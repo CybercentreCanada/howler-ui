@@ -3,11 +3,9 @@ import type { AppPreferenceConfigs, AppSiteMapConfigs, AppThemeConfigs } from 'c
 import { AppStorageKeys } from 'commons/components/app/AppConstants';
 import { AppContext, type AppNotificationService } from 'commons/components/app/AppContexts';
 import { AppDefaultsPreferencesConfigs } from 'commons/components/app/AppDefaults';
-import { AppDrawerContainer } from 'commons/components/app/AppDrawerContainer';
 import type { AppSearchService } from 'commons/components/app/AppSearchService';
 import type { AppUser, AppUserService } from 'commons/components/app/AppUserService';
 import AppBarProvider from 'commons/components/app/providers/AppBarProvider';
-import { AppDrawerProvider } from 'commons/components/app/providers/AppDrawerProvider';
 import AppLayoutProvider from 'commons/components/app/providers/AppLayoutProvider';
 import AppLeftNavProvider from 'commons/components/app/providers/AppLeftNavProvider';
 import AppSnackbarProvider from 'commons/components/app/providers/AppSnackbarProvider';
@@ -73,17 +71,13 @@ export default function AppProvider<U extends AppUser>({
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={_darkMode ? darkTheme : lightTheme}>
           <AppUserProvider service={user}>
-            <AppDrawerProvider>
-              <AppBarProvider search={search} notification={notification}>
-                <AppLeftNavProvider>
-                  <AppDrawerContainer>
-                    <AppLayoutProvider>
-                      <AppSnackbarProvider>{children}</AppSnackbarProvider>
-                    </AppLayoutProvider>
-                  </AppDrawerContainer>
-                </AppLeftNavProvider>
-              </AppBarProvider>
-            </AppDrawerProvider>
+            <AppBarProvider search={search} notification={notification}>
+              <AppLeftNavProvider>
+                <AppLayoutProvider>
+                  <AppSnackbarProvider>{children}</AppSnackbarProvider>
+                </AppLayoutProvider>
+              </AppLeftNavProvider>
+            </AppBarProvider>
           </AppUserProvider>
         </ThemeProvider>
       </StyledEngineProvider>

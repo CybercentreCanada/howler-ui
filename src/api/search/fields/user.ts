@@ -4,11 +4,11 @@ import { indexed, uri as parentUri } from 'api/search/fields';
 // import urlJoin from 'url-join';
 import { joinUri } from 'api';
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'user');
-}
+};
 
-export async function get(): Promise<SearchField[]> {
+export const get = async (): Promise<SearchField[]> => {
   const response = await api.hget<{ [key: string]: SearchField }>(uri());
   return indexed(response);
-}
+};

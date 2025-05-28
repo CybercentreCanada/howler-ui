@@ -1,8 +1,8 @@
 import { CenterFocusWeak, OpenInNew } from '@mui/icons-material';
 import { Box, Card, CardContent, IconButton, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import type { Chart } from 'chart.js';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import type { FC } from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';

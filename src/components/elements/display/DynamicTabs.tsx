@@ -7,7 +7,7 @@ interface TabPanelProps {
   value: number;
 }
 
-function CustomTabPanel(props: TabPanelProps) {
+const CustomTabPanel: React.FC<TabPanelProps> = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
 
   return (
@@ -15,14 +15,14 @@ function CustomTabPanel(props: TabPanelProps) {
       {value === index && <Box sx={{ p: 1 }}>{children}</Box>}
     </div>
   );
-}
+};
 
-function a11yProps(index: number) {
+const a11yProps = (index: number) => {
   return {
     id: `tab-${index}`,
     'aria-controls': `tabpanel-${index}`
   };
-}
+};
 
 const DynamicTabs: React.FC<{ tabs: { title: string; children: React.ReactNode }[] }> = ({ tabs }) => {
   const [value, setValue] = React.useState(0);

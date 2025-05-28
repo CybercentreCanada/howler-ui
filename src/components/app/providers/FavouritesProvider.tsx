@@ -5,6 +5,7 @@ import { uniqBy } from 'lodash-es';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import { createContext, useCallback, useContext, useEffect, type FC, type PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useContextSelector } from 'use-context-selector';
 import { AnalyticContext } from './AnalyticProvider';
 import { ViewContext } from './ViewProvider';
 
@@ -14,8 +15,10 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation();
   const leftNav = useAppLeftNav();
   const appUser = useAppUser<HowlerUser>();
-  const views = useContext(ViewContext);
   const analytics = useContext(AnalyticContext);
+
+  const views = useContextSelector(ViewContext, ctx => ctx.views);
+  const viewsReady = useContextSelector(ViewContext, ctx => ctx.ready);
 
   const processViewElement = useCallback((): AppLeftNavElement => {
     const viewElement = leftNav.elements.find(el => el.element?.id === 'views');
@@ -39,7 +42,7 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
     const items = uniqBy(
       favourites
         .map(view_id => {
-          const view = views.views?.find(v => v.view_id === view_id);
+          const view = views?.find(v => v.view_id === view_id);
           return view
             ? {
                 id: view.view_id,
@@ -74,7 +77,7 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
         }
       };
     }
-  }, [appUser.user?.favourite_views, leftNav, t, views.views]);
+  }, [appUser.user?.favourite_views, leftNav, t, views]);
 
   const processAnalyticElement = useCallback((): AppLeftNavElement => {
     const analyticElement = leftNav.elements.find(el => el.element?.id === 'analytics');
@@ -131,7 +134,7 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
   }, [analytics.analytics, appUser.user?.favourite_analytics, leftNav, t]);
 
   useEffect(() => {
-    if (!appUser.isReady() || !views.ready || !analytics.ready) {
+    if (!appUser.isReady() || !viewsReady || !analytics.ready) {
       return;
     }
 
@@ -151,7 +154,7 @@ const FavouriteProvider: FC<PropsWithChildren> = ({ children }) => {
 
     leftNav.setElements(newElements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [analytics.ready, appUser, views.ready]);
+  }, [analytics.ready, appUser, viewsReady]);
 
   return <FavouriteContext.Provider value={{}}>{children}</FavouriteContext.Provider>;
 };

@@ -2,6 +2,7 @@ import { joinUri, uri as parentUri } from 'api';
 import * as action from 'api/search/action';
 import * as analytic from 'api/search/analytic';
 import * as count from 'api/search/count';
+import * as dossier from 'api/search/dossier';
 import * as facet from 'api/search/facet';
 import * as fields from 'api/search/fields';
 import * as grouped from 'api/search/grouped';
@@ -12,9 +13,9 @@ import * as template from 'api/search/template';
 import * as user from 'api/search/user';
 import * as view from 'api/search/view';
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'search');
-}
+};
 
 export type HowlerSearchRequest = {
   query: string;
@@ -58,4 +59,4 @@ export type HowlerSigmaSearchRequest = {
   filters?: string[];
 };
 
-export { action, analytic, count, facet, fields, grouped, histogram, hit, overview, template, user, view };
+export { action, analytic, count, dossier, facet, fields, grouped, histogram, hit, overview, template, user, view };

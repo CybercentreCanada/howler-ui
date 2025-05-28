@@ -1,12 +1,15 @@
-import type { Label } from './Label';
+import type { Lead } from './Lead';
+import type { Pivot } from './Pivot';
 
 /**
  * NOTE: This is an auto-generated file. Don't edit this manually.
  */
 export interface Dossier {
-  content?: string;
-  format?: string;
-  icon?: string;
-  label?: Label;
-  metadata?: any;
+  dossier_id?: string;
+  leads?: Lead[];
+  owner?: string;
+  pivots?: Pivot[];
+  query?: string;
+  title?: string;
+  type?: string;
 }

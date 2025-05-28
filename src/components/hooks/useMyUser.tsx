@@ -4,7 +4,7 @@ import type { HowlerUser } from 'models/entities/HowlerUser';
 import { useCallback, useMemo, useState } from 'react';
 
 // Application specific hook that will provide configuration to commons [useUser] hook.
-export default function useMyUser(): AppUserService<HowlerUser> {
+const useMyUser = (): AppUserService<HowlerUser> => {
   const [user, setUser] = useState<HowlerUser>(null);
 
   const isReady = useCallback(() => !!user, [user]);
@@ -34,4 +34,6 @@ export default function useMyUser(): AppUserService<HowlerUser> {
     }),
     [user, setUser, isReady, validateProps]
   );
-}
+};
+
+export default useMyUser;

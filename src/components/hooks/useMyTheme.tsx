@@ -25,8 +25,10 @@ const DEFAULT_THEME = {
   }
 };
 
-export default function useMyTheme(): AppThemeConfigs {
+const useMyTheme = (): AppThemeConfigs => {
   // return LEGACY_THEME;
   // return DARK_BLUE_THEME;
   return DEFAULT_THEME;
-}
+};
+
+export default useMyTheme;

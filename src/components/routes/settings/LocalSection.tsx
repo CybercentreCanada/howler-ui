@@ -15,7 +15,7 @@ import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
-import EditRow from './EditRow';
+import EditRow from '../../elements/EditRow';
 import SettingsSection from './SettingsSection';
 
 const CELL_SX = { borderBottom: 0, paddingBottom: 0.5 };

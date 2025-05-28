@@ -1,22 +1,21 @@
 import { Box, Divider, Stack, Typography } from '@mui/material';
 import HandlebarsMarkdown from 'components/elements/display/HandlebarsMarkdown';
-import type { Dossier } from 'models/entities/generated/Dossier';
+import type { Hit } from 'models/entities/generated/Hit';
+import type { Lead } from 'models/entities/generated/Lead';
 import { memo, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const LeadRenderer: FC<{ lead: Dossier }> = ({ lead }) => {
+const LeadRenderer: FC<{ lead: Lead; hit?: Hit }> = ({ lead, hit }) => {
   const { t } = useTranslation();
 
   if (lead.format === 'markdown') {
     return (
       <Box
         sx={{
-          '& > :first-child': {
-            marginTop: 0
-          }
+          mt: -2
         }}
       >
-        <HandlebarsMarkdown disableLinks md={lead.content} />
+        <HandlebarsMarkdown disableLinks md={lead.content} object={hit ?? lead} />
       </Box>
     );
   }

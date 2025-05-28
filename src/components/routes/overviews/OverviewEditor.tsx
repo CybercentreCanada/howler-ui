@@ -1,10 +1,10 @@
 import type { Monaco } from '@monaco-editor/react';
 import { useMonaco } from '@monaco-editor/react';
 import { useTheme } from '@mui/material';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import ThemedEditor from 'components/elements/ThemedEditor';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import type { editor } from 'monaco-editor';
-import { memo, useCallback, useEffect, useMemo, type FC } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, type FC } from 'react';
 import { conf, language } from './markdownExtendedTokenProvider';
 
 interface OverviewEditorProps {
@@ -28,7 +28,7 @@ const OverviewEditor: FC<OverviewEditorProps> = ({
 }) => {
   const theme = useTheme();
   const monaco = useMonaco();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const beforeEditorMount = useCallback((_monaco: Monaco) => {
     _monaco.languages.register({ id: 'markdown-extended' });
@@ -76,6 +76,9 @@ const OverviewEditor: FC<OverviewEditorProps> = ({
       fontSize,
       bracketPairColorization: {
         enabled: false
+      },
+      scrollbar: {
+        horizontal: 'auto'
       },
       ...editorOptions
     }),

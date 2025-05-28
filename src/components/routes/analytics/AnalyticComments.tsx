@@ -1,8 +1,8 @@
 import { Clear, Send } from '@mui/icons-material';
 import { Chip, Divider, IconButton, Stack, TextField, Typography } from '@mui/material';
 import api from 'api';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import { useAppUser } from 'commons/components/app/hooks';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
 import Comment from 'components/elements/Comment';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import useMyApi from 'components/hooks/useMyApi';

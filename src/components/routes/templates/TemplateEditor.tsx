@@ -2,9 +2,9 @@ import { closestCorners, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { Add } from '@mui/icons-material';
 import { Button, Stack, Typography } from '@mui/material';
-import { TuiPhrase } from 'commons/addons/controls';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { FieldContext } from 'components/app/providers/FieldProvider';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import Phrase from 'components/elements/addons/search/phrase/Phrase';
 import { get, isObject } from 'lodash-es';
 import { type Hit } from 'models/entities/generated/Hit';
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ const TemplateEditor = ({
   onAdd: (field: string) => void;
 }) => {
   const { t } = useTranslation();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const { getHitFields } = useContext(FieldContext);
 
   const [phrase, setPhrase] = useState('');
@@ -93,7 +93,7 @@ const TemplateEditor = ({
       </DndContext>
 
       <Stack direction="row" sx={{ '& > div': { flex: 1 } }} spacing={1}>
-        <TuiPhrase
+        <Phrase
           suggestions={suggestions}
           value={phrase}
           onChange={setPhrase}

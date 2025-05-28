@@ -1,20 +1,19 @@
-import { Article, Delete } from '@mui/icons-material';
-import { Card, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Article } from '@mui/icons-material';
+import { Typography } from '@mui/material';
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
-import FlexOne from 'commons/addons/flexers/FlexOne';
-import { TuiListProvider, type TuiListItem, type TuiListItemProps } from 'commons/addons/lists';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
-import HowlerAvatar from 'components/elements/display/HowlerAvatar';
+import { TuiListProvider, type TuiListItem, type TuiListItemProps } from 'components/elements/addons/lists';
+import { TuiListMethodContext, type TuiListMethodsState } from 'components/elements/addons/lists/TuiListProvider';
 import ItemManager from 'components/elements/display/ItemManager';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { Overview } from 'models/entities/generated/Overview';
-import { useCallback, useEffect, useState, type FC } from 'react';
+import { useCallback, useContext, useEffect, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
+import OverviewCard from './OverviewCard';
 
 const OverviewsBase: FC = () => {
   const { t } = useTranslation();
@@ -22,7 +21,7 @@ const OverviewsBase: FC = () => {
   const { dispatchApi } = useMyApi();
   const { showSuccessMessage } = useMySnackbar();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { load } = useTuiListMethods();
+  const { load } = useContext<TuiListMethodsState<Overview>>(TuiListMethodContext);
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
   const [phrase, setPhrase] = useState<string>('');
@@ -132,39 +131,8 @@ const OverviewsBase: FC = () => {
   }, [offset]);
 
   const renderer = useCallback(
-    (item: Overview, className?: string) => {
-      return (
-        <Card key={item.overview_id} variant="outlined" sx={{ p: 1, mb: 1 }} className={className}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Stack>
-              <Typography variant="body1">
-                {t(item.analytic)} - {t(item.detection ?? 'all')}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                <code>
-                  <pre>
-                    {item.content
-                      .split('\n')
-                      .filter(line => !!line)
-                      .slice(0, 3)
-                      .map(content => content.replace(/(.{,64}).+/, '$1'))
-                      .join('\n')}
-                  </pre>
-                </code>
-              </Typography>
-            </Stack>
-            <FlexOne />
-            <HowlerAvatar sx={{ height: '24px', width: '24px' }} userId={item.owner} />
-            <Tooltip title={t('route.overviews.manager.delete')}>
-              <IconButton onClick={e => onDelete(e, item.overview_id)}>
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Card>
-      );
-    },
-    [onDelete, t]
+    (item: Overview, className?: string) => <OverviewCard overview={item} className={className} onDelete={onDelete} />,
+    [onDelete]
   );
 
   return (

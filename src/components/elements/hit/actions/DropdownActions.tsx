@@ -9,10 +9,10 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { capitalize } from 'lodash-es';
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ActionButton } from './SharedComponents';
 import { ASSESSMENT_KEYBINDS, TOP_ROW, VOTE_OPTIONS } from './SharedComponents';
@@ -27,6 +27,7 @@ interface DropdownActionProps {
   loading: boolean;
   orientation: 'horizontal' | 'vertical';
   selectedVote: ActionButton['name'];
+  validAssessments: string[];
   vote: (v: string) => void;
 }
 
@@ -39,11 +40,12 @@ const DropdownActions: FC<DropdownActionProps> = ({
   customActions,
   loading,
   orientation,
+  validAssessments,
   selectedVote,
   vote
 }) => {
   const { t } = useTranslation();
-  const config = useMyApiConfig();
+  const config = useContext(ApiConfigContext);
   const isHorizontal = useMemo(() => orientation === 'horizontal', [orientation]);
 
   if (!config.config.lookups) {
@@ -113,6 +115,7 @@ const DropdownActions: FC<DropdownActionProps> = ({
               {t('hit.details.actions.assess.noassessment')}
             </MenuItem>
             {config.config.lookups['howler.assessment']
+              .filter(_assessment => (validAssessments ? validAssessments.includes(_assessment) : true))
               .sort((a, b) => +TOP_ROW.includes(b) - +TOP_ROW.includes(a))
               .map((a, index) => (
                 <MenuItem value={a} onClick={customActions[ASSESSMENT_KEYBINDS[index]]} key={a}>

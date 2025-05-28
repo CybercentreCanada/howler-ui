@@ -52,7 +52,7 @@ const OverviewProvider: FC<PropsWithChildren> = ({ children }) => {
           _overview =>
             // The analytic must match, and the detection must either a) not exist or b) match the hit
             _overview.analytic === hit.howler.analytic &&
-            (!_overview.detection || _overview.detection === hit.howler.detection)
+            (!_overview.detection || _overview.detection.toLowerCase() === hit.howler.detection?.toLowerCase())
         )
         .sort((a, b) => {
           if (a.detection && !b.detection) {

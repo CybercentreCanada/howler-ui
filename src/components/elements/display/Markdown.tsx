@@ -1,3 +1,4 @@
+/* eslint-disable prefer-arrow/prefer-arrow-functions */
 import {
   Alert,
   Box,
@@ -21,9 +22,8 @@ import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/prism-async-lig
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import HitCard from '../hit/HitCard';
-import { HitLayout } from '../hit/HitLayout';
 import DynamicTabs from './DynamicTabs';
+import Image from './Image';
 import { Notebook } from './Notebook';
 import JSONViewer from './json/JSONViewer';
 import { codeTabs } from './markdownPlugins/tabs';
@@ -135,12 +135,8 @@ const Markdown: FC<MarkdownProps> = ({ md, components = {}, disableLinks = false
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         img({ node, ...props }) {
-          if (props.alt?.startsWith('$howler')) {
-            return <HitCard id={props.src} layout={HitLayout.NORMAL} />;
-          }
-
           // eslint-disable-next-line jsx-a11y/alt-text
-          return <img {...props} style={{ ...props.style, maxWidth: '75%' }} />;
+          return <Image {...props} style={{ ...props.style, maxWidth: '75%' }} />;
         },
         table({ children }) {
           return (

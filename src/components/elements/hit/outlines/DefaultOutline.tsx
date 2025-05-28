@@ -1,11 +1,11 @@
 import { Info, Language, Lock, Person } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { get, isObject } from 'lodash-es';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { Template } from 'models/entities/generated/Template';
 import type { FC } from 'react';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { HitLayout } from '../HitLayout';
@@ -18,7 +18,7 @@ const DefaultOutline: FC<{
   readonly?: boolean;
 }> = ({ hit, fields, template, layout = HitLayout.NORMAL, readonly = false }) => {
   const { t } = useTranslation();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const navigate = useNavigate();
 
   const handleOpen = useCallback(

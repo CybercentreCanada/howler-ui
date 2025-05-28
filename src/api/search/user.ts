@@ -5,11 +5,11 @@ import type { HowlerUser } from 'models/entities/HowlerUser';
 
 export type HowlerApiUser = Omit<HowlerUser, 'username'> & { uname: string };
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'user');
-}
+};
 
-export async function post(request?: HowlerSearchRequest): Promise<HowlerSearchResponse<HowlerUser>> {
+export const post = async (request?: HowlerSearchRequest): Promise<HowlerSearchResponse<HowlerUser>> => {
   const response = await hpost<HowlerSearchResponse<HowlerApiUser>>(uri(), {
     ...(request || {}),
     query: request?.query || 'name:*'
@@ -18,4 +18,4 @@ export async function post(request?: HowlerSearchRequest): Promise<HowlerSearchR
     ...response,
     items: response.items.map((i: HowlerApiUser) => ({ ...i, username: i.uname }))
   };
-}
+};

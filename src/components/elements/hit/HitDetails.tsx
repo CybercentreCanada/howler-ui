@@ -14,7 +14,6 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import Throttler from 'commons/addons/utils/Throttler';
 import { flatten } from 'flat';
 import Fuse from 'fuse.js';
 import {
@@ -34,6 +33,7 @@ import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Throttler from 'utils/Throttler';
 
 const ListRenderer: FC<{
   objKey?: string;
@@ -189,6 +189,7 @@ const ObjectRenderer: FC<{ parentKey?: string; showParentKey?: boolean; data: an
                   >
                     <code style={{ maxWidth: '100%' }}>{key}</code>
                   </Box>
+                  <span style={{ maxWidth: '100%' }}>{val}</span>
                 </code>
               );
             })}

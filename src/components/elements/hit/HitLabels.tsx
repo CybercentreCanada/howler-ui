@@ -230,10 +230,10 @@ const HitLabels: FC<{ hit: Hit; readOnly?: boolean }> = ({ hit, readOnly = false
       {labels.map(label => {
         const category = label.category.toLowerCase();
         return (
-          <Tooltip title={t(`hit.label.category.${category}`)} key={label.label + hit.howler.id}>
+          <Tooltip title={t(`hit.label.category.${category}`)} key={label.category + label.label + hit.howler.id}>
             <Chip
               icon={LABEL_TYPES[category]?.icon ?? undefined}
-              key={label.label + hit.howler.id}
+              key={label.category + label.label + hit.howler.id}
               variant="outlined"
               size="small"
               label={label.label}

@@ -8,10 +8,7 @@ import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { ESCALATION_COLORS } from 'utils/constants';
 
-const Escalation = forwardRef<any, { analytic: Analytic; maxWidth?: string }>(function Escalation(
-  { analytic, maxWidth = '45%' },
-  ref
-) {
+const Escalation = forwardRef<any, { analytic: Analytic; maxWidth?: string }>(({ analytic, maxWidth = '45%' }, ref) => {
   const theme = useTheme();
   const { doughnut } = useMyChart();
 

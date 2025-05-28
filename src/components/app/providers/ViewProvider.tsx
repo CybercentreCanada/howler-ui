@@ -4,7 +4,9 @@ import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { View } from 'models/entities/generated/View';
-import { createContext, useCallback, useEffect, useState, type FC, type PropsWithChildren } from 'react';
+import { useCallback, useEffect, useState, type FC, type PropsWithChildren } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import { createContext } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
 
 export interface ViewContextType {
@@ -16,8 +18,16 @@ export interface ViewContextType {
   removeFavourite: (id: string) => Promise<void>;
   fetchViews: (force?: boolean) => Promise<void>;
   addView: (v: View) => Promise<View>;
-  editView: (id: string, title: string, query: string, sort: string, span: string) => Promise<View>;
+  editView: (
+    id: string,
+    title: string,
+    query: string,
+    sort: string,
+    span: string,
+    advanceOnTriage: boolean
+  ) => Promise<View>;
   removeView: (id: string) => Promise<void>;
+  getCurrentView: () => View;
 }
 
 export const ViewContext = createContext<ViewContextType>(null);
@@ -26,6 +36,8 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
   const { dispatchApi } = useMyApi();
   const appUser = useAppUser<HowlerUser>();
   const [defaultView, setDefaultView] = useMyLocalStorageItem<string>(StorageKey.DEFAULT_VIEW);
+  const location = useLocation();
+  const routeParams = useParams();
 
   const [loading, setLoading] = useState(false);
   const [views, setViews] = useState<{ ready: boolean; views: View[] }>({ ready: false, views: [] });
@@ -36,6 +48,10 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
         return;
       }
 
+      if (!appUser.isReady()) {
+        return;
+      }
+
       setLoading(true);
       try {
         setViews({ ready: true, views: await api.view.get() });
@@ -43,7 +59,7 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
         setLoading(false);
       }
     },
-    [views.ready]
+    [appUser, views.ready]
   );
 
   useEffect(() => {
@@ -58,13 +74,29 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
     }
   });
 
-  const editView = useCallback(async (id: string, title: string, query: string, sort: string, span: string) => {
-    const result = await api.view.put(id, title, query, sort, span);
+  const getCurrentView = useCallback(() => {
+    if (!location.pathname.startsWith('/views')) {
+      return null;
+    }
 
-    setViews(_views => ({ ..._views, views: _views.views.map(v => (v.view_id === id ? { ...v, title, query } : v)) }));
+    return views.views.find(_view => _view.view_id === routeParams.id);
+  }, [location.pathname, routeParams.id, views.views]);
 
-    return result;
-  }, []);
+  const editView = useCallback(
+    async (id: string, title: string, query: string, sort: string, span: string, advanceOnTriage: boolean) => {
+      const result = await api.view.put(id, title, query, sort, span, advanceOnTriage);
+
+      setViews(_views => ({
+        ..._views,
+        views: _views.views.map(v =>
+          v.view_id === id ? { ...v, title, query, sort, span, settings: { advance_on_triage: advanceOnTriage } } : v
+        )
+      }));
+
+      return result;
+    },
+    []
+  );
 
   const addFavourite = useCallback(
     async (id: string) => {
@@ -129,7 +161,8 @@ const ViewProvider: FC<PropsWithChildren> = ({ children }) => {
         editView,
         removeView,
         defaultView,
-        setDefaultView
+        setDefaultView,
+        getCurrentView
       }}
     >
       {children}

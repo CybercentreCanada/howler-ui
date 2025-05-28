@@ -26,7 +26,7 @@ export const setStored = (name: StorageKey, item: any) => {
  * If you want to edit localStorage items inside a React component, use
  * src/components/hooks/useMyLocalStorage.tsx.
  */
-export const getStored = function <T = string>(name?: StorageKey): T {
+export const getStored = <T = string>(name?: StorageKey): T => {
   try {
     return JSON.parse(localStorage.getItem(buildName(name))) as T;
   } catch (e) {

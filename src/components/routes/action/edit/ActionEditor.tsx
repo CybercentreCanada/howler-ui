@@ -30,9 +30,9 @@ import { useCallback, useContext, useEffect, useMemo, useState, type ChangeEvent
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { operationReady } from 'utils/actionUtils';
+import QueryResultText from '../../../elements/display/QueryResultText';
 import ActionReportDisplay from '../shared/ActionReportDisplay';
 import OperationEntry from '../shared/OperationEntry';
-import QueryResultText from '../shared/QueryResultText';
 import useMyActionFunctions from '../useMyActionFunctions';
 
 const ActionEditor: FC = () => {

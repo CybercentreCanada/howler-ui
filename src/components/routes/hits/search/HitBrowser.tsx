@@ -3,6 +3,7 @@ import {
   Box,
   Card,
   Checkbox,
+  Collapse,
   Drawer,
   Fab,
   IconButton,
@@ -12,37 +13,30 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import api from 'api';
-import type { HowlerSearchResponse } from 'api/search';
-import FlexOne from 'commons/addons/flexers/FlexOne';
-import FlexPort from 'commons/addons/flexers/FlexPort';
-import Throttler from 'commons/addons/utils/Throttler';
-import PageCenter from 'commons/components/pages/PageCenter';
 import { HitContext } from 'components/app/providers/HitProvider';
+import HitSearchProvider, { HitSearchContext } from 'components/app/providers/HitSearchProvider';
 import ParameterProvider, { ParameterContext } from 'components/app/providers/ParameterProvider';
 import { ViewContext } from 'components/app/providers/ViewProvider';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
+import FlexPort from 'components/elements/addons/layout/FlexPort';
 import HitSummary from 'components/elements/hit/HitSummary';
-import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import ErrorBoundary from 'components/routes/ErrorBoundary';
-import i18n from 'i18n';
-import { isNull, isUndefined } from 'lodash-es';
-import type { Hit } from 'models/entities/generated/Hit';
+import { isNull } from 'lodash-es';
+import moment from 'moment';
 import type { FC, ReactNode } from 'react';
-import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
-import { convertCustomDateRangeToLucene, convertDateToLucene } from 'utils/utils';
 import InformationPane from './InformationPane';
 import SearchPane from './SearchPane';
-
-const THROTTLER = new Throttler(500);
+import HitGrid from './grid/HitGrid';
 
 // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/display-name.md
 const Wrapper = memo<{ show: boolean; showDrawer: boolean; children: ReactNode; onClose: () => void }>(
-  function Wrapper({ show, showDrawer, children, onClose }) {
+  ({ show, showDrawer, children, onClose }) => {
     return (
       <ErrorBoundary>
         {showDrawer ? (
@@ -66,52 +60,42 @@ const HitBrowser: FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const viewContext = useContext(ViewContext);
+  const views = useContextSelector(ViewContext, ctx => ctx.views);
+  const viewsReady = useContextSelector(ViewContext, ctx => ctx.ready);
+  const fetchViews = useContextSelector(ViewContext, ctx => ctx.fetchViews);
 
   const selected = useContextSelector(ParameterContext, ctx => ctx.selected);
   const setSelected = useContextSelector(ParameterContext, ctx => ctx.setSelected);
   const query = useContextSelector(ParameterContext, ctx => ctx.query);
   const setQuery = useContextSelector(ParameterContext, ctx => ctx.setQuery);
-  const offset = useContextSelector(ParameterContext, ctx => ctx.offset);
   const setOffset = useContextSelector(ParameterContext, ctx => ctx.setOffset);
-  const trackTotalHits = useContextSelector(ParameterContext, ctx => ctx.trackTotalHits);
-  const sort = useContextSelector(ParameterContext, ctx => ctx.sort);
-  const span = useContextSelector(ParameterContext, ctx => ctx.span);
-  const filter = useContextSelector(ParameterContext, ctx => ctx.filter);
-  const startDate = useContextSelector(ParameterContext, ctx => ctx.startDate);
-  const endDate = useContextSelector(ParameterContext, ctx => ctx.endDate);
 
-  const loadHits = useContextSelector(HitContext, ctx => ctx.loadHits);
   const selectedHits = useContextSelector(HitContext, ctx => ctx.selectedHits);
   const addHitToSelection = useContextSelector(HitContext, ctx => ctx.addHitToSelection);
   const removeHitFromSelection = useContextSelector(HitContext, ctx => ctx.removeHitFromSelection);
   const clearSelectedHits = useContextSelector(HitContext, ctx => ctx.clearSelectedHits);
 
-  const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
   const searchPaneWidth = useMyLocalStorageItem(StorageKey.SEARCH_PANE_WIDTH, null)[0];
   const forceDrawer = useMyLocalStorageItem(StorageKey.FORCE_DRAWER, false)[0];
-  const showDrawer = useMediaQuery(theme.breakpoints.down(1600)) || forceDrawer;
+
+  const displayType = useContextSelector(HitSearchContext, ctx => ctx.displayType);
+  const viewId = useContextSelector(HitSearchContext, ctx => ctx.viewId);
+  const response = useContextSelector(HitSearchContext, ctx => ctx.response);
+  const error = useContextSelector(HitSearchContext, ctx => ctx.error);
+
+  const queryHistory = useContextSelector(HitSearchContext, ctx => ctx?.queryHistory ?? {});
+  const setQueryHistory = useContextSelector(HitSearchContext, ctx => ctx?.setQueryHistory);
+
+  const [, setQueryList] = useMyLocalStorageItem(StorageKey.QUERY_HISTORY, '');
 
   const location = useLocation();
   const routeParams = useParams();
-
-  const viewId = useMemo(
-    () => (location.pathname.startsWith('/views') ? routeParams.id : null),
-    [location.pathname, routeParams.id]
-  );
-
-  const bundleId = useMemo(
-    () => (location.pathname.startsWith('/bundles') ? routeParams.id : null),
-    [location.pathname, routeParams.id]
-  );
+  const [searchParams] = useSearchParams();
 
   const [show, setShow] = useState(!!selected);
   useEffect(() => setShow(!!selected), [selected]);
 
-  const { dispatchApi } = useMyApi();
-  const [searching, setSearching] = useState<boolean>(false);
-  const [error, setError] = useState<string>(null);
-  const [response, setResponse] = useState<HowlerSearchResponse<Hit>>();
+  const showDrawer = useMediaQuery(theme.breakpoints.down(1600)) || forceDrawer || displayType === 'grid';
 
   // State that makes up the request
 
@@ -122,11 +106,11 @@ const HitBrowser: FC = () => {
     if (bundle) {
       _fullQuery = `(howler.bundles:${bundle}) AND (${_fullQuery})`;
     } else if (viewId) {
-      _fullQuery = `(${viewContext.views.find(_view => _view.view_id === viewId)?.query || 'howler.id:*'}) AND (${_fullQuery})`;
+      _fullQuery = `(${views.find(_view => _view.view_id === viewId)?.query || 'howler.id:*'}) AND (${_fullQuery})`;
     }
 
     return _fullQuery;
-  }, [location.pathname, query, routeParams.id, viewContext.views, viewId]);
+  }, [location.pathname, query, routeParams.id, views, viewId]);
 
   const showSelectBar = useMemo(() => {
     if (selectedHits.length > 1) {
@@ -140,120 +124,40 @@ const HitBrowser: FC = () => {
     return false;
   }, [routeParams.id, selectedHits]);
 
-  const search = useCallback(
-    async (_query?: string) => {
-      THROTTLER.debounce(async () => {
-        if (_query === 'woof!') {
-          i18n.changeLanguage('woof');
-          return;
-        }
-
-        if (isNull(sort) || isNull(span)) {
-          return;
-        }
-
-        if (!isNull(_query) && !isUndefined(_query) && _query !== query) {
-          setQuery(_query);
-        }
-
-        setSearching(true);
-        setError(null);
-
-        const filters: string[] = [];
-
-        if (span && !span.endsWith('custom')) {
-          filters.push(`event.created:${convertDateToLucene(span)}`);
-        } else if (startDate && endDate) {
-          filters.push(`event.created:${convertCustomDateRangeToLucene(startDate, endDate)}`);
-        }
-
-        if (filter) {
-          filters.push(filter);
-        }
-
-        try {
-          const bundle = location.pathname.startsWith('/bundles') && routeParams.id;
-
-          let fullQuery = _query || 'howler.id:*';
-          if (bundle) {
-            fullQuery = `(howler.bundles:${bundle}) AND (${fullQuery})`;
-          } else if (viewId) {
-            fullQuery = `(${
-              viewContext.views.find(_view => _view.view_id === viewId)?.query || 'howler.id:*'
-            }) AND (${fullQuery})`;
-          }
-
-          const _response = await dispatchApi(
-            api.search.hit.post({
-              offset,
-              rows: pageCount,
-              query: fullQuery,
-              sort,
-              filters,
-              track_total_hits: trackTotalHits
-            }),
-            { showError: false, throwError: true }
-          );
-
-          if (_response.total < offset) {
-            setOffset(0);
-          }
-
-          loadHits(_response.items);
-          setResponse(_response);
-        } catch (e) {
-          setError(e.message);
-        } finally {
-          setSearching(false);
-        }
-      });
-    },
-    [
-      dispatchApi,
-      endDate,
-      filter,
-      loadHits,
-      location.pathname,
-      offset,
-      pageCount,
-      query,
-      routeParams.id,
-      setOffset,
-      setQuery,
-      sort,
-      span,
-      startDate,
-      trackTotalHits,
-      viewContext.views,
-      viewId
-    ]
-  );
-
-  // We only run this when ancillary properties (i.e. filters, sorting) change
   useEffect(() => {
-    // We're being asked to present a view, but we don't currently have the views loaded
-    if (viewId && !viewContext.ready) {
-      return;
-    }
+    const newQuery = searchParams.get('query');
+    const timestamp = new Date().toISOString();
 
-    if (span.endsWith('custom') && (!startDate || !endDate)) {
-      return;
+    if (newQuery) {
+      setQueryHistory(_queryHistory => ({
+        ..._queryHistory,
+        [newQuery]: timestamp
+      }));
     }
-
-    if (viewId || bundleId || query || offset > 0) {
-      search(query);
-    } else {
-      setResponse(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, offset, pageCount, sort, span, bundleId, location.pathname, viewContext.ready, startDate, endDate]);
+  }, [searchParams, setQueryHistory]);
 
   useEffect(() => {
-    if (location.pathname.startsWith('/views') && !viewContext.ready) {
-      viewContext.fetchViews(true);
+    setQueryList(JSON.stringify(queryHistory));
+  }, [queryHistory, setQueryList]);
+
+  useEffect(() => {
+    // On load check to filter out any queries older than one month in accordance to ALPR
+    setQueryHistory(_queryHistory => {
+      const filterQueryTime = moment().subtract(1, 'month').toISOString();
+
+      const filteredQueryHistory = Object.fromEntries(
+        Object.entries(_queryHistory).filter(([_, value]) => value > filterQueryTime)
+      );
+      return filteredQueryHistory;
+    });
+  }, [setQueryHistory]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/views') && !viewsReady) {
+      fetchViews(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, viewContext.ready]);
+  }, [location.pathname, viewsReady]);
 
   const onClose = useCallback(() => {
     setSelected(null);
@@ -286,29 +190,23 @@ const HitBrowser: FC = () => {
         flex={1}
         height="100%"
         display="flex"
-        sx={[!isNull(searchPaneWidth) && { maxWidth: searchPaneWidth }]}
+        sx={[{ overflow: 'auto' }, displayType === 'list' && !isNull(searchPaneWidth) && { maxWidth: searchPaneWidth }]}
       >
-        <FlexPort>
-          <ErrorBoundary>
-            <PageCenter textAlign="left" mt={0} mb={6} ml={0} mr={0}>
-              <SearchPane triggerSearch={search} error={error} response={response} searching={searching} />
-            </PageCenter>
-          </ErrorBoundary>
-        </FlexPort>
-        {showSelectBar && (
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: theme.palette.background.paper,
-              p: 1
-            }}
-          >
+        <ErrorBoundary>{displayType === 'list' ? <SearchPane /> : <HitGrid />}</ErrorBoundary>
+        <Collapse
+          in={showSelectBar}
+          unmountOnExit
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: theme.palette.background.paper,
+            py: 1,
+            px: 2
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
             <Tooltip title={t('hit.search.select.all')}>
               <Checkbox
                 size="small"
@@ -349,7 +247,7 @@ const HitBrowser: FC = () => {
               </IconButton>
             </Tooltip>
           </Stack>
-        )}
+        </Collapse>
       </Box>
       <Wrapper show={show} showDrawer={showDrawer} onClose={() => setShow(false)}>
         <HitSummary query={summaryQuery} response={response} execute={!!response && !error} />
@@ -366,7 +264,7 @@ const HitBrowser: FC = () => {
               right: 0,
               borderTop: 0,
               borderBottom: 0,
-              transition: theme.transitions.create(['left'])
+              transition: theme.transitions.create('left')
             },
             selected && {
               left: theme.spacing(5)
@@ -398,7 +296,13 @@ const HitBrowser: FC = () => {
         <Fab
           onClick={() => setShow(_show => !_show)}
           color="primary"
-          sx={{ position: 'fixed', right: theme.spacing(2), bottom: theme.spacing(1), zIndex: 1201 }}
+          sx={{
+            position: 'fixed',
+            right: show ? `calc(100% - ${theme.spacing(8)})` : theme.spacing(2),
+            bottom: showSelectBar ? theme.spacing(6) : theme.spacing(1),
+            zIndex: 1201,
+            transition: theme.transitions.create(['right', 'bottom'])
+          }}
         >
           <ChevronLeft sx={{ transition: 'rotate 250ms', rotate: show ? '180deg' : '0deg' }} />
         </Fab>
@@ -410,7 +314,9 @@ const HitBrowser: FC = () => {
 const HitBrowserProvider: FC = () => {
   return (
     <ParameterProvider>
-      <HitBrowser />
+      <HitSearchProvider>
+        <HitBrowser />
+      </HitSearchProvider>
     </ParameterProvider>
   );
 };

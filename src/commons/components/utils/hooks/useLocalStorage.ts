@@ -7,7 +7,16 @@ export default function useLocalStorage(prefix?: string) {
 
   // Get an item from local storage.
   // If a 'prefix' was specified, the 'key' will be appended to the 'prefix' automatically.
-  const get = useCallback(<T>(key: string): T => JSON.parse(localStorage.getItem(_buildKey(key))), [_buildKey]);
+  const get = useCallback(
+    <T>(key: string): T => {
+      try {
+        return JSON.parse(localStorage.getItem(_buildKey(key)));
+      } catch (e) {
+        return null;
+      }
+    },
+    [_buildKey]
+  );
 
   // Set an item to local storage.
   // If a 'prefix' was specified, the 'key' will be appended to the 'prefix' automatically.

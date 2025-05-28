@@ -1,105 +1,15 @@
-import Throttler from 'commons/addons/utils/Throttler';
-import { flatten } from 'flat';
+/* eslint-disable no-console */
 import Handlebars from 'handlebars';
 import asyncHelpers from 'handlebars-async-helpers';
-import { isObject } from 'lodash-es';
-import type { FC } from 'react';
+import type { FC, ReactElement } from 'react';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Throttler from 'utils/Throttler';
+import { hashCode } from 'utils/utils';
 import Markdown, { type MarkdownProps } from '../display/Markdown';
+import { HELPERS } from './handlebars/helpers';
 
-interface HowlerHelper {
-  keyword: string;
-  documentation?: string;
-  callback: (...args: any) => any;
-}
-
-export const HELPERS: HowlerHelper[] = [
-  {
-    keyword: 'equals',
-    documentation: 'Checks the equality of the string representation of the two arguments.',
-    callback: (arg1, arg2) => arg1?.toString() === arg2.toString()
-  },
-  {
-    keyword: 'and',
-    documentation: 'Runs the comparison `arg1 && arg2`, and returns the result.',
-    callback: (arg1, arg2) => arg1 && arg2
-  },
-  {
-    keyword: 'or',
-    documentation: 'Runs the comparison `arg1 || arg2`, and returns the result.',
-    callback: (arg1, arg2) => arg1 || arg2
-  },
-  { keyword: 'not', documentation: 'Runs the comparison `!arg`, and returns the result.', callback: arg => !arg },
-  {
-    keyword: 'curly',
-    documentation: 'Wraps the given argument in curly braces.',
-    callback: arg1 => new Handlebars.SafeString(`{{${arg1}}}`)
-  },
-  {
-    keyword: 'join',
-    documentation: 'Joins two string arguments with a given string `sep`, or the empty string as a default.',
-    callback: (arg1: string, arg2: string, context) =>
-      [arg1?.toString() ?? '', arg2?.toString() ?? ''].join(context.hash?.sep ?? '')
-  },
-  {
-    keyword: 'upper',
-    documentation: 'Returns the uppercase representation of a string argment.',
-    callback: (val: string) => val.toLocaleUpperCase()
-  },
-  {
-    keyword: 'lower',
-    documentation: 'Returns the lowercase representation of a string argment.',
-    callback: (val: string) => val.toLocaleLowerCase()
-  },
-  {
-    keyword: 'fetch',
-    documentation:
-      'Fetches the url provided and returns the given (flattened) key from the returned JSON object. Note that the result must be JSON!',
-    callback: async (url, key) => {
-      try {
-        const response = await fetch(url);
-        const json = await response.json();
-
-        return flatten(json)[key];
-      } catch (e) {
-        return '';
-      }
-    }
-  },
-  {
-    keyword: 'howler',
-    documentation: 'Given a howler hit ID, this helper renders a hit card for that ID.',
-    callback: id => {
-      return new Handlebars.SafeString(`![$howler](${id})`);
-    }
-  },
-  {
-    keyword: 'entries',
-    documentation: 'Given a dict, return an array of {key, value} objects.',
-    callback: obj => {
-      if (!isObject(obj)) {
-        return new Handlebars.SafeString('Invalid Object.');
-      }
-
-      return Object.entries(obj).map(([key, value]) => ({ key, value }));
-    }
-  },
-  {
-    keyword: 'json',
-    documentation: 'Convert any object into a JSON string..',
-    callback: obj => {
-      return new Handlebars.SafeString(JSON.stringify(obj));
-    }
-  },
-  {
-    keyword: 'includes',
-    documentation: 'Checks if field is in string',
-    callback: (arg1, arg2) => {
-      return !!arg2 && !!arg1?.includes(arg2);
-    }
-  }
-];
+type HandlebarsInstance = typeof Handlebars;
 
 interface HandlebarsMarkdownProps extends MarkdownProps {
   object?: { [index: string]: any };
@@ -113,10 +23,10 @@ const HandlebarsMarkdown: FC<HandlebarsMarkdownProps> = ({ md, object = {}, disa
 
   const [rendered, setRendered] = useState('');
 
-  const handlebars = useMemo(() => {
-    const instance = asyncHelpers(Handlebars);
+  const [mdComponents, setMdComponents] = useState<Record<string, ReactElement>>({});
 
-    HELPERS.forEach(helper => instance.registerHelper(helper.keyword, helper.callback));
+  const handlebars: HandlebarsInstance = useMemo(() => {
+    const instance = asyncHelpers(Handlebars);
 
     instance.registerHelper('img', async context => {
       const hash = Object.fromEntries(
@@ -136,6 +46,28 @@ const HandlebarsMarkdown: FC<HandlebarsMarkdownProps> = ({ md, object = {}, disa
 
     return instance;
   }, []);
+
+  useEffect(() => {
+    HELPERS.forEach(helper => {
+      if (handlebars.helpers[helper.keyword] && !helper.componentCallback) {
+        return;
+      }
+
+      handlebars.registerHelper(helper.keyword, (...args: any[]) => {
+        console.debug(`Running helper ${helper.keyword}`);
+
+        if (helper.componentCallback) {
+          const id = hashCode(JSON.stringify([helper.keyword, ...args])).toString();
+          if (!mdComponents[id]) {
+            setMdComponents(_components => ({ ..._components, [id]: helper.componentCallback(...args) }));
+          }
+          return new Handlebars.SafeString(`\`${id}\``);
+        }
+
+        return helper.callback(...args);
+      });
+    });
+  }, [handlebars, mdComponents]);
 
   useEffect(() => {
     THROTTLER.debounce(async () => {
@@ -160,7 +92,7 @@ ${err.stack}
     });
   }, [md, handlebars, object, t]);
 
-  return <Markdown md={rendered} disableLinks={disableLinks} />;
+  return <Markdown md={rendered} disableLinks={disableLinks} components={mdComponents} />;
 };
 
 export default memo(HandlebarsMarkdown);

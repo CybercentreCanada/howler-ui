@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Add, Search } from '@mui/icons-material';
 import type { HowlerSearchResponse } from 'api/search';
-import { TuiPhrase } from 'commons/addons/controls';
-import type { TuiListItemOnSelect, TuiListItemRenderer } from 'commons/addons/lists';
-import { TuiList } from 'commons/addons/lists';
-import TuiSearchPagination from 'commons/addons/search/TuiSearchPagination';
-import TuiSearchTotal from 'commons/addons/search/TuiSearchTotal';
+import type { TuiListItemOnSelect, TuiListItemRenderer } from 'components/elements/addons/lists';
+import { TuiList } from 'components/elements/addons/lists';
+import SearchPagination from 'components/elements/addons/search/SearchPagination';
+import SearchTotal from 'components/elements/addons/search/SearchTotal';
+import ErrorBoundary from 'components/routes/ErrorBoundary';
 import type { FC, ReactNode } from 'react';
+import Phrase from '../addons/search/phrase/Phrase';
 
 interface ItemManagerProps {
   aboveSearch?: ReactNode;
@@ -58,84 +59,86 @@ const ItemManager: FC<ItemManagerProps> = ({
 
   return (
     <PageCenter maxWidth="1200px" textAlign="left" height="100%">
-      <Stack spacing={1} sx={{ position: 'relative' }}>
-        {aboveSearch}
-        <Stack direction="row" spacing={1}>
-          <Stack sx={{ flex: 1 }}>
-            <TuiPhrase
-              value={phrase}
-              onChange={setPhrase}
-              onKeyDown={({ isEnter }) => {
-                if (isEnter) {
-                  onSearch();
+      <ErrorBoundary>
+        <Stack spacing={1} sx={{ position: 'relative' }}>
+          {aboveSearch}
+          <Stack direction="row" spacing={1}>
+            <Stack sx={{ flex: 1 }}>
+              <Phrase
+                value={phrase}
+                onChange={setPhrase}
+                onKeyDown={({ isEnter }) => {
+                  if (isEnter) {
+                    onSearch();
+                  }
+                }}
+                error={hasError}
+                InputProps={{
+                  sx: {
+                    pr: 1
+                  }
+                }}
+                startAdornment={
+                  <Tooltip title={t(searchPrompt)}>
+                    <IconButton onClick={() => onSearch()}>
+                      <Search />
+                    </IconButton>
+                  </Tooltip>
                 }
-              }}
-              error={hasError}
-              InputProps={{
-                sx: {
-                  pr: 1
-                }
-              }}
-              startAdornment={
-                <Tooltip title={t(searchPrompt)}>
-                  <IconButton onClick={() => onSearch()}>
-                    <Search />
-                  </IconButton>
-                </Tooltip>
-              }
-              endAdornment={<>{searchAdornment}</>}
-            />
-            {searching && (
-              <LinearProgress
-                sx={theme => ({
-                  mt: -0.5,
-                  borderBottomLeftRadius: theme.shape.borderRadius,
-                  borderBottomRightRadius: theme.shape.borderRadius
-                })}
+                endAdornment={<>{searchAdornment}</>}
               />
-            )}
+              {searching && (
+                <LinearProgress
+                  sx={theme => ({
+                    mt: -0.5,
+                    borderBottomLeftRadius: theme.shape.borderRadius,
+                    borderBottomRightRadius: theme.shape.borderRadius
+                  })}
+                />
+              )}
+            </Stack>
+            {afterSearch}
           </Stack>
-          {afterSearch}
+          {searchFilters}
+          {response && (
+            <Stack direction="row" alignItems="center" mt={0.5}>
+              <SearchTotal
+                total={response.total}
+                pageLength={response.items.length}
+                offset={response.offset}
+                sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic' })}
+              />
+              <Box flex={1} />
+              <SearchPagination
+                total={response.total}
+                limit={response.rows}
+                offset={response.offset}
+                onChange={onPageChange}
+              />
+            </Stack>
+          )}
+          {belowSearch}
+          <TuiList onSelection={onSelect}>{renderer}</TuiList>
+          {onCreate && (
+            <Fab
+              variant="extended"
+              size="large"
+              color="primary"
+              sx={theme => ({
+                textTransform: 'none',
+                position: isNarrow ? 'fixed' : 'absolute',
+                right: isNarrow ? theme.spacing(2) : `calc(100% + ${theme.spacing(5)})`,
+                whiteSpace: 'nowrap',
+                ...(isNarrow ? { bottom: theme.spacing(1) } : { top: 0 })
+              })}
+              onClick={onCreate}
+            >
+              {createIcon ?? <Add sx={{ mr: 1 }} />}
+              <Typography>{t(createPrompt ?? 'create')}</Typography>
+            </Fab>
+          )}
         </Stack>
-        {searchFilters}
-        {response && (
-          <Stack direction="row" alignItems="center" mt={0.5}>
-            <TuiSearchTotal
-              total={response.total}
-              pageLength={response.items.length}
-              offset={response.offset}
-              sx={theme => ({ color: theme.palette.text.secondary, fontSize: '0.9em', fontStyle: 'italic' })}
-            />
-            <Box flex={1} />
-            <TuiSearchPagination
-              total={response.total}
-              limit={response.rows}
-              offset={response.offset}
-              onChange={onPageChange}
-            />
-          </Stack>
-        )}
-        {belowSearch}
-        <TuiList onSelection={onSelect}>{renderer}</TuiList>
-        {onCreate && (
-          <Fab
-            variant="extended"
-            size="large"
-            color="primary"
-            sx={theme => ({
-              textTransform: 'none',
-              position: isNarrow ? 'fixed' : 'absolute',
-              right: isNarrow ? theme.spacing(2) : `calc(100% + ${theme.spacing(5)})`,
-              whiteSpace: 'nowrap',
-              ...(isNarrow ? { bottom: theme.spacing(1) } : { top: 0 })
-            })}
-            onClick={onCreate}
-          >
-            {createIcon ?? <Add sx={{ mr: 1 }} />}
-            <Typography>{t(createPrompt ?? 'create')}</Typography>
-          </Fab>
-        )}
-      </Stack>
+      </ErrorBoundary>
     </PageCenter>
   );
 };

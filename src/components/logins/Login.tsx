@@ -1,8 +1,9 @@
 import { Box, CircularProgress, Container, Stack, styled } from '@mui/material';
 import { useAppBanner } from 'commons/components/app/hooks';
 import PageCardCentered from 'commons/components/pages/PageCardCentered';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import TextDivider from 'components/elements/display/TextDivider';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { useContext } from 'react';
 import OAuthLogin from './auth/OAuthLogin';
 import UserPassLogin from './auth/UserPassLogin';
 
@@ -24,9 +25,9 @@ const InjectCss = styled(Stack)(({ theme }) => ({
   }
 }));
 
-export default function LoginScreen() {
+const LoginScreen = () => {
   const banner = useAppBanner();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const loading = config.configuration === null;
 
   return (
@@ -56,4 +57,6 @@ export default function LoginScreen() {
       </InjectCss>
     </Container>
   );
-}
+};
+
+export default LoginScreen;

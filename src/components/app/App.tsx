@@ -8,7 +8,6 @@ import type { AppUserService } from 'commons/components/app/AppUserService';
 import { useAppLayout, useAppSwitcher, useAppUser } from 'commons/components/app/hooks';
 import Modal from 'components/elements/display/Modal';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyLocalStorage from 'components/hooks/useMyLocalStorage';
 import useMyPreferences from 'components/hooks/useMyPreferences';
 import useMySitemap from 'components/hooks/useMySitemap';
@@ -27,6 +26,8 @@ import UserSearchProvider from 'components/routes/admin/users/UserSearch';
 import QueryBuilder from 'components/routes/advanced/QueryBuilder';
 import AnalyticDetails from 'components/routes/analytics/AnalyticDetails';
 import AnalyticSearch from 'components/routes/analytics/AnalyticSearch';
+import DossierEditor from 'components/routes/dossiers/DossierEditor';
+import Dossiers from 'components/routes/dossiers/Dossiers';
 import ActionDocumentation from 'components/routes/help/ActionDocumentation';
 import ApiDocumentation from 'components/routes/help/ApiDocumentation';
 import AuthDocumentation from 'components/routes/help/AuthDocumentation';
@@ -34,6 +35,7 @@ import ClientDocumentation from 'components/routes/help/ClientDocumentation';
 import HelpDashboard from 'components/routes/help/Help';
 import HitDocumentation from 'components/routes/help/HitDocumentation';
 import OverviewDocumentation from 'components/routes/help/OverviewDocumentation';
+import RetentionDocumentation from 'components/routes/help/RetentionDocumentation';
 import SearchDocumentation from 'components/routes/help/SearchDocumentation';
 import TemplateDocumentation from 'components/routes/help/TemplateDocumentation';
 import ViewDocumentation from 'components/routes/help/ViewDocumentation';
@@ -51,15 +53,16 @@ import i18n from 'i18n';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
 import * as monaco from 'monaco-editor';
-import { useEffect, type FC, type PropsWithChildren } from 'react';
+import { useContext, useEffect, type FC, type PropsWithChildren } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { createBrowserRouter, Outlet, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
 import { StorageKey } from 'utils/constants';
 import useMySearch from '../hooks/useMySearch';
 import AppContainer from './AppContainer';
 import AnalyticProvider from './providers/AnalyticProvider';
-import ApiConfigProvider from './providers/ApiConfigProvider';
+import ApiConfigProvider, { ApiConfigContext } from './providers/ApiConfigProvider';
 import AvatarProvider from './providers/AvatarProvider';
+import DossierProvider from './providers/DossierProvider';
 import FavouriteProvider from './providers/FavouritesProvider';
 import FieldProvider from './providers/FieldProvider';
 import HitProvider from './providers/HitProvider';
@@ -80,6 +83,7 @@ const RoleRoute = ({ role }) => {
   if (appUser.user?.roles?.includes(role)) {
     return <Outlet />;
   }
+
   return <NotFoundPage />;
 };
 
@@ -92,7 +96,7 @@ const MyApp: FC = () => {
   const appUser = useAppUser<HowlerUser>();
   const location = useLocation();
   const navigate = useNavigate();
-  const apiConfig = useMyApiConfig();
+  const apiConfig = useContext(ApiConfigContext);
   const { setItems } = useAppSwitcher();
   const { get, set, remove } = useMyLocalStorage();
 
@@ -118,7 +122,6 @@ const MyApp: FC = () => {
   useEffect(() => {
     if (appUser.isReady()) {
       appLayout.setReady(true);
-
       // TODO: Remove in a little while
       remove(StorageKey.ETAG);
     } else if (!get(StorageKey.APP_TOKEN) && !get(StorageKey.REFRESH_TOKEN)) {
@@ -152,29 +155,31 @@ const MyAppProvider: FC<PropsWithChildren> = ({ children }) => {
     <ErrorBoundary>
       <AppProvider preferences={myPreferences} theme={myTheme} sitemap={mySitemap} user={myUser} search={mySearch}>
         <ErrorBoundary>
-          <ViewProvider>
-            <AvatarProvider>
-              <ModalProvider>
-                <FieldProvider>
-                  <LocalStorageProvider>
-                    <SocketProvider>
-                      <HitProvider>
-                        <TemplateProvider>
-                          <OverviewProvider>
-                            <AnalyticProvider>
-                              <FavouriteProvider>
-                                <UserListProvider>{children}</UserListProvider>
-                              </FavouriteProvider>
-                            </AnalyticProvider>
-                          </OverviewProvider>
-                        </TemplateProvider>
-                      </HitProvider>
-                    </SocketProvider>
-                  </LocalStorageProvider>
-                </FieldProvider>
-              </ModalProvider>
-            </AvatarProvider>
-          </ViewProvider>
+          <DossierProvider>
+            <ViewProvider>
+              <AvatarProvider>
+                <ModalProvider>
+                  <FieldProvider>
+                    <LocalStorageProvider>
+                      <SocketProvider>
+                        <HitProvider>
+                          <TemplateProvider>
+                            <OverviewProvider>
+                              <AnalyticProvider>
+                                <FavouriteProvider>
+                                  <UserListProvider>{children}</UserListProvider>
+                                </FavouriteProvider>
+                              </AnalyticProvider>
+                            </OverviewProvider>
+                          </TemplateProvider>
+                        </HitProvider>
+                      </SocketProvider>
+                    </LocalStorageProvider>
+                  </FieldProvider>
+                </ModalProvider>
+              </AvatarProvider>
+            </ViewProvider>
+          </DossierProvider>
         </ErrorBoundary>
       </AppProvider>
     </ErrorBoundary>
@@ -244,6 +249,26 @@ const router = createBrowserRouter([
         element: <OverviewViewer />
       },
       {
+        path: 'dossiers',
+        element: <Dossiers />
+      },
+      {
+        path: 'dossiers/create',
+        element: (
+          <ParameterProvider>
+            <DossierEditor />
+          </ParameterProvider>
+        )
+      },
+      {
+        path: 'dossiers/:id/edit',
+        element: (
+          <ParameterProvider>
+            <DossierEditor />
+          </ParameterProvider>
+        )
+      },
+      {
         path: 'views',
         element: <Views />
       },
@@ -306,6 +331,10 @@ const router = createBrowserRouter([
       {
         path: 'help/hit',
         element: <HitDocumentation />
+      },
+      {
+        path: 'help/retention',
+        element: <RetentionDocumentation />
       },
       {
         path: 'help/templates',

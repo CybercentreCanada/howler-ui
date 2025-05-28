@@ -12,16 +12,25 @@ import {
   Typography
 } from '@mui/material';
 import api from 'api';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import { useAppUser } from 'commons/components/app/hooks';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { SocketContext, type RecievedDataType } from 'components/app/providers/SocketProvider';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
 import useMyApi from 'components/hooks/useMyApi';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { AnalyticComment } from 'models/entities/generated/AnalyticComment';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { SocketEvent } from 'models/socket/HitUpdate';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState, type KeyboardEventHandler } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+  type KeyboardEventHandler
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { compareTimestamp, sortByTimestamp } from 'utils/utils';
@@ -31,7 +40,12 @@ import TypingIndicator from '../display/TypingIndicator';
 
 const MAX_LENGTH = 5000;
 
-export default function HitComments({ hit, users }: { hit: Hit; users: { [id: string]: HowlerUser } }) {
+interface HitCommentsProps {
+  hit: Hit;
+  users: { [id: string]: HowlerUser };
+}
+
+const HitComments: FC<HitCommentsProps> = ({ hit, users }) => {
   const { user } = useAppUser();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -352,4 +366,6 @@ export default function HitComments({ hit, users }: { hit: Hit; users: { [id: st
       )}
     </Stack>
   );
-}
+};
+
+export default HitComments;

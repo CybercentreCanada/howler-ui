@@ -23,13 +23,13 @@ import {
 } from '@mui/material';
 import api from 'api';
 import type { HowlerEQLSearchResponse, HowlerSearchResponse } from 'api/search';
-import TuiButton from 'commons/addons/display/buttons/TuiButton';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { parseEvent } from 'commons/components/utils/keyboard';
 import { FieldContext } from 'components/app/providers/FieldProvider';
+import { ModalContext } from 'components/app/providers/ModalProvider';
+import CustomButton from 'components/elements/addons/buttons/CustomButton';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
 import JSONViewer from 'components/elements/display/json/JSONViewer';
-import useMyModal from 'components/hooks/useMyModal';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { Hit } from 'models/entities/generated/Hit';
 import moment from 'moment';
@@ -103,7 +103,7 @@ const QueryBuilder: FC = () => {
   const compactLayout = useMediaQuery('(max-width:870px)');
   const monaco = useMonaco();
   const { hitFields, getHitFields } = useContext(FieldContext);
-  const { showModal } = useMyModal();
+  const { showModal } = useContext(ModalContext);
   const { showWarningMessage } = useMySnackbar();
 
   const [type, setType] = useState<'eql' | 'lucene' | 'yaml'>('lucene');
@@ -266,7 +266,7 @@ const QueryBuilder: FC = () => {
               </IconButton>
             </Tooltip>
           ) : (
-            <TuiButton
+            <CustomButton
               size="small"
               variant="outlined"
               startIcon={
@@ -283,7 +283,7 @@ const QueryBuilder: FC = () => {
               onClick={execute}
             >
               {t('route.actions.execute')}
-            </TuiButton>
+            </CustomButton>
           )}
           <Stack direction={compactLayout ? 'column' : 'row'} spacing={1}>
             <Autocomplete
@@ -385,7 +385,7 @@ const QueryBuilder: FC = () => {
                 </IconButton>
               </Tooltip>
             ) : (
-              <TuiButton
+              <CustomButton
                 size="small"
                 variant="outlined"
                 startIcon={<OpenInNew />}
@@ -395,7 +395,7 @@ const QueryBuilder: FC = () => {
                 {...({ to: `/hits?query=${sanitizeMultilineLucene(query).replaceAll('\n', ' ').trim()}` } as any)}
               >
                 {t('route.advanced.open')}
-              </TuiButton>
+              </CustomButton>
             ))}
           {smallButtons ? (
             <Tooltip title={response ? t('route.advanced.create.rule') : t('route.advanced.create.rule.disabled')}>
@@ -410,7 +410,7 @@ const QueryBuilder: FC = () => {
               </IconButton>
             </Tooltip>
           ) : (
-            <TuiButton
+            <CustomButton
               size="small"
               variant="outlined"
               color="info"
@@ -422,7 +422,7 @@ const QueryBuilder: FC = () => {
               tooltip={!response && t('route.advanced.create.rule.disabled')}
             >
               {t('route.advanced.create.rule')}
-            </TuiButton>
+            </CustomButton>
           )}
         </Stack>
         <Box

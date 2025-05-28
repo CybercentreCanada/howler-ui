@@ -1,4 +1,4 @@
-import FlexVertical from 'commons/addons/flexers/FlexVertical';
+import FlexVertical from 'components/elements/addons/layout/FlexVertical';
 import type { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 import useTitle from './hooks/useTitle';

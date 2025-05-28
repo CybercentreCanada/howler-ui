@@ -238,7 +238,15 @@ const HitSummary: FC<{
                 <Box>
                   <Grid container key={key + '-list'} style={{ marginTop: 0 }} sx={{ mr: 1 }} spacing={1}>
                     {Object.keys(aggregateResults[key]).map(_key => {
-                      return <Grid key={_key} item xs="auto"></Grid>;
+                      return (
+                        <Grid key={_key} item xs="auto">
+                          <Chip
+                            size="small"
+                            label={`${_key} (${aggregateResults[key][_key]})`}
+                            onClick={() => setSearch(key, `"${_key}"`)}
+                          />
+                        </Grid>
+                      );
                     })}
                   </Grid>
                 </Box>

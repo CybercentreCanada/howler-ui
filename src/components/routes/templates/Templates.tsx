@@ -1,9 +1,8 @@
-import { Article, KeyboardArrowDown, Language, Lock, Person } from '@mui/icons-material';
+import { Article, KeyboardArrowDown } from '@mui/icons-material';
 import {
   Box,
   Card,
   Collapse,
-  Divider,
   IconButton,
   Stack,
   ToggleButton,
@@ -13,20 +12,21 @@ import {
 } from '@mui/material';
 import api from 'api';
 import type { HowlerSearchResponse } from 'api/search';
-import { TuiListProvider, type TuiListItem, type TuiListItemProps } from 'commons/addons/lists';
-import useTuiListMethods from 'commons/addons/lists/hooks/useTuiListMethods';
 import { useAppUser } from 'commons/components/app/hooks';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
+import { TuiListProvider, type TuiListItem, type TuiListItemProps } from 'components/elements/addons/lists';
+import { TuiListMethodContext, type TuiListMethodsState } from 'components/elements/addons/lists/TuiListProvider';
 import ItemManager from 'components/elements/display/ItemManager';
 import useMyApi from 'components/hooks/useMyApi';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Template } from 'models/entities/generated/Template';
-import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useContextSelector } from 'use-context-selector';
 import { StorageKey } from 'utils/constants';
+import TemplateCard from './TemplateCard';
 
 const TemplatesBase: FC = () => {
   const { t } = useTranslation();
@@ -34,7 +34,7 @@ const TemplatesBase: FC = () => {
   const navigate = useNavigate();
   const { dispatchApi } = useMyApi();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { load } = useTuiListMethods();
+  const { load } = useContext<TuiListMethodsState<Template>>(TuiListMethodContext);
   const templates = useContextSelector(TemplateContext, ctx => ctx.templates);
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
 
@@ -134,35 +134,8 @@ const TemplatesBase: FC = () => {
   const builtInTemplates = useMemo(() => templates.filter(template => template.type === 'readonly'), [templates]);
 
   const renderer = useCallback(
-    (item: Template, className?: string) => {
-      return (
-        <Card key={item.template_id} variant="outlined" sx={{ p: 1, mb: 1 }} className={className}>
-          <Stack direction="row" spacing={1}>
-            <Tooltip title={t(`route.templates.manager.${item.type}`)}>
-              {
-                {
-                  readonly: <Lock />,
-                  global: <Language />,
-                  personal: <Person />
-                }[item.type]
-              }
-            </Tooltip>
-            <Divider orientation="vertical" flexItem />
-            <Stack>
-              <Typography variant="body1">
-                {t(item.analytic)} - {t(item.detection ?? 'all')}
-              </Typography>
-              {item.keys.map(key => (
-                <Typography key={item.template_id + key} variant="caption" sx={{ ml: 1 }}>
-                  <code>{key}</code>
-                </Typography>
-              ))}
-            </Stack>
-          </Stack>
-        </Card>
-      );
-    },
-    [t]
+    (item: Template, className?: string) => <TemplateCard template={item} className={className} />,
+    []
   );
 
   return (

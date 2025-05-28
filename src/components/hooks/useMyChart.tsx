@@ -39,7 +39,7 @@ ChartJS.register(
 
 ChartJS.register(zoomPlugin);
 
-export default function useMyChart() {
+const useMyChart = () => {
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -159,4 +159,6 @@ export default function useMyChart() {
       return options;
     }
   };
-}
+};
+
+export default useMyChart;

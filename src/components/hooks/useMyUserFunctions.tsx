@@ -2,23 +2,23 @@ import api from 'api';
 import { useAppUser } from 'commons/components/app/hooks';
 import ApiKeyDrawer from 'components/app/drawers/ApiKeyDrawer';
 import ViewGroupsDrawer from 'components/app/drawers/ViewGroupsDrawer';
-import useAppDrawer from 'components/app/hooks/useAppDrawer';
+import { AppDrawerContext } from 'components/app/providers/AppDrawerProvider';
+import { ModalContext } from 'components/app/providers/ModalProvider';
 import ConfirmDeleteModal from 'components/elements/display/modals/ConfirmDeleteModal';
 import type { HowlerUser } from 'models/entities/HowlerUser';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useMyApi from './useMyApi';
-import useMyModal from './useMyModal';
 import useMySnackbar from './useMySnackbar';
 
-export default function useMyUserFunctions() {
+const useMyUserFunctions = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { showSuccessMessage } = useMySnackbar();
   const { dispatchApi } = useMyApi();
-  const { showModal } = useMyModal();
-  const drawer = useAppDrawer();
+  const { showModal } = useContext(ModalContext);
+  const drawer = useContext(AppDrawerContext);
   const { user: currentUser, setUser } = useAppUser<HowlerUser>();
 
   return {
@@ -161,4 +161,6 @@ export default function useMyUserFunctions() {
       [currentUser.username, dispatchApi]
     )
   };
-}
+};
+
+export default useMyUserFunctions;

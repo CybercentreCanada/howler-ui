@@ -2,6 +2,7 @@ import * as action from 'api/action';
 import * as analytic from 'api/analytic';
 import * as auth from 'api/auth';
 import * as configs from 'api/configs';
+import * as dossier from 'api/dossier';
 import * as help from 'api/help';
 import * as hit from 'api/hit';
 import * as overview from 'api/overview';
@@ -31,17 +32,18 @@ const client = new AxiosClient();
  */
 // prettier-ignore
 const api = {
-  auth,
   action,
-  configs,
-  search,
-  user,
-  hit,
-  help,
-  template,
   analytic,
+  auth,
+  configs,
+  dossier,
+  help,
+  hit,
   overview,
-  view
+  search,
+  template,
+  user,
+  view,
 };
 
 /**
@@ -59,9 +61,9 @@ export type HowlerResponse<R> = {
  *
  * `/api/v1/`
  */
-export function uri() {
+export const uri = () => {
   return '/api/v1';
-}
+};
 
 /**
  * Format/Adapt the specified URI to an Howler API uri.
@@ -71,9 +73,9 @@ export function uri() {
  * @param _uri - the uri to format.
  * @returns `string` - properly formatted howler uri.
  */
-function format(_uri: string): string {
+const format = (_uri: string): string => {
   return _uri.startsWith(uri()) ? _uri : `${uri()}/${_uri.replace(/\/$/, '')}`;
-}
+};
 
 /**
  * Append series of search parameters to the specified uri.
@@ -82,9 +84,9 @@ function format(_uri: string): string {
  * @param searchParams  -  a list of search parameters to join with the uri.
  * @returns a uri with the search parameters.
  */
-export function joinParams(_uri: string, searchParams?: URLSearchParams): string {
+export const joinParams = (_uri: string, searchParams?: URLSearchParams): string => {
   return `${_uri}${searchParams ? `${_uri.indexOf('?') > 0 ? '&' : '?'}${searchParams.toString()}` : ''}`;
-}
+};
 
 /**
  * Join two uri and then join them with the specified search parameters.
@@ -98,40 +100,40 @@ export function joinParams(_uri: string, searchParams?: URLSearchParams): string
  * @param searchParams the search parameters to append to the uri.
  * @returns a uri that joins `uri1` and `uri2` with the specified `_search` parameters.
  */
-export function joinUri(uri1: string, uri2: string, searchParams?: URLSearchParams): string {
+export const joinUri = (uri1: string, uri2: string, searchParams?: URLSearchParams): string => {
   const _uri = format(urlJoin(uri1, uri2));
   return searchParams ? joinParams(_uri, searchParams) : _uri;
-}
+};
 
 /**
  * joinUrl all params together
  *
  * @returns a uri generated from all params
  */
-export function joinAllUri(...urlParts: string[]): string {
+export const joinAllUri = (...urlParts: string[]): string => {
   return urlJoin(...urlParts);
-}
+};
 
 /**
  * Create the required headers object for attaching to the request
  *
  * @param ifMatch a value for the If-Match header
  */
-export function setHeaders(ifMatch?: string): HeadersInit {
+export const setHeaders = (ifMatch?: string): HeadersInit => {
   const headers: HeadersInit = {};
   if (ifMatch) {
     headers['If-Match'] = ifMatch;
   }
   return headers;
-}
+};
 
-function getEtagUrl(_uri: string): string {
+const getEtagUrl = (_uri: string): string => {
   if (_uri.startsWith('/api/v1/hit')) {
     return _uri.replace(/.+hit\/(.+?)$/g, '$1').split('/')[0];
   }
 
   return _uri;
-}
+};
 
 /**
  * Generic FETCH implementation for HOWLER API.
@@ -143,13 +145,13 @@ function getEtagUrl(_uri: string): string {
  * @param body - the body of the request.
  * @returns the `api_response` object of the returned {@link HowlerResponse}.
  */
-async function hfetch<R>(
+export const hfetch = async <R>(
   _uri: string,
   method: 'get' | 'post' | 'put' | 'delete' | 'patch' = 'get',
   body?: any,
   searchParams?: URLSearchParams,
   requestHeaders?: HeadersInit
-): Promise<R> {
+): Promise<R> => {
   const authToken = getLocalStored(StorageKey.APP_TOKEN);
   const etags = getSessionStored(StorageKey.ETAG) || {};
   const currentObject = etags[getEtagUrl(_uri)] || null;
@@ -226,7 +228,7 @@ async function hfetch<R>(
       cause: json
     }
   );
-}
+};
 
 /**
  * Perform an HTTP GET for the specified uri.
@@ -236,9 +238,9 @@ async function hfetch<R>(
  * @param _uri - the uri to fetch.
  * @returns the `api_response` object of the returned {@link HowlerResponse}.
  */
-export function hget<R = any>(_uri: string, searchParams?: URLSearchParams, headers: HeadersInit = {}): Promise<R> {
+export const hget = <R = any>(_uri: string, searchParams?: URLSearchParams, headers: HeadersInit = {}): Promise<R> => {
   return hfetch(_uri, 'get', null, searchParams, headers);
-}
+};
 
 /**
  * Perform an HTTP POST for the specified uri and body data.
@@ -249,9 +251,9 @@ export function hget<R = any>(_uri: string, searchParams?: URLSearchParams, head
  * @param body - the body of the request.
  * @returns the `api_response` object of the returned {@link HowlerResponse}.
  */
-export function hpost<R = any>(_uri: string, body: any, headers: HeadersInit = {}): Promise<R> {
+export const hpost = <R = any>(_uri: string, body: any, headers: HeadersInit = {}): Promise<R> => {
   return hfetch(_uri, 'post', body, undefined, headers);
-}
+};
 
 /**
  * Peform an HTTP PUT for the specified uri and body data.
@@ -262,9 +264,9 @@ export function hpost<R = any>(_uri: string, body: any, headers: HeadersInit = {
  * @param body - the body of the request.
  * @returns the `api_response` object of the returned {@link HowlerResponse}.
  */
-export function hput<R = any>(_uri: string, body: any, headers: HeadersInit = {}): Promise<R> {
+export const hput = <R = any>(_uri: string, body: any, headers: HeadersInit = {}): Promise<R> => {
   return hfetch(_uri, 'put', body, undefined, headers);
-}
+};
 
 /**
  * Peform an HTTP PATCH for the specified uri and body data.
@@ -275,9 +277,9 @@ export function hput<R = any>(_uri: string, body: any, headers: HeadersInit = {}
  * @param body - the body of the request.
  * @returns the `api_response` object of the returned {@link HowlerResponse}.
  */
-export function hpatch<R = any>(_uri: string, body: any, headers: HeadersInit = {}): Promise<R> {
+export const hpatch = <R = any>(_uri: string, body: any, headers: HeadersInit = {}): Promise<R> => {
   return hfetch(_uri, 'patch', body, undefined, headers);
-}
+};
 
 /**
  * Performa an HTTP DELETE for the specified uri.
@@ -287,9 +289,9 @@ export function hpatch<R = any>(_uri: string, body: any, headers: HeadersInit = 
  * @param _uri - the uri to fetch.
  * @returns the `api_response` object of the returned {@link HowlerResponse}.
  */
-export function hdelete<R = any>(_uri: string, body = null, headers: HeadersInit = {}): Promise<R> {
+export const hdelete = <R = any>(_uri: string, body = null, headers: HeadersInit = {}): Promise<R> => {
   return hfetch(_uri, 'delete', body, undefined, headers);
-}
+};
 
 /**
  * Default export exposing the howler rest api

@@ -17,16 +17,16 @@ import {
   useTheme
 } from '@mui/material';
 import api from 'api';
-import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { parseEvent } from 'commons/components/utils/keyboard';
+import { ModalContext } from 'components/app/providers/ModalProvider';
+import CustomButton from 'components/elements/addons/buttons/CustomButton';
 import Markdown from 'components/elements/display/Markdown';
 import ThemedEditor from 'components/elements/ThemedEditor';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyModal from 'components/hooks/useMyModal';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { Analytic } from 'models/entities/generated/Analytic';
 import type { FC } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RULE_INTERVALS } from 'utils/constants';
@@ -38,7 +38,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { close } = useMyModal();
+  const { close } = useContext(ModalContext);
   const { dispatchApi } = useMyApi();
   const { showSuccessMessage } = useMySnackbar();
   const navigate = useNavigate();
@@ -123,7 +123,12 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
         {/* TODO: allow custom crontabs ala spellbook */}
         <FormControl sx={{ minWidth: '250px' }}>
           <InputLabel>{t('rule.interval')}</InputLabel>
-          <Select label={t('rule.interval')} onChange={event => setCrontab(event.target.value)} value={crontab}>
+          <Select
+            label={t('rule.interval')}
+            onChange={event => setCrontab(event.target.value)}
+            value={crontab}
+            MenuProps={{ style: { zIndex: 1500 } }}
+          >
             {RULE_INTERVALS.map(interval => (
               <MenuItem key={interval.key} value={interval.crontab}>
                 {t(interval.key)}
@@ -194,7 +199,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
         <Button color="error" variant="outlined" onClick={close}>
           {t('cancel')}
         </Button>
-        <TuiButton
+        <CustomButton
           startIcon={loading && <CircularProgress color="success" size={18} />}
           color="success"
           variant="outlined"
@@ -203,7 +208,7 @@ const RuleModal: FC<{ onSubmit: () => void; fileData: string; type: 'eql' | 'luc
           tooltip={(!name || !description) && t(`modal.rule.disabled.${!name ? 'analytic' : 'description'}`)}
         >
           {t('submit')}
-        </TuiButton>
+        </CustomButton>
       </Stack>
     </Stack>
   );

@@ -1,14 +1,14 @@
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import { parseEvent } from 'commons/components/utils/keyboard';
-import useMyModal from 'components/hooks/useMyModal';
+import { ModalContext } from 'components/app/providers/ModalProvider';
 import useMySnackbar from 'components/hooks/useMySnackbar';
 import type { FC, KeyboardEvent } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const CreateActionModal: FC<{ onSubmit: (rationale: string) => void }> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const { close } = useMyModal();
+  const { close } = useContext(ModalContext);
   const { showInfoMessage } = useMySnackbar();
 
   const [actionName, setActionName] = useState('');

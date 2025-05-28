@@ -3,7 +3,7 @@ import HandlebarsMarkdown from 'components/elements/display/HandlebarsMarkdown';
 import { useScrollRestoration } from 'components/hooks/useScrollRestoration';
 import type { FC } from 'react';
 import ErrorBoundary from '../ErrorBoundary';
-import { STARTING_TEMPLATE } from '../overviews/OverviewViewer';
+import { STARTING_TEMPLATE } from '../overviews/startingTemplate';
 
 const OverviewDocumentation: FC = () => {
   useScrollRestoration();

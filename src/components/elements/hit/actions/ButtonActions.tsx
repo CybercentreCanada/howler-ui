@@ -1,7 +1,7 @@
 import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Tooltip } from '@mui/material';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HitShortcuts } from '../HitShortcuts';
 import type { ActionButton } from './SharedComponents';
@@ -16,6 +16,7 @@ interface DesktopActionProps {
   orientation: 'horizontal' | 'vertical';
   selectedVote: ActionButton['name'];
   shortcuts: HitShortcuts;
+  validAssessments: string[];
   vote: (v: string) => void;
 }
 
@@ -27,30 +28,33 @@ const ButtonActions: FC<DesktopActionProps> = ({
   loading,
   orientation,
   selectedVote,
+  validAssessments,
   shortcuts,
   vote
 }) => {
   const { t } = useTranslation();
-  const config = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const isHorizontal = useMemo(() => orientation === 'horizontal', [orientation]);
   const showShortcuts = useMemo(() => shortcuts === HitShortcuts.SHORTCUTS_HINT, [shortcuts]);
 
   const assessmentRows = useMemo(
     () =>
-      config.config.lookups?.['howler.assessment'].reduce(
-        ([top, bottom], assessment) => {
-          if (TOP_ROW.includes(assessment)) {
-            top.push(assessment);
-          } else {
-            bottom.push(assessment);
-          }
+      config.lookups?.['howler.assessment']
+        .filter(_assessment => (validAssessments ? validAssessments.includes(_assessment) : true))
+        .reduce(
+          ([top, bottom], assessment) => {
+            if (TOP_ROW.includes(assessment)) {
+              top.push(assessment);
+            } else {
+              bottom.push(assessment);
+            }
 
-          return [top, bottom];
-        },
-        [[], []] as [string[], string[]]
-      ) ?? [],
-    [config.config.lookups]
+            return [top, bottom];
+          },
+          [[], []] as [string[], string[]]
+        ) ?? [],
+    [config.lookups, validAssessments]
   );
 
   return (

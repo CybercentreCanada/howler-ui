@@ -12,9 +12,9 @@ import { Cancel, Check, Close, Edit, OpenInNew } from '@mui/icons-material';
 import { Alert, AlertTitle, CircularProgress, Grid, IconButton, Stack, Typography } from '@mui/material';
 import api from 'api';
 import { AppBrand } from 'branding/AppBrand';
-import TuiButton from 'commons/addons/display/buttons/TuiButton';
 import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
+import CustomButton from 'components/elements/addons/buttons/CustomButton';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserFunctions from 'components/hooks/useMyUserFunctions';
 import isEqual from 'lodash-es/isEqual';
@@ -48,7 +48,7 @@ const Home: FC = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedHitTotal, setUpdatedHitTotal] = useState(0);
-  const [dashboard, setStateDashboard] = useState(user.dashboard);
+  const [dashboard, setStateDashboard] = useState(user.dashboard ?? []);
 
   const updateQuery = useMemo(
     () =>
@@ -121,11 +121,11 @@ const Home: FC = () => {
       <Stack direction="column" spacing={1} sx={{ height: '100%' }}>
         <Stack direction="row" justifyContent="end" spacing={1}>
           {isEditing && (
-            <TuiButton variant="outlined" size="small" color="error" startIcon={<Cancel />} onClick={discardChanges}>
+            <CustomButton variant="outlined" size="small" color="error" startIcon={<Cancel />} onClick={discardChanges}>
               {t('cancel')}
-            </TuiButton>
+            </CustomButton>
           )}
-          <TuiButton
+          <CustomButton
             variant="outlined"
             size="small"
             disabled={isEditing && isEqual(dashboard, user.dashboard)}
@@ -134,7 +134,7 @@ const Home: FC = () => {
             onClick={() => (!isEditing ? setIsEditing(true) : saveChanges())}
           >
             {t(isEditing ? 'save' : 'edit')}
-          </TuiButton>
+          </CustomButton>
         </Stack>
         {updatedHitTotal > 0 && (
           <Alert
@@ -194,7 +194,7 @@ const Home: FC = () => {
                       editing={isEditing}
                       id={settings.viewId}
                       onDelete={() =>
-                        setLocalDashboard(dashboard.filter(_entry => _entry.entry_id !== getIdFromEntry(entry)))
+                        setLocalDashboard((dashboard ?? []).filter(_entry => _entry.entry_id !== getIdFromEntry(entry)))
                       }
                     >
                       <ViewCard key={entry.config} {...settings} />
@@ -209,7 +209,7 @@ const Home: FC = () => {
                       editing={isEditing}
                       id={getIdFromEntry(entry)}
                       onDelete={() =>
-                        setLocalDashboard(dashboard.filter(_entry => _entry.entry_id !== getIdFromEntry(entry)))
+                        setLocalDashboard((dashboard ?? []).filter(_entry => _entry.entry_id !== getIdFromEntry(entry)))
                       }
                     >
                       <AnalyticCard key={entry.config} {...settings} />
@@ -222,7 +222,7 @@ const Home: FC = () => {
               {isEditing && (
                 <AddNewCard
                   dashboard={dashboard}
-                  addCard={newCard => setStateDashboard(_dashboard => [..._dashboard, newCard])}
+                  addCard={newCard => setStateDashboard(_dashboard => [...(_dashboard ?? []), newCard])}
                 />
               )}
               {!dashboard?.length && !isEditing && (

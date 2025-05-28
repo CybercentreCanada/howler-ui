@@ -16,14 +16,14 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import Throttler from 'commons/addons/utils/Throttler';
 import Markdown from 'components/elements/display/Markdown';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import type { ChangeEventHandler, FC } from 'react';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+import Throttler from 'utils/Throttler';
 
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import SCHEMA_EN from './markdown/en/schema.md';
 import SCHEMA_FR from './markdown/fr/schema.md';
 
@@ -43,9 +43,9 @@ const TableHeader: FC = () => {
   );
 };
 
-const RowEntry: FC<{ field: string }> = memo(function RowEntry({ field }) {
+const RowEntry: FC<{ field: string }> = memo(({ field }) => {
   const { t } = useTranslation();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const theme = useTheme();
 
   return (
@@ -100,7 +100,7 @@ const RowEntry: FC<{ field: string }> = memo(function RowEntry({ field }) {
 
 const HitSchemaDocumentation: FC = () => {
   const { i18n, t } = useTranslation();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [phrase, setPhrase] = useState(searchParams.get('phrase') || '');

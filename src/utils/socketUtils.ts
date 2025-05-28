@@ -6,6 +6,6 @@ import type { HitUpdate } from 'models/socket/HitUpdate';
  * @param data The data recieved from the socket
  * @returns whether the data is a hit update
  */
-export function isHitUpdate(data: any): data is RecievedDataType<HitUpdate> {
+export const isHitUpdate = (data: any): data is RecievedDataType<HitUpdate> => {
   return data.version && data.hit;
-}
+};

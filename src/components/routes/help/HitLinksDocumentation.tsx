@@ -1,16 +1,16 @@
 import Markdown from 'components/elements/display/Markdown';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import LINKS_EN from './markdown/en/links.md';
 import LINKS_FR from './markdown/fr/links.md';
 
 const HitLinksDocumentation: FC = () => {
   const { i18n } = useTranslation();
 
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const md = useMemo(() => {
     const appList = config.configuration.ui.apps.map(a => `- \`${a.name.toLowerCase()}\``).join('\n');

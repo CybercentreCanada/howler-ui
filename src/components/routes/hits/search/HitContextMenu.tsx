@@ -11,13 +11,14 @@ import {
 import { Box, Divider, Fade, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper } from '@mui/material';
 import api from 'api';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { HitContext } from 'components/app/providers/HitProvider';
 import { VOTE_OPTIONS } from 'components/elements/hit/actions/SharedComponents';
 import useHitActions from 'components/hooks/useHitActions';
 import useMyApi from 'components/hooks/useMyApi';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import useMyActionFunctions from 'components/routes/action/useMyActionFunctions';
 import type { Action } from 'models/entities/generated/Action';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import type { FC, MouseEventHandler, PropsWithChildren } from 'react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,17 +36,17 @@ const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, 
   const analyticContext = useContext(AnalyticContext);
   const { dispatchApi } = useMyApi();
   const { executeAction } = useMyActionFunctions();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
 
   const [id, setId] = useState<string>(null);
 
   const hit = useContextSelector(HitContext, ctx => ctx.hits[id]);
-  const getHit = useContextSelector(HitContext, ctx => ctx.getHit);
   const selectedHits = useContextSelector(HitContext, ctx => ctx.selectedHits);
+
+  const [analytic, setAnalytic] = useState<Analytic>(null);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [clickLocation, setClickLocation] = useState<[number, number]>([-1, -1]);
-  const [analyticId, setAnalyticId] = useState<string>(null);
   const [actions, setActions] = useState<Action[]>([]);
 
   const [showAction, setShowAction] = useState(false);
@@ -69,18 +70,10 @@ const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, 
       const _id = getSelectedId(event);
       setId(_id);
 
-      const _hit = await getHit(_id);
-
       const clientRect = (event.target as HTMLElement).getBoundingClientRect();
       setClickLocation([event.clientX - clientRect.x, event.clientY - clientRect.y]);
 
       setAnchorEl(event.target as HTMLElement);
-
-      const analyticName = _hit.howler.analytic;
-      if (analyticName) {
-        const _analyticId = await analyticContext.getIdFromName(analyticName);
-        setAnalyticId(_analyticId);
-      }
 
       const _actions = (await dispatchApi(api.search.action.post({ query: 'action_id:*' }), { throwError: false }))
         ?.items;
@@ -89,8 +82,18 @@ const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, 
         setActions(_actions);
       }
     },
-    [analyticContext, anchorEl, dispatchApi, getHit, getSelectedId]
+    [anchorEl, dispatchApi, getSelectedId]
   );
+
+  useEffect(() => {
+    if (!hit) {
+      return;
+    }
+
+    (async () => {
+      setAnalytic(await analyticContext.getAnalyticFromName(hit.howler.analytic));
+    })();
+  }, [analyticContext, hit]);
 
   useEffect(() => {
     if (!anchorEl) {
@@ -99,7 +102,7 @@ const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, 
       setShowAssess(false);
       setShowVote(false);
       setShowManage(false);
-      setAnalyticId(null);
+      setAnalytic(null);
     }
   }, [anchorEl]);
 
@@ -129,7 +132,7 @@ const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, 
           </ListItemIcon>
           <ListItemText>{t('hit.panel.open')}</ListItemText>
         </MenuItem>
-        <MenuItem component={Link} to={`/analytics/${analyticId}`} disabled={!analyticId}>
+        <MenuItem component={Link} to={`/analytics/${analytic?.analytic_id}`} disabled={!analytic}>
           <ListItemIcon>
             <QueryStats />
           </ListItemIcon>
@@ -154,7 +157,7 @@ const HitContextMenu: FC<PropsWithChildren<HitContextMenuProps>> = ({ children, 
             >
               <MenuList sx={{ p: 0, borderTopLeftRadius: 0 }} dense>
                 {config.lookups['howler.assessment'].map(a => (
-                  <MenuItem value={a} onClick={() => assess(a)} key={a}>
+                  <MenuItem value={a} onClick={() => assess(a, analytic?.triage_settings.skip_rationale)} key={a}>
                     {a.replace(/^[a-z]/, val => val.toUpperCase())}
                   </MenuItem>
                 ))}

@@ -14,16 +14,16 @@ export type SearchField = {
   description?: string;
 };
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'fields');
-}
+};
 
-export function map(fields: { [key: string]: SearchField }): SearchField[] {
+export const map = (fields: { [key: string]: SearchField }): SearchField[] => {
   return Object.keys(fields).map(key => ({ ...fields[key], key }));
-}
+};
 
-export function indexed(fields: { [key: string]: SearchField }): SearchField[] {
+export const indexed = (fields: { [key: string]: SearchField }): SearchField[] => {
   return map(fields).filter(field => field.indexed);
-}
+};
 
 export { hit, user };

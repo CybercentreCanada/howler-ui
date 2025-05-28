@@ -1,5 +1,4 @@
 import {
-  AvatarGroup,
   Box,
   Chip,
   Divider,
@@ -12,21 +11,20 @@ import {
   useTheme,
   type TypographyProps
 } from '@mui/material';
-import { useAppUser } from 'commons/components/app/hooks/useAppUser';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
 import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { uniq } from 'lodash-es';
-import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
 import { useCallback, useContext, useEffect, useMemo, useState, type FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ESCALATION_COLORS, PROVIDER_COLORS } from 'utils/constants';
 import { stringToColor } from 'utils/utils';
-import HowlerAvatar from '../display/HowlerAvatar';
+import Assigned from './elements/Assigned';
+import EscalationChip from './elements/EscalationChip';
+import HitTimestamp from './elements/HitTimestamp';
 import HitBannerTooltip from './HitBannerTooltip';
 import { HitLayout } from './HitLayout';
-import HitTimestamp from './HitTimestamp';
 
 type HitBannerProps = {
   hit: Hit;
@@ -37,7 +35,6 @@ type HitBannerProps = {
 
 const HitBanner: FC<HitBannerProps> = ({ hit, layout = HitLayout.NORMAL, showAssigned = true }) => {
   const { t } = useTranslation();
-  const { user } = useAppUser<HowlerUser>();
   const { config } = useContext(ApiConfigContext);
   const { getIdFromName } = useContext(AnalyticContext);
   const theme = useTheme();
@@ -222,7 +219,7 @@ const HitBanner: FC<HitBannerProps> = ({ hit, layout = HitLayout.NORMAL, showAss
         <Typography
           variant={compressed ? 'body1' : 'h6'}
           fontWeight={compressed && 'bold'}
-          sx={{ '& a': { color: 'text.primary' } }}
+          sx={{ alignSelf: 'start', '& a': { color: 'text.primary' } }}
         >
           {analyticId ? (
             <Link to={`/analytics/${analyticId}`} onClick={e => e.stopPropagation()}>
@@ -272,6 +269,7 @@ const HitBanner: FC<HitBannerProps> = ({ hit, layout = HitLayout.NORMAL, showAss
                     return (
                       <Grid key={_indicator} item>
                         <Stack direction="row">
+                          <Typography variant={textVariant}>{_indicator}</Typography>
                           {index < hit.howler.outline.indicators.length - 1 && (
                             <Typography variant={textVariant}>{','}</Typography>
                           )}
@@ -313,60 +311,9 @@ const HitBanner: FC<HitBannerProps> = ({ hit, layout = HitLayout.NORMAL, showAss
         ]}
       >
         <HitTimestamp hit={hit} layout={layout} />
-        {showAssigned && (
-          <Stack direction="row" spacing={0.5}>
-            <Chip
-              sx={{
-                width: 'fit-content',
-                '& .MuiChip-icon': {
-                  marginLeft: 0
-                }
-              }}
-              icon={
-                <HowlerAvatar
-                  userId={hit.howler.assignment}
-                  sx={{ height: layout !== HitLayout.COMFY ? 24 : 32, width: layout !== HitLayout.COMFY ? 24 : 32 }}
-                />
-              }
-              label={
-                hit?.howler.assignment !== 'unassigned'
-                  ? hit?.howler.assignment
-                  : t('app.drawer.hit.assignment.unassigned.name')
-              }
-              size={layout !== HitLayout.COMFY ? 'small' : 'medium'}
-            />
-            <AvatarGroup
-              max={3}
-              sx={{ [`.${avatarClasses.root}`]: { border: 0, marginLeft: 0.5 } }}
-              componentsProps={{
-                additionalAvatar: {
-                  sx: {
-                    height: layout !== HitLayout.COMFY ? 24 : 32,
-                    width: layout !== HitLayout.COMFY ? 24 : 32,
-                    fontSize: '12px'
-                  }
-                }
-              }}
-            >
-              {[...new Set(hit?.howler.viewers)]
-                .filter(viewer => viewer !== user.username)
-                .map(viewer => (
-                  <HowlerAvatar
-                    key={viewer}
-                    userId={viewer}
-                    sx={{ height: layout !== HitLayout.COMFY ? 24 : 32, width: layout !== HitLayout.COMFY ? 24 : 32 }}
-                  />
-                ))}
-            </AvatarGroup>
-          </Stack>
-        )}
+        {showAssigned && <Assigned hit={hit} layout={layout} />}
         <Stack direction="row" spacing={layout !== HitLayout.COMFY ? 0.5 : 1}>
-          <Chip
-            sx={{ width: 'fit-content', display: 'inline-flex' }}
-            label={['evidence', 'miss'].includes(hit.howler.escalation) ? hit.howler.assessment : hit.howler.escalation}
-            size={layout !== HitLayout.COMFY ? 'small' : 'medium'}
-            color={ESCALATION_COLORS[hit.howler.escalation]}
-          />
+          <EscalationChip hit={hit} layout={layout} />
           {['in-progress', 'on-hold'].includes(hit.howler.status) && (
             <Chip
               sx={{ width: 'fit-content', display: 'inline-flex' }}

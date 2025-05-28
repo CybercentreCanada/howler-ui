@@ -2,18 +2,18 @@ import api from 'api';
 import type { HitTransitionBody } from 'api/hit';
 import { useAppUser } from 'commons/components/app/hooks';
 import AssignUserDrawer from 'components/app/drawers/AssignUserDrawer';
-import useAppDrawer from 'components/app/hooks/useAppDrawer';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
+import { AppDrawerContext } from 'components/app/providers/AppDrawerProvider';
 import { HitContext } from 'components/app/providers/HitProvider';
+import { ModalContext } from 'components/app/providers/ModalProvider';
 import RationaleModal from 'components/elements/display/modals/RationaleModal';
 import type { ActionButton } from 'components/elements/hit/actions/SharedComponents';
 import type { HowlerUser } from 'models/entities/HowlerUser';
 import type { Hit } from 'models/entities/generated/Hit';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useContextSelector } from 'use-context-selector';
 import useMyApi from './useMyApi';
-import useMyApiConfig from './useMyApiConfig';
-import useMyModal from './useMyModal';
 import useMySnackbar from './useMySnackbar';
 
 export const MANAGE_OPTIONS: ActionButton[] = [
@@ -30,12 +30,12 @@ export const MANAGE_OPTIONS: ActionButton[] = [
 
 type TransitionStates = 'in-progress' | 'on-hold' | 'open' | 'resolved';
 
-export default function useHitActions(_hits: Hit | Hit[]) {
+const useHitActions = (_hits: Hit | Hit[]) => {
   const { t } = useTranslation();
-  const config = useMyApiConfig();
+  const config = useContext(ApiConfigContext);
   const { user } = useAppUser<HowlerUser>();
-  const drawer = useAppDrawer();
-  const { showModal } = useMyModal();
+  const drawer = useContext(AppDrawerContext);
+  const { showModal } = useContext(ModalContext);
   const { showWarningMessage } = useMySnackbar();
   const { dispatchApi } = useMyApi();
 
@@ -164,16 +164,18 @@ export default function useHitActions(_hits: Hit | Hit[]) {
   );
 
   const assess = useCallback(
-    async (assessment: string) => {
-      const rationale = await new Promise<string>(res => {
-        showModal(
-          <RationaleModal
-            onSubmit={_rationale => {
-              res(_rationale);
-            }}
-          />
-        );
-      });
+    async (assessment: string, skipRationale = false) => {
+      const rationale = skipRationale
+        ? t('rationale.default', { assessment })
+        : await new Promise<string>(res => {
+            showModal(
+              <RationaleModal
+                onSubmit={_rationale => {
+                  res(_rationale);
+                }}
+              />
+            );
+          });
 
       await Promise.all(
         hits.map(async hit => {
@@ -259,4 +261,6 @@ export default function useHitActions(_hits: Hit | Hit[]) {
     vote,
     selectedVote
   };
-}
+};
+
+export default useHitActions;

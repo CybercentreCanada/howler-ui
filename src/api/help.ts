@@ -1,8 +1,8 @@
 import { hget, joinUri, uri as parentUri } from 'api';
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), '');
-}
+};
 
 interface ApiDescription {
   /**
@@ -66,6 +66,6 @@ export interface HelpResponse {
   blueprints: { [index: string]: string };
 }
 
-export function get(): Promise<HelpResponse> {
+export const get = (): Promise<HelpResponse> => {
   return hget(uri());
-}
+};

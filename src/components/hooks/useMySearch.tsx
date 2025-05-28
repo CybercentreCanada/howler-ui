@@ -11,7 +11,7 @@ import { StorageKey } from 'utils/constants';
 import { sanitizeLuceneQuery } from 'utils/stringUtils';
 import { useMyLocalStorageItem } from './useMyLocalStorage';
 
-export default function useMySearch(): AppSearchService<Hit> {
+const useMySearch = (): AppSearchService<Hit> => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const pageCount = useMyLocalStorageItem(StorageKey.PAGE_COUNT, 25)[0];
@@ -72,4 +72,6 @@ export default function useMySearch(): AppSearchService<Hit> {
     }),
     [navigate, pageCount, t]
   );
-}
+};
+
+export default useMySearch;

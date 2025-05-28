@@ -14,16 +14,23 @@ import {
   Switch,
   useMediaQuery
 } from '@mui/material';
-import Throttler from 'commons/addons/utils/Throttler';
+import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
+import { HitContext } from 'components/app/providers/HitProvider';
+import { HitSearchContext } from 'components/app/providers/HitSearchProvider';
+import { ParameterContext } from 'components/app/providers/ParameterProvider';
+import { ViewContext } from 'components/app/providers/ViewProvider';
 import useHitActions from 'components/hooks/useHitActions';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
 import { useMyLocalStorageProvider } from 'components/hooks/useMyLocalStorage';
 import json2mq from 'json2mq';
+import type { Analytic } from 'models/entities/generated/Analytic';
 import type { Hit } from 'models/entities/generated/Hit';
 import type { FC } from 'react';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Trans } from 'react-i18next';
+import { useContextSelector } from 'use-context-selector';
+import Throttler from 'utils/Throttler';
 import { StorageKey } from 'utils/constants';
 import { HitShortcuts } from './HitShortcuts';
 import ButtonActions from './actions/ButtonActions';
@@ -36,14 +43,30 @@ const HitActions: FC<{
   hit: Hit;
   orientation?: 'horizontal' | 'vertical';
 }> = ({ hit, orientation = 'horizontal' }) => {
-  const config = useMyApiConfig();
+  const config = useContext(ApiConfigContext);
   const { values, set } = useMyLocalStorageProvider();
+
+  const { getAnalyticFromName } = useContext(AnalyticContext);
+
+  const getCurrentView = useContextSelector(ViewContext, ctx => ctx.getCurrentView);
+
+  const selected = useContextSelector(ParameterContext, ctx => ctx?.selected);
+  const setSelected = useContextSelector(ParameterContext, ctx => ctx?.setSelected);
+  const clearSelectedHits = useContextSelector(HitContext, ctx => ctx.clearSelectedHits);
+  const nextHit = useContextSelector(HitSearchContext, ctx => {
+    if (!ctx?.response || !selected) {
+      return null;
+    }
+
+    return ctx.response.items[(ctx.response.items.findIndex(_hit => _hit.howler.id === selected) ?? -1) + 1] ?? null;
+  });
 
   const { availableTransitions, canVote, canAssess, loading, manage, assess, vote, selectedVote } = useHitActions([
     hit
   ]);
 
   const [openSetting, setOpenSetting] = useState<null | HTMLElement>(null);
+  const [analytic, setAnalytic] = useState<Analytic>(null);
 
   const shortcuts = useMemo(
     () =>
@@ -64,13 +87,23 @@ const HitActions: FC<{
         )),
       ...(canAssess &&
         config.config.lookups?.['howler.assessment']
+          .filter(_assessment =>
+            analytic?.triage_settings?.valid_assessments
+              ? analytic.triage_settings?.valid_assessments.includes(_assessment)
+              : true
+          )
           ?.sort((a, b) => +TOP_ROW.includes(b) - +TOP_ROW.includes(a))
           .reduce(
             (obj, assessment, index) => ({
               ...obj,
-              [ASSESSMENT_KEYBINDS[index]]: () => {
+              [ASSESSMENT_KEYBINDS[index]]: async () => {
                 if (!loading) {
-                  assess(assessment);
+                  await assess(assessment, analytic?.triage_settings?.skip_rationale);
+
+                  if (getCurrentView()?.settings?.advance_on_triage && nextHit) {
+                    clearSelectedHits(nextHit.howler.id);
+                    setSelected?.(nextHit.howler.id);
+                  }
                 }
               }
             }),
@@ -91,7 +124,22 @@ const HitActions: FC<{
         return obj;
       }, {} as Keybinds)
     }),
-    [assess, availableTransitions, canAssess, canVote, config.config.lookups, hit?.howler.status, loading, manage, vote]
+    [
+      analytic?.triage_settings,
+      assess,
+      availableTransitions,
+      canAssess,
+      canVote,
+      clearSelectedHits,
+      config.config.lookups,
+      getCurrentView,
+      hit?.howler.status,
+      loading,
+      manage,
+      nextHit,
+      setSelected,
+      vote
+    ]
   );
 
   const keyboardDownHandler = useCallback(
@@ -118,6 +166,13 @@ const HitActions: FC<{
       return () => window.removeEventListener('keydown', keyboardDownHandler);
     }
   }, [keyboardDownHandler]);
+
+  useEffect(() => {
+    (async () => {
+      setAnalytic(await getAnalyticFromName(hit.howler.analytic));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hit.howler.analytic]);
 
   const handleOpenSetting = useCallback((e: React.MouseEvent<HTMLElement>) => setOpenSetting(e.currentTarget), []);
   const handleCloseSetting = useCallback(() => setOpenSetting(null), []);
@@ -148,6 +203,7 @@ const HitActions: FC<{
         loading={loading}
         orientation={orientation}
         selectedVote={selectedVote}
+        validAssessments={analytic?.triage_settings?.valid_assessments}
         vote={vote}
       />
     ) : (
@@ -160,6 +216,7 @@ const HitActions: FC<{
         orientation={orientation}
         selectedVote={selectedVote}
         shortcuts={shortcuts}
+        validAssessments={analytic?.triage_settings?.valid_assessments}
         vote={vote}
       />
     );

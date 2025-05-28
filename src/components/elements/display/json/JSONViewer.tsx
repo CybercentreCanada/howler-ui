@@ -1,13 +1,13 @@
 import ReactJson, { type CollapsedFieldProps } from '@microlink/react-json-view';
 import { Clear } from '@mui/icons-material';
 import { IconButton, Skeleton, Stack } from '@mui/material';
-import { TuiPhrase } from 'commons/addons/controls';
-import Throttler from 'commons/addons/utils/Throttler';
 import { useAppTheme } from 'commons/components/app/hooks';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StorageKey } from 'utils/constants';
+import Throttler from 'utils/Throttler';
+import Phrase from '../../addons/search/phrase/Phrase';
 // eslint-disable-next-line import/no-unresolved
 import JSONWorker from './worker?worker';
 
@@ -80,7 +80,7 @@ const JSONViewer: FC<{ data: object; collapse?: boolean }> = ({ data, collapse =
 
   return data ? (
     <Stack direction="column" spacing={1} sx={{ '& > div:first-of-type': { mt: 1, mr: 0.5 } }}>
-      <TuiPhrase
+      <Phrase
         value={query}
         onChange={setQuery}
         error={hasError}

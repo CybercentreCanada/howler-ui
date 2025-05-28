@@ -22,10 +22,10 @@ import {
 import { useAppBar, useAppLayout, useAppUser } from 'commons/components/app/hooks';
 import type { AppTocItem } from 'commons/components/display/AppToc';
 import PageCenter from 'commons/components/pages/PageCenter';
-import useMyApiConfig from 'components/hooks/useMyApiConfig';
+import { ApiConfigContext } from 'components/app/providers/ApiConfigProvider';
 import { useScrollRestoration } from 'components/hooks/useScrollRestoration';
 import type { HowlerUser } from 'models/entities/HowlerUser';
-import { memo, useMemo, type FC, type ReactElement } from 'react';
+import { memo, useContext, useMemo, type FC, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import HelpTabs from './components/HelpTabs';
@@ -107,10 +107,7 @@ const TOC_CONFIGS: AppTocItem[] = [
   { id: 'reserved' }
 ];
 
-const Paragraph: FC<{ id: string; children: ReactElement | ReactElement[] }> = memo(function Paragraph({
-  id,
-  children
-}) {
+const Paragraph: FC<{ id: string; children: ReactElement | ReactElement[] }> = memo(({ id, children }) => {
   const { autoHide: autoHideAppbar } = useAppBar();
   const { current: currentLayout } = useAppLayout();
   return (
@@ -132,7 +129,7 @@ const SearchDocumentation: FC = () => {
   const { t } = useTranslation(['helpSearch']);
 
   const { user } = useAppUser<HowlerUser>();
-  const { config } = useMyApiConfig();
+  const { config } = useContext(ApiConfigContext);
   const location = useLocation();
   const theme = useTheme();
   const useHorizontal = useMediaQuery(theme.breakpoints.down(1700));

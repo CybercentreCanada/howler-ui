@@ -10,10 +10,10 @@ import {
   Typography
 } from '@mui/material';
 import api from 'api';
-import { TuiPhrase } from 'commons/addons/controls';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import { useAppUser } from 'commons/components/app/hooks';
 import PageCenter from 'commons/components/pages/PageCenter';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
+import Phrase from 'components/elements/addons/search/phrase/Phrase';
 import HowlerAvatar from 'components/elements/display/HowlerAvatar';
 import useMyApi from 'components/hooks/useMyApi';
 import OperationEntry from 'components/routes/action/shared/OperationEntry';
@@ -23,8 +23,8 @@ import type { Action } from 'models/entities/generated/Action';
 import { useCallback, useEffect, useState, type ChangeEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
+import QueryResultText from '../../../elements/display/QueryResultText';
 import ActionReportDisplay from '../shared/ActionReportDisplay';
-import QueryResultText from '../shared/QueryResultText';
 import useMyActionFunctions from '../useMyActionFunctions';
 
 const ActionDetails = () => {
@@ -89,7 +89,7 @@ const ActionDetails = () => {
           <Typography variant="h5">{action?.name}</Typography>
           {action?.owner_id && <HowlerAvatar sx={{ width: 32, height: 32 }} userId={action.owner_id} />}
         </Stack>
-        <TuiPhrase
+        <Phrase
           fullWidth
           value={action?.query}
           disabled

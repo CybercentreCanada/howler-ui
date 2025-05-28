@@ -90,7 +90,7 @@ const TemplateProvider: FC<PropsWithChildren> = ({ children }) => {
           _template =>
             // The analytic must match, and the detection must either a) not exist or b) match the hit
             _template.analytic === hit.howler.analytic &&
-            (!_template.detection || _template.detection === hit.howler.detection)
+            (!_template.detection || _template.detection.toLowerCase() === hit.howler.detection?.toLowerCase())
         )
         .sort((a, b) => {
           // Sort priority:

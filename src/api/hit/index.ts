@@ -23,13 +23,13 @@ export type HitActionResponse = {
   success: boolean;
 };
 
-export function uri(id?: string): string {
+export const uri = (id?: string): string => {
   return id ? joinAllUri(parentUri(), 'hit', id) : joinUri(parentUri(), 'hit');
-}
+};
 
-export function get(id: string): Promise<Hit> {
+export const get = (id: string): Promise<Hit> => {
   return hget(uri(id));
-}
+};
 
 interface PostResponse {
   valid: Hit[];
@@ -39,12 +39,12 @@ interface PostResponse {
   }[];
 }
 
-export function post(hits: Hit[]): Promise<PostResponse> {
+export const post = (hits: Hit[]): Promise<PostResponse> => {
   return hpost(uri(), hits);
-}
+};
 
-export function del(ids: string[]): Promise<{ success: boolean }> {
+export const del = (ids: string[]): Promise<{ success: boolean }> => {
   return hdelete(uri(), ids);
-}
+};
 
 export { assign, comments, labels, overwrite, transition };

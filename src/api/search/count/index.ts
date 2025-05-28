@@ -10,8 +10,8 @@ export interface HowlerCountResult {
   count: number;
 }
 
-export function uri() {
+export const uri = () => {
   return joinUri(parentUri(), 'count');
-}
+};
 
 export { hit };

@@ -8,5 +8,6 @@
   "route.help.actions.description": "Actions are a feature in Howler that allow users to perform particular tasks on a large number of hits, through automating the execution of a task on each hit. This document explains for to use actions in Howler.",
   "route.help.api.description": "An overview of the Howler API and its components.",
   "route.help.notebook.description": "Howler provides the option to add notebooks to analytics to aid in triaging hits and alerts. This document explains how to use notebooks in Howler.",
-  "route.help.overviews.description": "Howler provides the option to customize the presentation of data associated with an alert using overviews. This article explains the basics of creating and using overviews."
+  "route.help.overviews.description": "Howler provides the option to customize the presentation of data associated with an alert using overviews. This article explains the basics of creating and using overviews.",
+  "route.help.retention.description": "In order to comply with organizational policies, Howler is configured to purge stale alerts after a specific amount of time. This article explains how this retention mechanism works."
 }

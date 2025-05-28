@@ -14,12 +14,13 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import FlexOne from 'commons/addons/flexers/FlexOne';
 import PageCenter from 'commons/components/pages/PageCenter';
 import { AnalyticContext } from 'components/app/providers/AnalyticProvider';
+import { DossierContext } from 'components/app/providers/DossierProvider';
 import { HitContext } from 'components/app/providers/HitProvider';
 import { OverviewContext } from 'components/app/providers/OverviewProvider';
 import { TemplateContext } from 'components/app/providers/TemplateProvider';
+import FlexOne from 'components/elements/addons/layout/FlexOne';
 import HowlerCard from 'components/elements/display/HowlerCard';
 import BundleButton from 'components/elements/display/icons/BundleButton';
 import SocketBadge from 'components/elements/display/icons/SocketBadge';
@@ -30,14 +31,18 @@ import HitComments from 'components/elements/hit/HitComments';
 import HitDetails from 'components/elements/hit/HitDetails';
 import HitLabels from 'components/elements/hit/HitLabels';
 import { HitLayout } from 'components/elements/hit/HitLayout';
+import HitNotebooks from 'components/elements/hit/HitNotebooks';
 import HitOutline from 'components/elements/hit/HitOutline';
 import HitOverview from 'components/elements/hit/HitOverview';
 import HitRelated from 'components/elements/hit/HitRelated';
 import HitWorklog from 'components/elements/hit/HitWorklog';
+import PivotLink from 'components/elements/hit/related/PivotLink';
 import RelatedLink from 'components/elements/hit/related/RelatedLink';
 import { useMyLocalStorageItem } from 'components/hooks/useMyLocalStorage';
 import useMyUserList from 'components/hooks/useMyUserList';
+import uniqBy from 'lodash-es/uniqBy';
 import type { Analytic } from 'models/entities/generated/Analytic';
+import type { Dossier } from 'models/entities/generated/Dossier';
 import type { FC } from 'react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,6 +68,7 @@ const HitViewer: FC = () => {
   const refreshTemplates = useContextSelector(TemplateContext, ctx => ctx.refresh);
   const { getAnalyticFromName } = useContext(AnalyticContext);
   const { getMatchingOverview, refresh: refreshOverviews } = useContext(OverviewContext);
+  const getMatchingDossiers = useContextSelector(DossierContext, ctx => ctx.getMatchingDossiers);
 
   const getHit = useContextSelector(HitContext, ctx => ctx.getHit);
   const hit = useContextSelector(HitContext, ctx => ctx.hits[params.id]);
@@ -71,6 +77,7 @@ const HitViewer: FC = () => {
   const users = useMyUserList(userIds);
   const [tab, setTab] = useState<string>('details');
   const [analytic, setAnalytic] = useState<Analytic>();
+  const [dossiers, setDossiers] = useState<Dossier[]>([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -86,7 +93,8 @@ const HitViewer: FC = () => {
         navigate('/404');
       }
     }
-  }, [hit, getAnalyticFromName, getHit, params.id, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getAnalyticFromName, getHit, params.id, navigate]);
 
   useEffect(() => {
     if (isUnderLg) {
@@ -134,9 +142,25 @@ const HitViewer: FC = () => {
       hit_related: () => <HitRelated hit={hit} />,
       ...Object.fromEntries(
         hit?.howler.dossier?.map((lead, index) => ['lead:' + index, () => <LeadRenderer lead={lead} />]) ?? []
+      ),
+      ...Object.fromEntries(
+        dossiers.flatMap((_dossier, dossierIndex) =>
+          _dossier.leads?.map((_lead, leadIndex) => [
+            `external-lead:${dossierIndex}:${leadIndex}`,
+            () => <LeadRenderer lead={_lead} hit={hit} />
+          ])
+        )
       )
     }[tab]?.();
-  }, [hit, tab, users]);
+  }, [dossiers, hit, tab, users]);
+
+  useEffect(() => {
+    if (!hit) {
+      return;
+    }
+
+    getMatchingDossiers(hit.howler.id).then(setDossiers);
+  }, [getMatchingDossiers, hit]);
 
   if (!hit) {
     return (
@@ -178,10 +202,21 @@ const HitViewer: FC = () => {
               <HitBanner hit={hit} layout={HitLayout.COMFY} useListener />
               <HitOutline hit={hit} layout={HitLayout.COMFY} />
               <HitLabels hit={hit} />
-              {hit?.howler?.links?.length > 0 && (
-                <Stack direction="row" spacing={1}>
+              {(hit?.howler?.links?.length > 0 ||
+                analytic?.notebooks?.length > 0 ||
+                dossiers.filter(_dossier => _dossier.pivots?.length > 0).length > 0) && (
+                <Stack direction="row" spacing={1} pr={2}>
+                  {analytic?.notebooks?.length > 0 && <HitNotebooks analytic={analytic} hit={hit} />}
                   {hit?.howler?.links?.length > 0 &&
-                    hit.howler.links.slice(0, 3).map(l => <RelatedLink key={l.href + l.title} compact {...l} />)}
+                    uniqBy(hit.howler.links, 'href')
+                      .slice(0, 3)
+                      .map(l => <RelatedLink key={l.href} compact {...l} />)}
+                  {dossiers.flatMap(_dossier =>
+                    (_dossier.pivots ?? []).map((_pivot, index) => (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <PivotLink key={_dossier.dossier_id + index} pivot={_pivot} hit={hit} compact />
+                    ))
+                  )}
                 </Stack>
               )}
             </CardContent>
@@ -233,7 +268,8 @@ const HitViewer: FC = () => {
             <Tab label={t('hit.viewer.details')} value="details" onClick={() => setTab('details')} />
             {hit?.howler.dossier?.map((lead, index) => (
               <Tab
-                key={lead.label.en}
+                // eslint-disable-next-line react/no-array-index-key
+                key={'lead:' + index}
                 label={
                   <Stack direction="row" spacing={0.5}>
                     {lead.icon && <Icon icon={lead.icon} />}
@@ -244,6 +280,23 @@ const HitViewer: FC = () => {
                 onClick={() => setTab('lead:' + index)}
               />
             ))}
+
+            {dossiers.flatMap((_dossier, dossierIndex) =>
+              _dossier.leads?.map((_lead, leadIndex) => (
+                <Tab
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`external-lead:${dossierIndex}:${leadIndex}`}
+                  label={
+                    <Stack direction="row" spacing={0.5}>
+                      {_lead.icon && <Icon icon={_lead.icon} />}
+                      <span>{i18n.language === 'en' ? _lead.label.en : _lead.label.fr}</span>
+                    </Stack>
+                  }
+                  value={`external-lead:${dossierIndex}:${leadIndex}`}
+                  onClick={() => setTab(`external-lead:${dossierIndex}:${leadIndex}`)}
+                />
+              ))
+            )}
             <FlexOne />
             <Tab
               sx={{ px: 2, minWidth: 0 }}

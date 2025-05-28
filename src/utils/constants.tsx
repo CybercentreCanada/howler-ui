@@ -32,6 +32,7 @@ export const PROVIDER_COLORS = {
 };
 
 export enum StorageKey {
+  DISABLE_FEATURE_WARNING = 'disable.feature.warning',
   DEFAULT_VIEW = 'default.view',
   PROVIDER = 'provider',
   REFRESH_TOKEN = 'refresh_token',
@@ -61,7 +62,10 @@ export enum StorageKey {
   LAST_VIEW = 'last_view',
   ONLY_RULES = 'only_rules',
   PAGE_COUNT = 'page_count',
-  SEARCH_PANE_WIDTH = 'search_pane_width'
+  SEARCH_PANE_WIDTH = 'search_pane_width',
+  GRID_COLLAPSE_COLUMN = 'grid_collapse_column',
+  QUERY_HISTORY = 'query_history',
+  LOGIN_NONCE = 'login_nonce'
 }
 
 export const MOCK_SEARCH_QUERY_STORE = `${MY_LOCAL_STORAGE_PREFIX}.${StorageKey.MOCK_SEARCH_QUERY_STORE}`;

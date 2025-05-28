@@ -1,11 +1,13 @@
 import { useMonaco } from '@monaco-editor/react';
 import { Height, Search } from '@mui/icons-material';
 import { Badge, Box, Card, Skeleton, Tooltip, alpha, useTheme } from '@mui/material';
-import TuiIconButton from 'commons/addons/display/buttons/TuiIconButton';
 import { ParameterContext } from 'components/app/providers/ParameterProvider';
+import TuiIconButton from 'components/elements/addons/buttons/CustomIconButton';
 import QueryEditor from 'components/routes/advanced/QueryEditor';
 import type { IDisposable, editor } from 'monaco-editor';
 
+import HistoryIcon from '@mui/icons-material/History';
+import { HitSearchContext } from 'components/app/providers/HitSearchProvider';
 import type { FC } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,15 +16,24 @@ import { useContextSelector } from 'use-context-selector';
 import { sanitizeMultilineLucene } from 'utils/stringUtils';
 
 const DEFAULT_MULTILINE_HEIGHT = 250;
-const PROMPT_CONTEXT = '!suggestWidgetVisible && !renameInputVisible && !inSnippetMode && !quickFixWidgetVisible';
+const PROMPT_CONTEXT =
+  'isHitQuery && !suggestWidgetVisible && !renameInputVisible && !inSnippetMode && !quickFixWidgetVisible';
 
 export type HitQueryProps = {
   triggerSearch: (query: string) => void;
+  onChange?: (query: string, isDirty: boolean) => void;
   searching?: boolean;
   disabled?: boolean;
+  compact?: boolean;
 };
 
-const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, triggerSearch }) => {
+const HitQuery: FC<HitQueryProps> = ({
+  searching = false,
+  disabled = false,
+  compact = false,
+  triggerSearch,
+  onChange
+}) => {
   const { t } = useTranslation();
   const location = useLocation();
   const theme = useTheme();
@@ -33,6 +44,7 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
   const prevQuery = useRef<string | null>(null);
 
   const [query, setQuery] = useState(new URLSearchParams(window.location.search).get('query') || 'howler.id:*');
+  const fzfSearch = useContextSelector(HitSearchContext, ctx => ctx?.fzfSearch ?? false);
   const [loaded, setLoaded] = useState(false);
   const [multiline, setMultiline] = useState(false);
   const [y, setY] = useState(0);
@@ -42,6 +54,10 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
   const search = useCallback(() => triggerSearch(sanitizeMultilineLucene(query)), [query, triggerSearch]);
 
   const isDirty = useMemo(() => query !== savedQuery, [query, savedQuery]);
+
+  useEffect(() => {
+    onChange?.(query, isDirty);
+  }, [isDirty, onChange, query]);
 
   useEffect(() => {
     if (!monaco) {
@@ -111,7 +127,10 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
     window.addEventListener('mouseup', onMouseUp);
   }, [onMouseMove, onMouseUp]);
 
-  const onMount = useCallback(() => setLoaded(true), []);
+  const onMount = useCallback((ed: editor.IStandaloneCodeEditor) => {
+    ed.createContextKey('isHitQuery', true);
+    setLoaded(true);
+  }, []);
 
   const options: editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
@@ -153,7 +172,11 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
         isDirty &&
           new URLSearchParams(location.search).has('query') && {
             borderColor: 'warning.main'
-          }
+          },
+        compact && {
+          p: 0.5,
+          height: multiline ? `${DEFAULT_MULTILINE_HEIGHT + y}px` : theme.spacing(5)
+        }
       ]}
       onKeyDown={e => e.stopPropagation()}
     >
@@ -163,6 +186,7 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
         onClick={() => setMultiline(!multiline)}
         color={multiline ? 'primary' : theme.palette.text.primary}
         transparent={!multiline}
+        size={compact ? 'small' : 'medium'}
       >
         <Height sx={{ fontSize: '20px' }} />
       </TuiIconButton>
@@ -174,10 +198,16 @@ const HitQuery: FC<HitQueryProps> = ({ searching = false, disabled = false, trig
         onMount={onMount}
         editorOptions={options}
       />
+      {fzfSearch && (
+        <Tooltip title={t('route.history')}>
+          <HistoryIcon />
+        </Tooltip>
+      )}
       <TuiIconButton
         disabled={searching || disabled}
         onClick={search}
         sx={{ ml: 1, alignSelf: 'start', flexShrink: 0 }}
+        size={compact ? 'small' : 'medium'}
       >
         <Tooltip title={t('route.search')}>
           <Badge invisible={!isDirty} color="warning" variant="dot">
