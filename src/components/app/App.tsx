@@ -34,6 +34,7 @@ import AuthDocumentation from 'components/routes/help/AuthDocumentation';
 import ClientDocumentation from 'components/routes/help/ClientDocumentation';
 import HelpDashboard from 'components/routes/help/Help';
 import HitDocumentation from 'components/routes/help/HitDocumentation';
+import NotebookDocumentation from 'components/routes/help/NotebookDocumentation';
 import OverviewDocumentation from 'components/routes/help/OverviewDocumentation';
 import RetentionDocumentation from 'components/routes/help/RetentionDocumentation';
 import SearchDocumentation from 'components/routes/help/SearchDocumentation';
@@ -343,6 +344,10 @@ const router = createBrowserRouter([
       {
         path: 'help/actions',
         element: <ActionDocumentation />
+      },
+      {
+        path: 'help/notebook',
+        element: <NotebookDocumentation />
       },
       {
         path: 'help/overviews',
